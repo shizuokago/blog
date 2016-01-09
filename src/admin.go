@@ -62,7 +62,9 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	//exists user
 
 	//find article
-	//articles := selectArticle(0)
+	articles, err := selectArticle(r, 0)
+	if err != nil {
+	}
 
-	adminRender(w, "./templates/admin/top.tmpl", u)
+	adminRender(w, "./templates/admin/top.tmpl", articles)
 }

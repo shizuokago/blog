@@ -84,6 +84,23 @@ func getArticleKey(r *http.Request, id string) *datastore.Key {
 	return datastore.NewKey(c, KIND_ARTICLE, id, 0, nil)
 }
 
+func selectArticle(r *http.Request, page int) ([]Article, error) {
+
+	c := appengine.NewContext(r)
+
+	q := datastore.NewQuery("Article").
+		Order("- UpdatedAt")
+	var s []Article
+	err := ds.ExecuteQuery(c, q, &s)
+
+	//TODO 違う
+	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
+		return nil, verr.Root(err)
+	}
+
+	return s, nil
+}
+
 const KIND_HTML = "Html"
 
 type Html struct {
