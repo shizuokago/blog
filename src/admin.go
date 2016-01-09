@@ -9,6 +9,7 @@ import (
 )
 
 func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
+
 	tmpl, err := template.ParseFiles("./templates/admin/layout.tmpl", tName)
 	if err != nil {
 
@@ -57,6 +58,11 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, 301)
 		return
 	}
+
+	//exists user
+
+	//find article
+	//articles := selectArticle(0)
 
 	adminRender(w, "./templates/admin/top.tmpl", u)
 }

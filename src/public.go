@@ -5,22 +5,10 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-
-	"github.com/gorilla/mux"
 )
 
 func init() {
 
-	r := mux.NewRouter()
-
-	r.HandleFunc("/", topHandler).Methods("GET")
-	r.HandleFunc("/entry/{key}", entryHandler).Methods("GET")
-	r.HandleFunc("/engine/", engineHandler).Methods("GET")
-	r.HandleFunc("/admin/profile", profileHandler)
-	r.HandleFunc("/admin/", adminHandler).Methods("GET")
-
-	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
-	http.Handle("/", r)
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {

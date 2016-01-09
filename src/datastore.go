@@ -3,7 +3,10 @@ package main
 import (
 	verr "github.com/knightso/base/errors"
 	"github.com/knightso/base/gae/ds"
+	"io/ioutil"
 	"net/http"
+
+	"github.com/pborman/uuid"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
@@ -76,6 +79,11 @@ type Article struct {
 	ds.Meta
 }
 
+func getArticleKey(r *http.Request, id string) *datastore.Key {
+	c := appengine.NewContext(r)
+	return datastore.NewKey(c, KIND_ARTICLE, id, 0, nil)
+}
+
 const KIND_HTML = "Html"
 
 type Html struct {
@@ -86,14 +94,76 @@ type Html struct {
 const KIND_FILE = "File"
 
 type File struct {
-	Name string
 	Size int64
-	Mime string
 	ds.Meta
+}
+
+func getFileKey(r *http.Request, name string) *datastore.Key {
+	c := appengine.NewContext(r)
+	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
+}
+
+func createArticle(r *http.Request) error {
+
+	upload, header, err := r.FormFile("file")
+	if err != nil {
+		//add error handling
+		return err
+	}
+	defer upload.Close()
+
+	b, err := ioutil.ReadAll(upload)
+	if err != nil {
+		return err
+	}
+
+	c := appengine.NewContext(r)
+	id := uuid.New()
+
+	article := &Article{
+		Title: "New Title",
+	}
+	article.Key = getArticleKey(r, id)
+	err = ds.Put(c, article)
+	if err != nil {
+		return err
+	}
+
+	file := &File{
+		Size: int64(len(b)),
+	}
+
+	file.Key = getFileKey(r, id)
+	err = ds.Put(c, file)
+	if err != nil {
+		return err
+	}
+
+	fileData := &FileData{
+		Content: b,
+		Mime:    header.Header["Content-Type"][0],
+	}
+	fileData.SetKey(getFileDataKey(r, id))
+	return ds.Put(c, fileData)
 }
 
 const KIND_FILEDATA = "FileData"
 
 type FileData struct {
+	key     *datastore.Key
+	Mime    string
 	Content []byte
+}
+
+func (d *FileData) GetKey() *datastore.Key {
+	return d.key
+}
+
+func (d *FileData) SetKey(k *datastore.Key) {
+	d.key = k
+}
+
+func getFileDataKey(r *http.Request, name string) *datastore.Key {
+	c := appengine.NewContext(r)
+	return datastore.NewKey(c, KIND_FILEDATA, name, 0, nil)
 }
