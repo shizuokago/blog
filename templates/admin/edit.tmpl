@@ -1,0 +1,52 @@
+{{define "body"}}
+<style>
+
+div.mdl-grid {
+    height:60px;
+}
+div.mdl-textfield {
+    width:200px;
+}
+
+</style>
+
+
+<div class="mdl-grid">
+
+  <div class="mdl-cell mdl-cell--11-col">
+
+    <form action="/admin/article/edit/{{.Key.StringID}}" id="slideForm" method="post">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" name="Title" id="title" value="{{.Title}}"/>
+        <label class="mdl-textfield__label" for="title">Title...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="sub" name="SubTitle" value="{{.SubTitle}}"/>
+        <label class="mdl-textfield__label" for="sub">SubTitle...</label>
+      </div>
+
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="tags" name="Tags" value="{{.Tags}}"/>
+        <label class="mdl-textfield__label" for="tags">Tags...</label>
+      </div>
+
+      <button id="save" class="mdl-button mdl-js-button mdl-button--raised"> 
+          Save 
+      </button>
+
+      <button id="publish" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Publish
+      </button>
+
+    </form>
+  </div>
+
+</div>
+
+<script>
+$(document).ready(function() {
+
+});
+</script>
+
+{{end}}

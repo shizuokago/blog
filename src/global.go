@@ -35,6 +35,7 @@ func init() {
 	r.HandleFunc("/admin/", adminHandler).Methods("GET")
 
 	r.HandleFunc("/admin/article/create", createArticleHandler).Methods("POST")
+	r.HandleFunc("/admin/article/edit/{key}", editArticleHandler).Methods("Get")
 
 	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 	http.Handle("/", r)

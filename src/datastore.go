@@ -101,6 +101,19 @@ func selectArticle(r *http.Request, page int) ([]Article, error) {
 	return s, nil
 }
 
+func getArticle(r *http.Request, id string) (*Article, error) {
+	c := appengine.NewContext(r)
+
+	rtn := Article{}
+	key := getArticleKey(r, id)
+
+	err := ds.Get(c, key, &rtn)
+	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
+		return nil, verr.Root(err)
+	}
+	return &rtn, nil
+}
+
 const KIND_HTML = "Html"
 
 type Html struct {
@@ -120,18 +133,18 @@ func getFileKey(r *http.Request, name string) *datastore.Key {
 	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
 }
 
-func createArticle(r *http.Request) error {
+func createArticle(r *http.Request) (string, error) {
 
 	upload, header, err := r.FormFile("file")
 	if err != nil {
 		//add error handling
-		return err
+		return "", err
 	}
 	defer upload.Close()
 
 	b, err := ioutil.ReadAll(upload)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	c := appengine.NewContext(r)
@@ -143,7 +156,7 @@ func createArticle(r *http.Request) error {
 	article.Key = getArticleKey(r, id)
 	err = ds.Put(c, article)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	file := &File{
@@ -153,7 +166,7 @@ func createArticle(r *http.Request) error {
 	file.Key = getFileKey(r, id)
 	err = ds.Put(c, file)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	fileData := &FileData{
@@ -161,7 +174,12 @@ func createArticle(r *http.Request) error {
 		Mime:    header.Header["Content-Type"][0],
 	}
 	fileData.SetKey(getFileDataKey(r, id))
-	return ds.Put(c, fileData)
+	err = ds.Put(c, fileData)
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
 }
 
 const KIND_FILEDATA = "FileData"

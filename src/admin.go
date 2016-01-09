@@ -48,6 +48,8 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)
+
+	log.Infof(c, "Test")
 	u := user.Current(c)
 
 	if u == nil {
@@ -61,10 +63,12 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	//exists user
 
+	log.Infof(c, "Article")
 	//find article
 	articles, err := selectArticle(r, 0)
 	if err != nil {
 	}
 
+	log.Infof(c, "Render")
 	adminRender(w, "./templates/admin/top.tmpl", articles)
 }
