@@ -39,9 +39,9 @@ func getUser(r *http.Request) (*User, error) {
 	c := appengine.NewContext(r)
 
 	rtn := User{}
-	rtn.Key = getUserKey(r)
+	key := getUserKey(r)
 
-	err := ds.Get(c, rtn.Key, &rtn)
+	err := ds.Get(c, key, &rtn)
 	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
 		return nil, verr.Root(err)
 	}
@@ -183,4 +183,17 @@ func (d *FileData) SetKey(k *datastore.Key) {
 func getFileDataKey(r *http.Request, name string) *datastore.Key {
 	c := appengine.NewContext(r)
 	return datastore.NewKey(c, KIND_FILEDATA, name, 0, nil)
+}
+
+func getFileData(r *http.Request, name string) (*FileData, error) {
+	c := appengine.NewContext(r)
+
+	rtn := FileData{}
+	key := getFileDataKey(r, name)
+
+	err := ds.Get(c, key, &rtn)
+	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
+		return nil, verr.Root(err)
+	}
+	return &rtn, nil
 }

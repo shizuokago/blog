@@ -28,6 +28,8 @@ func init() {
 
 	r.HandleFunc("/", topHandler).Methods("GET")
 	r.HandleFunc("/entry/{key}", entryHandler).Methods("GET")
+	r.HandleFunc("/file/{key}", fileHandler).Methods("GET")
+
 	r.HandleFunc("/engine/", engineHandler).Methods("GET")
 	r.HandleFunc("/admin/profile", profileHandler)
 	r.HandleFunc("/admin/", adminHandler).Methods("GET")
