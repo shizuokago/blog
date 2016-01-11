@@ -16,12 +16,15 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	//Get PageNum
 
 	//Get PageList
+	articles, err := selectArticle(r, 0)
+	if err != nil {
+	}
 
 	tmpl := filepath.Join("./", "templates/index.tmpl")
 	tmplObj, err := template.ParseFiles(tmpl)
 	if err != nil {
 	}
-	tmplObj.Execute(w, nil)
+	tmplObj.Execute(w, articles)
 }
 
 func entryHandler(w http.ResponseWriter, r *http.Request) {
