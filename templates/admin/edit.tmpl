@@ -1,9 +1,6 @@
 {{define "body"}}
 <style>
 
-div.mdl-grid {
-    height:60px;
-}
 div.mdl-textfield {
     width:200px;
 }
@@ -13,25 +10,6 @@ div.mdl-textfield {
 
 <form action="/admin/article/edit/{{.Key.StringID}}" id="slideForm" method="post">
 <div class="mdl-grid">
-
-  <div class="mdl-cell mdl-cell--12-col">
-
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" name="Title" id="title" value="{{.Title}}"/>
-        <label class="mdl-textfield__label" for="title">Title...</label>
-      </div>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="sub" name="SubTitle" value="{{.SubTitle}}"/>
-        <label class="mdl-textfield__label" for="sub">SubTitle...</label>
-      </div>
-
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="tags" name="Tags" value="{{.Tags}}"/>
-        <label class="mdl-textfield__label" for="tags">Tags...</label>
-      </div>
-
-  </div>
-
 
   <div class="mdl-cell mdl-cell--6-col" style="height:100%;">
       <textarea id="Markdown" name="Markdown" style="width:100%;">{{ .Markdown }}</textarea>
@@ -48,8 +26,41 @@ div.mdl-textfield {
 <script src="/static/js/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
-    $("#Markdown").css("height","500px");
+
+    $(window).resize(function() {
+        $("#Markdown").css("height","500px");
+    });
+
 });
 </script>
+
+{{end}}
+
+{{define "header_menu"}}
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" name="Title" id="title" value="{{.Title}}"/>
+        <label class="mdl-textfield__label" for="title">Title...</label>
+      </div>
+
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="tags" name="Tags" value="{{.Tags}}"/>
+        <label class="mdl-textfield__label" for="tags">Tags...</label>
+      </div>
+{{end}}
+
+{{define "footer_menu"}}
+
+
+<li>
+<!-- Accent-colored raised button with ripple -->
+<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+save
+</button>
+<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+publish
+</button>
+</li>
+
+
 
 {{end}}
