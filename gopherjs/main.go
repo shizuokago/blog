@@ -2,29 +2,28 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"github.com/gopherjs/gopherjs/js"
+	"github.com/gopherjs/jquery"
 	"golang.org/x/tools/present"
 	"html/template"
 	"strings"
 )
 
+var jQuery = jquery.NewJQuery
 var gblTmpl *template.Template
 
 func init() {
-	gblTmpl := present.Template()
+	gblTmpl = present.Template()
 	gblTmpl.Funcs(template.FuncMap{"playable": playable})
-
 	_, err := gblTmpl.Parse(ARTICLE_TMPL)
 	if err != nil {
-		fmt.Println("Template#Parse")
 		panic(err)
 	}
+
 }
 
 func parseArticle(article string) (*present.Doc, error) {
 	r := strings.NewReader(article)
-	return present.Parse(r, "test", 0)
+	return present.Parse(r, "root", 0)
 }
 
 func render(doc *present.Doc) (*bytes.Buffer, error) {
@@ -38,10 +37,12 @@ func render(doc *present.Doc) (*bytes.Buffer, error) {
 
 func isMain() {
 
-	js.Global.Get("modified").Call("addEventListener", "click", func() {
+	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
 		doc, _ := parseArticle(ARTICLE)
 		w, _ := render(doc)
-		println(w.String())
+		//	println(w.String())
+
+		jQuery(OUTPUT).Contents().Find("html").SetHtml(w.String())
 	})
 }
 
@@ -49,14 +50,18 @@ func playable(c present.Code) bool {
 	return present.PlayEnabled && c.Play && c.Ext == ".go"
 }
 
-const ARTICLE_TMPL = `
+const (
+	INPUT        = "textarea#content"
+	BUTTON       = "button#save"
+	OUTPUT       = "iframe#result"
+	ARTICLE_TMPL = `
 {/* This is the article template. It defines how articles are formatted. */}
 {{define "root"}}
 <!DOCTYPE html>
 <html>
   <head>
     <title>{{.Title}}</title>
-    <link type="text/css" rel="stylesheet" href="/article.css">
+    <link type="text/css" rel="stylesheet" href="./article.css">
     <meta charset='utf-8'>
   </head>
 
@@ -160,7 +165,7 @@ It determines how the formatting actions are rendered.
 {{define "caption"}}<figcaption>{{style .Text}}</figcaption>{{end}}
 `
 
-const ARTICLE = `
+	ARTICLE = `
 Title
 Sub Title
 2 Jan 2015
@@ -178,3 +183,4 @@ Description
 
 * More Page
 `
+)
