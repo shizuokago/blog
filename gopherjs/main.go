@@ -36,7 +36,7 @@ func render(doc *present.Doc) (*bytes.Buffer, error) {
 	return w, nil
 }
 
-func main() {
+func isMain() {
 
 	js.Global.Get("modified").Call("addEventListener", "click", func() {
 		doc, _ := parseArticle(ARTICLE)

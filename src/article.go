@@ -30,3 +30,7 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	adminRender(w, "./templates/admin/edit.tmpl", art)
 }
+
+// save
+
+// publish

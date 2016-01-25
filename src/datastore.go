@@ -17,6 +17,14 @@ func init() {
 	ds.DefaultCache = true
 }
 
+const KIND_BLOG = "Blog"
+
+type Blog struct {
+	Name       string
+	Background string
+	ds.Meta
+}
+
 const KIND_USER = "User"
 
 type User struct {
