@@ -1,5 +1,7 @@
 package main
 
+//Editor
+
 import (
 	"bytes"
 	"github.com/gopherjs/jquery"
@@ -38,7 +40,7 @@ func render(doc *present.Doc) (*bytes.Buffer, error) {
 func main() {
 
 	jQuery("document").Ready(func() {
-		jQuery(INPUT).SetText(ARTICLE)
+		//jQuery(INPUT).SetText(ARTICLE)
 		redraw()
 	})
 
@@ -60,6 +62,8 @@ func playable(c present.Code) bool {
 }
 
 const (
+	DOCUMENT     = "document"
+	WINDOW       = "window"
 	INPUT        = "textarea#editor"
 	BUTTON       = "button#save"
 	OUTPUT       = "iframe#result"
