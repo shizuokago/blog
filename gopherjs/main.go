@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-var jQuery = jquery.NewJQuery
 var gblTmpl *template.Template
+var jQuery = jquery.NewJQuery
 
 func init() {
 	gblTmpl = present.Template()
@@ -35,15 +35,24 @@ func render(doc *present.Doc) (*bytes.Buffer, error) {
 	return w, nil
 }
 
-func isMain() {
+func main() {
+
+	jQuery("document").Ready(func() {
+		jQuery(INPUT).SetText(ARTICLE)
+		redraw()
+	})
 
 	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
-		doc, _ := parseArticle(ARTICLE)
-		w, _ := render(doc)
-		//	println(w.String())
-
-		jQuery(OUTPUT).Contents().Find("html").SetHtml(w.String())
+		redraw()
 	})
+}
+
+func redraw() {
+
+	doc, _ := parseArticle(jQuery(INPUT).Val())
+
+	w, _ := render(doc)
+	jQuery(OUTPUT).Contents().Find("html").SetHtml(w.String())
 }
 
 func playable(c present.Code) bool {
@@ -51,7 +60,7 @@ func playable(c present.Code) bool {
 }
 
 const (
-	INPUT        = "textarea#content"
+	INPUT        = "textarea#editor"
 	BUTTON       = "button#save"
 	OUTPUT       = "iframe#result"
 	ARTICLE_TMPL = `

@@ -1,4 +1,4 @@
-package main
+package blog
 
 import (
 	verr "github.com/knightso/base/errors"
