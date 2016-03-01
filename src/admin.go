@@ -12,16 +12,13 @@ func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
 	tmpl, err := template.ParseFiles("./templates/admin/layout.tmpl", tName)
 	if err != nil {
-
 		//error page
-
 		return
 	}
+
 	err = tmpl.Execute(w, obj)
 	if err != nil {
-
 		//error page
-
 		return
 	}
 }

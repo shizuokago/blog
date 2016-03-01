@@ -82,7 +82,7 @@ type Article struct {
 	Title    string
 	SubTitle string
 	Tags     string
-	Markdown string
+	Markdown datastore.ByteString
 	ds.Meta
 }
 
@@ -125,7 +125,7 @@ func getArticle(r *http.Request, id string) (*Article, error) {
 const KIND_HTML = "Html"
 
 type Html struct {
-	Content string
+	Content datastore.ByteString
 	ds.Meta
 }
 
@@ -159,7 +159,8 @@ func createArticle(r *http.Request) (string, error) {
 	id := uuid.New()
 
 	article := &Article{
-		Title: "New Title",
+		Title:    "New Title",
+		Markdown: []byte("* Section1"),
 	}
 	article.Key = getArticleKey(r, id)
 	err = ds.Put(c, article)

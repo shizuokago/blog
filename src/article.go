@@ -11,6 +11,7 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := createArticle(r)
 	if err != nil {
 	}
+
 	// Render Editor
 	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
 }
@@ -27,8 +28,25 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		c := appengine.NewContext(r)
 		log.Infof(c, err.Error())
+		//NOT FOUND
+		return
 	}
-	adminRender(w, "./templates/admin/edit.tmpl", art)
+
+	u, err := getUser(r)
+	if err != nil {
+		c := appengine.NewContext(r)
+		log.Infof(c, err.Error())
+		//NOT FOUND
+		return
+	}
+
+	s := struct {
+		Article  *Article
+		User     *User
+		Markdown string
+	}{art, u, string(art.Markdown)}
+
+	adminRender(w, "./templates/admin/edit.tmpl", s)
 }
 
 // save

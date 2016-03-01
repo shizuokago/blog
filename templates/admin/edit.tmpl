@@ -7,10 +7,9 @@ div.mdl-textfield {
 
 </style>
 
+<form action="/admin/article/edit/{{.Article.Key.StringID}}" id="slideForm" method="post">
 
-<form action="/admin/article/edit/{{.Key.StringID}}" id="slideForm" method="post">
 <div class="mdl-grid">
-
   <div class="mdl-cell mdl-cell--6-col" id="left">
       <textarea id="editor" name="editor" style="width:100%;">{{ .Markdown }}</textarea>
   </div>
@@ -18,8 +17,8 @@ div.mdl-textfield {
   <div class="mdl-cell mdl-cell--6-col" id="right">
       <iframe id="result"></iframe>
   </div>
-
 </div>
+
 
 </form>
 
@@ -31,14 +30,21 @@ div.mdl-textfield {
 
 {{define "header_menu"}}
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" name="Title" id="title" value="{{.Title}}"/>
+        <input class="mdl-textfield__input" type="text" name="Title" id="Title" value="{{.Article.Title}}"/>
         <label class="mdl-textfield__label" for="title">Title...</label>
       </div>
 
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="tags" name="Tags" value="{{.Tags}}"/>
+        <input class="mdl-textfield__input" type="text" id="Tags" name="Tags" value="{{.Article.Tags}}"/>
         <label class="mdl-textfield__label" for="tags">Tags...</label>
       </div>
+
+<input type="hidden" id="Name" value="{{.User.Name}}"/>
+<input type="hidden" id="Job" value="{{.User.Job}}"/>
+<input type="hidden" id="Email" value="{{.User.Email}}"/>
+<input type="hidden" id="URL" value="{{.User.URL}}"/>
+<input type="hidden" id="TwitterId" value="{{.User.TwitterId}}"/>
+
 {{end}}
 
 {{define "footer_menu"}}

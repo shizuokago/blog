@@ -26,7 +26,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 func parseArticle(article string) (*present.Doc, error) {
@@ -46,7 +45,6 @@ func render(doc *present.Doc) (*bytes.Buffer, error) {
 func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
-		jQuery(INPUT).SetText(ARTICLE)
 		redraw()
 		resize()
 	})
@@ -75,11 +73,30 @@ func resize() {
 
 func redraw() {
 
-	doc, _ := parseArticle(jQuery(INPUT).Val())
+	title := jQuery(TITLE).Val()
+	//sub
+	//date
+	//tags
+
+	author := jQuery(AUTHOR).Val()
+	job := jQuery(JOB).Val()
+	mail := jQuery(EMAIL).Val()
+	url := jQuery(URL).Val()
+	twitter := "@" + jQuery(TWITTER).Val()
+
+	header := title + "\n\n" +
+		author + "\n" +
+		job + "\n" +
+		mail + "\n" +
+		url + "\n" +
+		twitter + "\n"
+
+	md := jQuery(INPUT).Val()
+
+	art := header + "\n" + md
+	doc, _ := parseArticle(art)
 
 	w, _ := render(doc)
-
-	println(w.String())
 
 	jQuery(OUTPUT).Contents().Find("html").SetHtml(w.String())
 }
@@ -89,6 +106,13 @@ func playable(c present.Code) bool {
 }
 
 const (
+	TITLE        = "input#Title"
+	TAGS         = "input#Tags"
+	AUTHOR       = "input#Name"
+	JOB          = "input#Job"
+	EMAIL        = "input#Email"
+	URL          = "input#URL"
+	TWITTER      = "input#TwitterId"
 	DOCUMENT     = "document"
 	INPUT        = "textarea#editor"
 	BUTTON       = "button#save"
@@ -204,24 +228,5 @@ It determines how the formatting actions are rendered.
 {{define "html"}}{{.HTML}}{{end}}
 
 {{define "caption"}}<figcaption>{{style .Text}}</figcaption>{{end}}
-`
-
-	ARTICLE = `
-Title
-Sub Title
-2 Jan 2015
-Tags:test
-
-secondarykey
-Programer
-secondarykey@gmail.com
-http://github.com/secondarykey
-@secondarykey
-
-* Page
-
-Description
-
-* More Page
 `
 )
