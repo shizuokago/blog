@@ -46,17 +46,3 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	tmplObj.Execute(w, nil)
 }
-
-func engineHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/favicon.ico" {
-		http.Error(w, "not found", 404)
-		return
-	}
-	const base = "."
-	name := filepath.Join(base, r.URL.Path)
-	err := renderDoc(w, name)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), 500)
-	}
-}

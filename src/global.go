@@ -30,7 +30,6 @@ func init() {
 	r.HandleFunc("/entry/{key}", entryHandler).Methods("GET")
 	r.HandleFunc("/file/{key}", fileHandler).Methods("GET")
 
-	r.HandleFunc("/engine/", engineHandler).Methods("GET")
 	r.HandleFunc("/admin/profile", profileHandler)
 	r.HandleFunc("/admin/", adminHandler).Methods("GET")
 
@@ -58,21 +57,4 @@ func initTemplates(base string) error {
 	}
 	articleTemplate = tmpl
 	return nil
-}
-
-func renderDoc(w io.Writer, docFile string) error {
-	doc, err := parse(docFile, 0)
-	if err != nil {
-		return err
-	}
-	return doc.Render(w, articleTemplate)
-}
-
-func parse(name string, mode present.ParseMode) (*present.Doc, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return present.Parse(f, name, 0)
 }
