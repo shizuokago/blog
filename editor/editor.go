@@ -1,12 +1,17 @@
 package main
 
-//Editor
+//Editor Generate
+//
+//  # gopherjs build editor.go
+//  # mv editor*js* ../static/js
+//
 
 import (
 	"bytes"
 	"github.com/gopherjs/jquery"
 	"golang.org/x/tools/present"
 	"html/template"
+	"strconv"
 	"strings"
 )
 
@@ -39,14 +44,27 @@ func render(doc *present.Doc) (*bytes.Buffer, error) {
 
 func main() {
 
-	jQuery("document").Ready(func() {
-		//jQuery(INPUT).SetText(ARTICLE)
+	jQuery(DOCUMENT).Ready(func() {
+		jQuery(INPUT).SetText(ARTICLE)
 		redraw()
+		resize()
 	})
+
+	/*
+		jQuery(WINDOW).Resize(jquery.RESIZE, func(e jquery.Event) {
+			resize()
+		})
+	*/
 
 	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
 		redraw()
 	})
+}
+
+func resize() {
+	height := jQuery(WINDOW).Height()
+	jQuery(INPUT).SetHeight(strconv.Itoa(height))
+	jQuery(OUTPUT).SetHeight(strconv.Itoa(height))
 }
 
 func redraw() {
@@ -54,6 +72,9 @@ func redraw() {
 	doc, _ := parseArticle(jQuery(INPUT).Val())
 
 	w, _ := render(doc)
+
+	println(w.String())
+
 	jQuery(OUTPUT).Contents().Find("html").SetHtml(w.String())
 }
 

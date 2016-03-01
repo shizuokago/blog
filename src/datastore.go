@@ -20,8 +20,7 @@ func init() {
 const KIND_BLOG = "Blog"
 
 type Blog struct {
-	Name       string
-	Background string
+	Name string
 	ds.Meta
 }
 
@@ -98,6 +97,7 @@ func selectArticle(r *http.Request, page int) ([]Article, error) {
 
 	q := datastore.NewQuery("Article").
 		Order("- UpdatedAt")
+
 	var s []Article
 	err := ds.ExecuteQuery(c, q, &s)
 
