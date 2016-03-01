@@ -62,9 +62,16 @@ func main() {
 }
 
 func resize() {
+
 	height := jQuery(WINDOW).Height()
-	jQuery(INPUT).SetHeight(strconv.Itoa(height))
-	jQuery(OUTPUT).SetHeight(strconv.Itoa(height))
+
+	println(height)
+
+	jQuery(LEFT).SetHeight(strconv.Itoa(height - 150))
+	jQuery(RIGHT).SetHeight(strconv.Itoa(height - 150))
+
+	jQuery(INPUT).SetHeight(strconv.Itoa(height - 150))
+	jQuery(OUTPUT).SetHeight(strconv.Itoa(height - 150))
 }
 
 func redraw() {
@@ -84,10 +91,12 @@ func playable(c present.Code) bool {
 
 const (
 	DOCUMENT     = "document"
-	WINDOW       = "window"
+	WINDOW       = "main#main"
 	INPUT        = "textarea#editor"
 	BUTTON       = "button#save"
 	OUTPUT       = "iframe#result"
+	LEFT         = "div#left"
+	RIGHT        = "div#right"
 	ARTICLE_TMPL = `
 {/* This is the article template. It defines how articles are formatted. */}
 {{define "root"}}

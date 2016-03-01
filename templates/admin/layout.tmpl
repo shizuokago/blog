@@ -1,9 +1,12 @@
 <html>
   <head>
   <title>Blog Manager</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="/static/css/material.min.css">
-  <script defer src="/static/js/material.min.js"></script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-pink.min.css">
+
+    <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
+
   </head>
 
   <body style="background-color:#f6f6f6;">
@@ -33,7 +36,7 @@
     </nav>
   </div>
 
-  <main class="mdl-layout__content">
+  <main id="main" class="mdl-layout__content">
     <div class="page-content">
         {{template "body" .}}
     </div>
