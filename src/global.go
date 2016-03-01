@@ -2,10 +2,8 @@ package blog
 
 import (
 	"html/template"
-	"io"
 	"mime"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"github.com/gorilla/mux"
