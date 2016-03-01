@@ -8,6 +8,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
 	"golang.org/x/tools/present"
 	"html/template"
@@ -50,11 +51,9 @@ func main() {
 		resize()
 	})
 
-	/*
-		jQuery(WINDOW).Resize(jquery.RESIZE, func(e jquery.Event) {
-			resize()
-		})
-	*/
+	jQuery(js.Global).Resize(func(e jquery.Event) {
+		resize()
+	})
 
 	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
 		redraw()
@@ -63,15 +62,15 @@ func main() {
 
 func resize() {
 
-	height := jQuery(WINDOW).Height()
+	height := jQuery(js.Global).Height()
 
-	println(height)
+	margin := 215
 
-	jQuery(LEFT).SetHeight(strconv.Itoa(height - 150))
-	jQuery(RIGHT).SetHeight(strconv.Itoa(height - 150))
+	jQuery(LEFT).SetHeight(strconv.Itoa(height - margin))
+	jQuery(RIGHT).SetHeight(strconv.Itoa(height - margin))
 
-	jQuery(INPUT).SetHeight(strconv.Itoa(height - 150))
-	jQuery(OUTPUT).SetHeight(strconv.Itoa(height - 150))
+	jQuery(INPUT).SetHeight(strconv.Itoa(height - margin))
+	jQuery(OUTPUT).SetHeight(strconv.Itoa(height - margin))
 }
 
 func redraw() {
@@ -91,7 +90,6 @@ func playable(c present.Code) bool {
 
 const (
 	DOCUMENT     = "document"
-	WINDOW       = "main#main"
 	INPUT        = "textarea#editor"
 	BUTTON       = "button#save"
 	OUTPUT       = "iframe#result"
