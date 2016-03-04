@@ -7,7 +7,7 @@ div.mdl-textfield {
 
 </style>
 
-<form action="/admin/article/edit/{{.Article.Key.StringID}}" id="slideForm" method="post">
+<form action="/admin/article/save/{{.Article.Key.StringID}}" id="slideForm" method="post">
 
 <div class="mdl-grid">
   <div class="mdl-cell mdl-cell--6-col" id="left">
@@ -44,6 +44,7 @@ div.mdl-textfield {
 <input type="hidden" id="Email" value="{{.User.Email}}"/>
 <input type="hidden" id="URL" value="{{.User.URL}}"/>
 <input type="hidden" id="TwitterId" value="{{.User.TwitterId}}"/>
+<input type="hidden" id="ID" value="{{.Article.Key.StringID}}"/>
 
 {{end}}
 

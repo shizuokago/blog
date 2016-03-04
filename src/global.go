@@ -34,6 +34,8 @@ func init() {
 	r.HandleFunc("/admin/article/create", createArticleHandler).Methods("POST")
 	r.HandleFunc("/admin/article/edit/{key}", editArticleHandler).Methods("Get")
 
+	r.HandleFunc("/admin/article/save/{key}", saveArticleHandler).Methods("POST")
+
 	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 	http.Handle("/", r)
 }

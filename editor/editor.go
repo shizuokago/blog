@@ -2,6 +2,8 @@ package main
 
 //Editor Generate
 //
+//  # loading template(article.tmpl,action.tmpl)
+//
 //  # gopherjs build editor.go
 //  # mv editor*js* ../static/js
 //
@@ -53,8 +55,29 @@ func main() {
 		resize()
 	})
 
-	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
+	jQuery(INPUT).On(jquery.KEYDOWN, func(e jquery.Event) {
 		redraw()
+	})
+
+	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
+
+		id := jQuery(ARTICLE_ID).Val()
+		//Title,Tags,Markdown
+		ajaxopt := map[string]interface{}{
+			"async":       true,
+			"type":        "POST",
+			"url":         "/admin/article/save/" + id,
+			"contentType": "application/json charset=utf-8",
+			"dataType":    "json",
+			"data":        nil,
+			"success": func(data map[string]interface{}) {
+			},
+			"error": func(status interface{}) {
+			},
+		}
+		//ajax call:
+		jquery.Ajax(ajaxopt)
+
 	})
 }
 
@@ -74,6 +97,7 @@ func resize() {
 func redraw() {
 
 	title := jQuery(TITLE).Val()
+
 	//sub
 	//date
 	//tags
@@ -113,6 +137,7 @@ const (
 	EMAIL        = "input#Email"
 	URL          = "input#URL"
 	TWITTER      = "input#TwitterId"
+	ARTICLE_ID   = "input#ID"
 	DOCUMENT     = "document"
 	INPUT        = "textarea#editor"
 	BUTTON       = "button#save"

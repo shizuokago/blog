@@ -5147,7 +5147,7 @@ $packages["bytes"] = (function() {
 	return $pkg;
 })();
 $packages["github.com/gopherjs/jquery"] = (function() {
-	var $pkg = {}, $init, js, JQuery, Event, JQueryCoordinates, sliceType, funcType$1, mapType, sliceType$1, funcType$2, funcType$3, ptrType, sliceType$2, ptrType$1, NewJQuery;
+	var $pkg = {}, $init, js, JQuery, Event, JQueryCoordinates, Deferred, sliceType, funcType$1, mapType, sliceType$1, funcType$2, funcType$3, ptrType, sliceType$2, ptrType$1, NewJQuery, Ajax;
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	JQuery = $pkg.JQuery = $newType(0, $kindStruct, "jquery.JQuery", "JQuery", "github.com/gopherjs/jquery", function(o_, Jquery_, Selector_, Length_, Context_) {
 		this.$val = this;
@@ -5208,6 +5208,14 @@ $packages["github.com/gopherjs/jquery"] = (function() {
 		}
 		this.Left = Left_;
 		this.Top = Top_;
+	});
+	Deferred = $pkg.Deferred = $newType(0, $kindStruct, "jquery.Deferred", "Deferred", "github.com/gopherjs/jquery", function(Object_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.Object = null;
+			return;
+		}
+		this.Object = Object_;
 	});
 	sliceType = $sliceType($emptyInterface);
 	funcType$1 = $funcType([$Int, $emptyInterface], [], false);
@@ -6061,11 +6069,78 @@ $packages["github.com/gopherjs/jquery"] = (function() {
 		return j.o.serializeArray();
 	};
 	JQuery.prototype.SerializeArray = function() { return this.$val.SerializeArray(); };
+	Ajax = function(options) {
+		var $ptr, options;
+		return new Deferred.ptr($global.jQuery.ajax($externalize(options, mapType)));
+	};
+	$pkg.Ajax = Ajax;
+	Deferred.ptr.prototype.Promise = function() {
+		var $ptr, d;
+		d = $clone(this, Deferred);
+		return d.Object.promise();
+	};
+	Deferred.prototype.Promise = function() { return this.$val.Promise(); };
+	Deferred.ptr.prototype.Then = function(fn) {
+		var $ptr, d, fn, obj;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr((obj = d.Object, obj.then.apply(obj, $externalize(fn, sliceType))));
+	};
+	Deferred.prototype.Then = function(fn) { return this.$val.Then(fn); };
+	Deferred.ptr.prototype.Always = function(fn) {
+		var $ptr, d, fn, obj;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr((obj = d.Object, obj.always.apply(obj, $externalize(fn, sliceType))));
+	};
+	Deferred.prototype.Always = function(fn) { return this.$val.Always(fn); };
+	Deferred.ptr.prototype.Done = function(fn) {
+		var $ptr, d, fn, obj;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr((obj = d.Object, obj.done.apply(obj, $externalize(fn, sliceType))));
+	};
+	Deferred.prototype.Done = function(fn) { return this.$val.Done(fn); };
+	Deferred.ptr.prototype.Fail = function(fn) {
+		var $ptr, d, fn, obj;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr((obj = d.Object, obj.fail.apply(obj, $externalize(fn, sliceType))));
+	};
+	Deferred.prototype.Fail = function(fn) { return this.$val.Fail(fn); };
+	Deferred.ptr.prototype.Progress = function(fn) {
+		var $ptr, d, fn;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr(d.Object.progress($externalize(fn, $emptyInterface)));
+	};
+	Deferred.prototype.Progress = function(fn) { return this.$val.Progress(fn); };
+	Deferred.ptr.prototype.State = function() {
+		var $ptr, d;
+		d = $clone(this, Deferred);
+		return $internalize(d.Object.state(), $String);
+	};
+	Deferred.prototype.State = function() { return this.$val.State(); };
+	Deferred.ptr.prototype.Resolve = function(i) {
+		var $ptr, d, i, obj;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr((obj = d.Object, obj.resolve.apply(obj, $externalize(i, sliceType))));
+	};
+	Deferred.prototype.Resolve = function(i) { return this.$val.Resolve(i); };
+	Deferred.ptr.prototype.Reject = function(i) {
+		var $ptr, d, i, obj;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr((obj = d.Object, obj.reject.apply(obj, $externalize(i, sliceType))));
+	};
+	Deferred.prototype.Reject = function(i) { return this.$val.Reject(i); };
+	Deferred.ptr.prototype.Notify = function(i) {
+		var $ptr, d, i;
+		d = $clone(this, Deferred);
+		return new Deferred.ptr(d.Object.notify($externalize(i, $emptyInterface)));
+	};
+	Deferred.prototype.Notify = function(i) { return this.$val.Notify(i); };
 	JQuery.methods = [{prop: "Each", name: "Each", pkg: "", typ: $funcType([funcType$1], [JQuery], false)}, {prop: "Call", name: "Call", pkg: "", typ: $funcType([$String, sliceType], [JQuery], true)}, {prop: "Underlying", name: "Underlying", pkg: "", typ: $funcType([], [ptrType], false)}, {prop: "Get", name: "Get", pkg: "", typ: $funcType([sliceType], [ptrType], true)}, {prop: "Append", name: "Append", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Empty", name: "Empty", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Detach", name: "Detach", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Eq", name: "Eq", pkg: "", typ: $funcType([$Int], [JQuery], false)}, {prop: "FadeIn", name: "FadeIn", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Delay", name: "Delay", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "ToArray", name: "ToArray", pkg: "", typ: $funcType([], [sliceType], false)}, {prop: "Remove", name: "Remove", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Stop", name: "Stop", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "AddBack", name: "AddBack", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Css", name: "Css", pkg: "", typ: $funcType([$String], [$String], false)}, {prop: "CssArray", name: "CssArray", pkg: "", typ: $funcType([sliceType$1], [mapType], true)}, {prop: "SetCss", name: "SetCss", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Text", name: "Text", pkg: "", typ: $funcType([], [$String], false)}, {prop: "SetText", name: "SetText", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "Val", name: "Val", pkg: "", typ: $funcType([], [$String], false)}, {prop: "SetVal", name: "SetVal", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "Prop", name: "Prop", pkg: "", typ: $funcType([$String], [$emptyInterface], false)}, {prop: "SetProp", name: "SetProp", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "RemoveProp", name: "RemoveProp", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "Attr", name: "Attr", pkg: "", typ: $funcType([$String], [$String], false)}, {prop: "SetAttr", name: "SetAttr", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "RemoveAttr", name: "RemoveAttr", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "HasClass", name: "HasClass", pkg: "", typ: $funcType([$String], [$Bool], false)}, {prop: "AddClass", name: "AddClass", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "RemoveClass", name: "RemoveClass", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "ToggleClass", name: "ToggleClass", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Focus", name: "Focus", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Blur", name: "Blur", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "ReplaceAll", name: "ReplaceAll", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "ReplaceWith", name: "ReplaceWith", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "After", name: "After", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Before", name: "Before", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Prepend", name: "Prepend", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "PrependTo", name: "PrependTo", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "AppendTo", name: "AppendTo", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "InsertAfter", name: "InsertAfter", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "InsertBefore", name: "InsertBefore", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "Show", name: "Show", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Hide", name: "Hide", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Toggle", name: "Toggle", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Contents", name: "Contents", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Html", name: "Html", pkg: "", typ: $funcType([], [$String], false)}, {prop: "SetHtml", name: "SetHtml", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "Closest", name: "Closest", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "End", name: "End", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Add", name: "Add", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Clone", name: "Clone", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Height", name: "Height", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "SetHeight", name: "SetHeight", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "Width", name: "Width", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "SetWidth", name: "SetWidth", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "InnerHeight", name: "InnerHeight", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "InnerWidth", name: "InnerWidth", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Offset", name: "Offset", pkg: "", typ: $funcType([], [JQueryCoordinates], false)}, {prop: "SetOffset", name: "SetOffset", pkg: "", typ: $funcType([JQueryCoordinates], [JQuery], false)}, {prop: "OuterHeight", name: "OuterHeight", pkg: "", typ: $funcType([sliceType$2], [$Int], true)}, {prop: "OuterWidth", name: "OuterWidth", pkg: "", typ: $funcType([sliceType$2], [$Int], true)}, {prop: "Position", name: "Position", pkg: "", typ: $funcType([], [JQueryCoordinates], false)}, {prop: "ScrollLeft", name: "ScrollLeft", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "SetScrollLeft", name: "SetScrollLeft", pkg: "", typ: $funcType([$Int], [JQuery], false)}, {prop: "ScrollTop", name: "ScrollTop", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "SetScrollTop", name: "SetScrollTop", pkg: "", typ: $funcType([$Int], [JQuery], false)}, {prop: "ClearQueue", name: "ClearQueue", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "SetData", name: "SetData", pkg: "", typ: $funcType([$String, $emptyInterface], [JQuery], false)}, {prop: "Data", name: "Data", pkg: "", typ: $funcType([$String], [$emptyInterface], false)}, {prop: "Dequeue", name: "Dequeue", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "RemoveData", name: "RemoveData", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "OffsetParent", name: "OffsetParent", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Parent", name: "Parent", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Parents", name: "Parents", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "ParentsUntil", name: "ParentsUntil", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Prev", name: "Prev", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "PrevAll", name: "PrevAll", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "PrevUntil", name: "PrevUntil", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Siblings", name: "Siblings", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Slice", name: "Slice", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Children", name: "Children", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "Unwrap", name: "Unwrap", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Wrap", name: "Wrap", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "WrapAll", name: "WrapAll", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "WrapInner", name: "WrapInner", pkg: "", typ: $funcType([$emptyInterface], [JQuery], false)}, {prop: "Next", name: "Next", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "NextAll", name: "NextAll", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "NextUntil", name: "NextUntil", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Not", name: "Not", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Filter", name: "Filter", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Find", name: "Find", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "First", name: "First", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Has", name: "Has", pkg: "", typ: $funcType([$String], [JQuery], false)}, {prop: "Is", name: "Is", pkg: "", typ: $funcType([sliceType], [$Bool], true)}, {prop: "Last", name: "Last", pkg: "", typ: $funcType([], [JQuery], false)}, {prop: "Ready", name: "Ready", pkg: "", typ: $funcType([funcType$3], [JQuery], false)}, {prop: "Resize", name: "Resize", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Scroll", name: "Scroll", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "FadeOut", name: "FadeOut", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "FadeToggle", name: "FadeToggle", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "SlideDown", name: "SlideDown", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "SlideToggle", name: "SlideToggle", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "SlideUp", name: "SlideUp", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Select", name: "Select", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Submit", name: "Submit", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Trigger", name: "Trigger", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "On", name: "On", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "One", name: "One", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Off", name: "Off", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Load", name: "Load", pkg: "", typ: $funcType([sliceType], [JQuery], true)}, {prop: "Serialize", name: "Serialize", pkg: "", typ: $funcType([], [$String], false)}, {prop: "SerializeArray", name: "SerializeArray", pkg: "", typ: $funcType([], [ptrType], false)}];
 	ptrType$1.methods = [{prop: "PreventDefault", name: "PreventDefault", pkg: "", typ: $funcType([], [], false)}, {prop: "IsDefaultPrevented", name: "IsDefaultPrevented", pkg: "", typ: $funcType([], [$Bool], false)}, {prop: "IsImmediatePropogationStopped", name: "IsImmediatePropogationStopped", pkg: "", typ: $funcType([], [$Bool], false)}, {prop: "IsPropagationStopped", name: "IsPropagationStopped", pkg: "", typ: $funcType([], [$Bool], false)}, {prop: "StopImmediatePropagation", name: "StopImmediatePropagation", pkg: "", typ: $funcType([], [], false)}, {prop: "StopPropagation", name: "StopPropagation", pkg: "", typ: $funcType([], [], false)}];
+	Deferred.methods = [{prop: "Promise", name: "Promise", pkg: "", typ: $funcType([], [ptrType], false)}, {prop: "Then", name: "Then", pkg: "", typ: $funcType([sliceType], [Deferred], true)}, {prop: "Always", name: "Always", pkg: "", typ: $funcType([sliceType], [Deferred], true)}, {prop: "Done", name: "Done", pkg: "", typ: $funcType([sliceType], [Deferred], true)}, {prop: "Fail", name: "Fail", pkg: "", typ: $funcType([sliceType], [Deferred], true)}, {prop: "Progress", name: "Progress", pkg: "", typ: $funcType([$emptyInterface], [Deferred], false)}, {prop: "State", name: "State", pkg: "", typ: $funcType([], [$String], false)}, {prop: "Resolve", name: "Resolve", pkg: "", typ: $funcType([sliceType], [Deferred], true)}, {prop: "Reject", name: "Reject", pkg: "", typ: $funcType([sliceType], [Deferred], true)}, {prop: "Notify", name: "Notify", pkg: "", typ: $funcType([$emptyInterface], [Deferred], false)}];
 	JQuery.init([{prop: "o", name: "o", pkg: "github.com/gopherjs/jquery", typ: ptrType, tag: ""}, {prop: "Jquery", name: "Jquery", pkg: "", typ: $String, tag: "js:\"jquery\""}, {prop: "Selector", name: "Selector", pkg: "", typ: $String, tag: "js:\"selector\""}, {prop: "Length", name: "Length", pkg: "", typ: $Int, tag: "js:\"length\""}, {prop: "Context", name: "Context", pkg: "", typ: $String, tag: "js:\"context\""}]);
 	Event.init([{prop: "Object", name: "", pkg: "", typ: ptrType, tag: ""}, {prop: "KeyCode", name: "KeyCode", pkg: "", typ: $Int, tag: "js:\"keyCode\""}, {prop: "Target", name: "Target", pkg: "", typ: ptrType, tag: "js:\"target\""}, {prop: "CurrentTarget", name: "CurrentTarget", pkg: "", typ: ptrType, tag: "js:\"currentTarget\""}, {prop: "DelegateTarget", name: "DelegateTarget", pkg: "", typ: ptrType, tag: "js:\"delegateTarget\""}, {prop: "RelatedTarget", name: "RelatedTarget", pkg: "", typ: ptrType, tag: "js:\"relatedTarget\""}, {prop: "Data", name: "Data", pkg: "", typ: ptrType, tag: "js:\"data\""}, {prop: "Result", name: "Result", pkg: "", typ: ptrType, tag: "js:\"result\""}, {prop: "Which", name: "Which", pkg: "", typ: $Int, tag: "js:\"which\""}, {prop: "Namespace", name: "Namespace", pkg: "", typ: $String, tag: "js:\"namespace\""}, {prop: "MetaKey", name: "MetaKey", pkg: "", typ: $Bool, tag: "js:\"metaKey\""}, {prop: "PageX", name: "PageX", pkg: "", typ: $Int, tag: "js:\"pageX\""}, {prop: "PageY", name: "PageY", pkg: "", typ: $Int, tag: "js:\"pageY\""}, {prop: "Type", name: "Type", pkg: "", typ: $String, tag: "js:\"type\""}]);
 	JQueryCoordinates.init([{prop: "Left", name: "Left", pkg: "", typ: $Int, tag: ""}, {prop: "Top", name: "Top", pkg: "", typ: $Int, tag: ""}]);
+	Deferred.init([{prop: "Object", name: "", pkg: "", typ: ptrType, tag: ""}]);
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -47873,7 +47948,7 @@ $packages["golang.org/x/tools/present"] = (function() {
 	return $pkg;
 })();
 $packages["main"] = (function() {
-	var $pkg = {}, $init, bytes, js, jquery, present, template, strconv, strings, ptrType, funcType, sliceType, ptrType$1, sliceType$1, funcType$1, gblTmpl, jQuery, init, parseArticle, render, main, resize, redraw, playable;
+	var $pkg = {}, $init, bytes, js, jquery, present, template, strconv, strings, ptrType, funcType, sliceType, ptrType$1, sliceType$1, funcType$1, mapType, funcType$2, funcType$3, gblTmpl, jQuery, init, parseArticle, render, main, resize, redraw, playable;
 	bytes = $packages["bytes"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	jquery = $packages["github.com/gopherjs/jquery"];
@@ -47887,6 +47962,9 @@ $packages["main"] = (function() {
 	ptrType$1 = $ptrType(bytes.Buffer);
 	sliceType$1 = $sliceType($emptyInterface);
 	funcType$1 = $funcType([jquery.Event], [], false);
+	mapType = $mapType($String, $emptyInterface);
+	funcType$2 = $funcType([mapType], [], false);
+	funcType$3 = $funcType([$emptyInterface], [], false);
 	init = function() {
 		var $ptr, _r, _r$1, _r$2, _tuple, err, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _tuple = $f._tuple; err = $f.err; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -47924,8 +48002,8 @@ $packages["main"] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: render }; } $f.$ptr = $ptr; $f._r = _r; $f.doc = doc; $f.err = err; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	main = function() {
-		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; _r$6 = $f._r$6; _r$7 = $f._r$7; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		_r = jQuery(new sliceType$1([new $String("document")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r$1 = _r.Ready((function $b() {
 			var $ptr, $s, $r;
@@ -47944,8 +48022,8 @@ $packages["main"] = (function() {
 			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
 		}))])); /* */ $s = 4; case 4: if($c) { $c = false; _r$3 = _r$3.$blk(); } if (_r$3 && _r$3.$blk !== undefined) { break s; }
 		_r$3;
-		_r$4 = jQuery(new sliceType$1([new $String("button#save")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
-		_r$5 = _r$4.On(new sliceType$1([new $String("click"), new funcType$1((function $b(e) {
+		_r$4 = jQuery(new sliceType$1([new $String("textarea#editor")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
+		_r$5 = _r$4.On(new sliceType$1([new $String("keydown"), new funcType$1((function $b(e) {
 			var $ptr, e, $s, $r;
 			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			e = $clone(e, jquery.Event);
@@ -47953,7 +48031,24 @@ $packages["main"] = (function() {
 			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
 		}))])); /* */ $s = 6; case 6: if($c) { $c = false; _r$5 = _r$5.$blk(); } if (_r$5 && _r$5.$blk !== undefined) { break s; }
 		_r$5;
-		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._r$3 = _r$3; $f._r$4 = _r$4; $f._r$5 = _r$5; $f.$s = $s; $f.$r = $r; return $f;
+		_r$6 = jQuery(new sliceType$1([new $String("button#save")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
+		_r$7 = _r$6.On(new sliceType$1([new $String("click"), new funcType$1((function $b(e) {
+			var $ptr, _r$7, _r$8, ajaxopt, e, id, $s, $r;
+			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r$7 = $f._r$7; _r$8 = $f._r$8; ajaxopt = $f.ajaxopt; e = $f.e; id = $f.id; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+			e = $clone(e, jquery.Event);
+			_r$7 = jQuery(new sliceType$1([new $String("input#ID")])); /* */ $s = 1; case 1: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
+			_r$8 = _r$7.Val(); /* */ $s = 2; case 2: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
+			id = _r$8;
+			ajaxopt = $makeMap($String.keyFor, [{ k: "async", v: new $Bool(true) }, { k: "type", v: new $String("POST") }, { k: "url", v: new $String("/admin/article/save/" + id) }, { k: "contentType", v: new $String("application/json charset=utf-8") }, { k: "dataType", v: new $String("json") }, { k: "data", v: $ifaceNil }, { k: "success", v: new funcType$2((function(data) {
+				var $ptr, data;
+			})) }, { k: "error", v: new funcType$3((function(status) {
+				var $ptr, status;
+			})) }]);
+			jquery.Ajax(ajaxopt);
+			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f._r$7 = _r$7; $f._r$8 = _r$8; $f.ajaxopt = ajaxopt; $f.e = e; $f.id = id; $f.$s = $s; $f.$r = $r; return $f;
+		}))])); /* */ $s = 8; case 8: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
+		_r$7;
+		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._r$3 = _r$3; $f._r$4 = _r$4; $f._r$5 = _r$5; $f._r$6 = _r$6; $f._r$7 = _r$7; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	resize = function() {
 		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, _r$8, _r$9, height, margin, $s, $r;

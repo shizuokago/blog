@@ -49,6 +49,10 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 	adminRender(w, "./templates/admin/edit.tmpl", s)
 }
 
-// save
+func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
 
-// publish
+	vars := mux.Vars(r)
+	id := vars["key"]
+
+	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
+}
