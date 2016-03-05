@@ -8,10 +8,13 @@
 	"github.com/knightso/base"
 	"github.com/pborman/uuid"
 
-## Editor Generate
+## Original
+
+    backgroung image
+
+## Deploy
 
 ```bash
-  gopherjs build editor.go
-  mv editor*js* ../static/js
+    go run cmd/deploy.go title "Blog Name"
 ```
 
