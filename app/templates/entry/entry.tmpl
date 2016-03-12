@@ -49,9 +49,22 @@
         </div>
         <div class="demo-blog__posts mdl-grid">
           <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+
             <div class="mdl-card__media mdl-color-text--grey-50">
             <h3>{{.Title}}</h3>
             </div>
+
+
+
+        {{if .Authors}}
+          {{range .Authors}}
+            <div class="author">
+              {{range .Elem}}{{elem $.Template .}}{{end}}
+            </div>
+          {{end}}
+        {{end}}
+
             <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
               <div class="minilogo"></div>
               <div>
@@ -74,7 +87,12 @@
                 <span class="visuallyhidden">share</span>
               </div>
             </div>
-            <div class="mdl-color-text--grey-700 mdl-card__supporting-text">
+
+
+
+
+
+            <div class="mdl-color-text--grey-700 mdl-card" style="padding-left:20px">
 
         {{with .Sections}}
           <div id="toc">
@@ -86,14 +104,6 @@
           {{elem $.Template .}}
         {{end}}{{/* of Section block */}}
 
-        {{if .Authors}}
-          <h2>Authors</h2>
-          {{range .Authors}}
-            <div class="author">
-              {{range .Elem}}{{elem $.Template .}}{{end}}
-            </div>
-          {{end}}
-        {{end}}
 
             </div>
 

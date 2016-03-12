@@ -22,11 +22,9 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 	name := vars["key"]
 
 	c := appengine.NewContext(r)
-	log.Infof(c, name)
 
 	art, err := getArticle(r, name)
 	if err != nil {
-		c := appengine.NewContext(r)
 		log.Infof(c, err.Error())
 		//NOT FOUND
 		return
@@ -34,7 +32,6 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	u, err := getUser(r)
 	if err != nil {
-		c := appengine.NewContext(r)
 		log.Infof(c, err.Error())
 		//NOT FOUND
 		return
@@ -54,5 +51,31 @@ func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["key"]
 
-	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
+	c := appengine.NewContext(r)
+
+	//http.Redirect(w, r, "/admin/article/edit/"+id, 301)
+	err := updateArticle(r, id)
+	if err != nil {
+		log.Infof(c, err.Error())
+		return
+	}
+	return
+}
+
+func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["key"]
+
+	//http.Redirect(w, r, "/admin/article/edit/"+id, 301)
+	err := updateArticle(r, id)
+	if err != nil {
+		c := appengine.NewContext(r)
+		log.Infof(c, err.Error())
+		return
+	}
+
+	//create html entity
+
+	return
 }

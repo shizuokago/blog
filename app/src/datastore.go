@@ -122,11 +122,45 @@ func getArticle(r *http.Request, id string) (*Article, error) {
 	return &rtn, nil
 }
 
+func updateArticle(r *http.Request, id string) error {
+
+	r.ParseForm()
+	title := r.FormValue("Title")
+	tags := r.FormValue("Tags")
+	mark := datastore.ByteString(r.FormValue("Markdown"))
+
+	art, err := getArticle(r, id)
+	if err != nil {
+		return err
+	}
+
+	c := appengine.NewContext(r)
+
+	art.Title = title
+	art.Tags = tags
+	art.Markdown = mark
+
+	err = ds.Put(c, art)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 const KIND_HTML = "Html"
 
 type Html struct {
-	Content datastore.ByteString
+	Title    string
+	SubTitle string
 	ds.Meta
+}
+
+const KIND_HTML_DATA = "HtmlData"
+
+type HtmlData struct {
+	key     *datastore.Key
+	Content datastore.ByteString
 }
 
 const KIND_FILE = "File"

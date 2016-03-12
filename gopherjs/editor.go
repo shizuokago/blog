@@ -59,22 +59,31 @@ func main() {
 		redraw()
 	})
 
-	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
+	jQuery(PUBLISH).On(jquery.CLICK, func(e jquery.Event) {
+
+	})
+
+	jQuery(SAVE).On(jquery.CLICK, func(e jquery.Event) {
 
 		id := jQuery(ARTICLE_ID).Val()
-		//Title,Tags,Markdown
-		ajaxopt := map[string]interface{}{
-			"async":       true,
-			"type":        "POST",
-			"url":         "/admin/article/save/" + id,
-			"contentType": "application/json charset=utf-8",
-			"dataType":    "json",
-			"data":        nil,
+		data := js.M{
+			"Title":    jQuery(TITLE).Val(),
+			"Tags":     jQuery(TAGS).Val(),
+			"Markdown": jQuery(INPUT).Val(),
+		}
+		ajaxopt := js.M{
+			"async":    true,
+			"type":     "POST",
+			"url":      "/admin/article/save/" + id,
+			"dataType": "json",
+			"data":     data,
 			"success": func(data map[string]interface{}) {
 			},
 			"error": func(status interface{}) {
 			},
 		}
+
+		println(ajaxopt)
 		//ajax call:
 		jquery.Ajax(ajaxopt)
 
@@ -140,7 +149,8 @@ const (
 	ARTICLE_ID = "input#ID"
 	DOCUMENT   = "document"
 	INPUT      = "textarea#editor"
-	BUTTON     = "button#save"
+	SAVE       = "button#save"
+	PUBLISH    = "button#publish"
 	OUTPUT     = "iframe#result"
 	LEFT       = "div#left"
 	RIGHT      = "div#right"

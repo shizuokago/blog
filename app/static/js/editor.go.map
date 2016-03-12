@@ -59,22 +59,31 @@ func main() {
 		redraw()
 	})
 
-	jQuery(BUTTON).On(jquery.CLICK, func(e jquery.Event) {
+	jQuery(PUBLISH).On(jquery.CLICK, func(e jquery.Event) {
+
+	})
+
+	jQuery(SAVE).On(jquery.CLICK, func(e jquery.Event) {
 
 		id := jQuery(ARTICLE_ID).Val()
-		//Title,Tags,Markdown
-		ajaxopt := map[string]interface{}{
-			"async":       true,
-			"type":        "POST",
-			"url":         "/admin/article/save/" + id,
-			"contentType": "application/json charset=utf-8",
-			"dataType":    "json",
-			"data":        nil,
+		data := js.M{
+			"Title":    jQuery(TITLE).Val(),
+			"Tags":     jQuery(TAGS).Val(),
+			"Markdown": jQuery(INPUT).Val(),
+		}
+		ajaxopt := js.M{
+			"async":    true,
+			"type":     "POST",
+			"url":      "/admin/article/save/" + id,
+			"dataType": "json",
+			"data":     data,
 			"success": func(data map[string]interface{}) {
 			},
 			"error": func(status interface{}) {
 			},
 		}
+
+		println(ajaxopt)
 		//ajax call:
 		jquery.Ajax(ajaxopt)
 
@@ -140,7 +149,8 @@ const (
 	ARTICLE_ID = "input#ID"
 	DOCUMENT   = "document"
 	INPUT      = "textarea#editor"
-	BUTTON     = "button#save"
+	SAVE       = "button#save"
+	PUBLISH    = "button#publish"
 	OUTPUT     = "iframe#result"
 	LEFT       = "div#left"
 	RIGHT      = "div#right"
@@ -196,9 +206,22 @@ const (
         </div>
         <div class="demo-blog__posts mdl-grid">
           <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+
             <div class="mdl-card__media mdl-color-text--grey-50">
             <h3>{{.Title}}</h3>
             </div>
+
+
+
+        {{if .Authors}}
+          {{range .Authors}}
+            <div class="author">
+              {{range .Elem}}{{elem $.Template .}}{{end}}
+            </div>
+          {{end}}
+        {{end}}
+
             <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
               <div class="minilogo"></div>
               <div>
@@ -221,7 +244,12 @@ const (
                 <span class="visuallyhidden">share</span>
               </div>
             </div>
-            <div class="mdl-color-text--grey-700 mdl-card__supporting-text">
+
+
+
+
+
+            <div class="mdl-color-text--grey-700 mdl-card" style="padding-left:20px">
 
         {{with .Sections}}
           <div id="toc">
@@ -233,14 +261,6 @@ const (
           {{elem $.Template .}}
         {{end}}{{/* of Section block */}}
 
-        {{if .Authors}}
-          <h2>Authors</h2>
-          {{range .Authors}}
-            <div class="author">
-              {{range .Elem}}{{elem $.Template .}}{{end}}
-            </div>
-          {{end}}
-        {{end}}
 
             </div>
 
@@ -371,7 +391,7 @@ It determines how the formatting actions are rendered.
 */}
 
 {{define "section"}}
-  <h{{len .Number}} id="TOC_{{.FormattedNumber}}">{{.FormattedNumber}} {{.Title}}</h{{len .Number}}>
+  <h{{len .Number}} id="TOC_{{.FormattedNumber}}">{{.Title}}</h{{len .Number}}>
   {{range .Elem}}{{elem $.Template .}}{{end}}
 {{end}}
 
@@ -413,5 +433,6 @@ It determines how the formatting actions are rendered.
 {{define "html"}}{{.HTML}}{{end}}
 
 {{define "caption"}}<figcaption>{{style .Text}}</figcaption>{{end}}
+
 `
 )

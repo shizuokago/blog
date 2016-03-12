@@ -33,9 +33,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 func entryHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Get Key
-	//vars := mux.Vars(r)
-
-	//Find Article
+	//vars := mux.Vars("Key")
 
 	//Render
 

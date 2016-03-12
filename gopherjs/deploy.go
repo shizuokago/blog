@@ -67,8 +67,8 @@ func createGoFile() error {
 }
 
 func generateJSFile() error {
-	// gopehrjs build -m editor.go.map
-	err := Command("gopherjs", "build", "-m", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
+	//err := Command("gopherjs", "build", "-m", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
+	err := Command("gopherjs", "build", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
 	if err != nil {
 		fmt.Println("GopherJS build error")
 		return err
