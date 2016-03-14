@@ -46,8 +46,8 @@
         <div class="demo-blog__posts mdl-grid">
 
 {{ range . }}
-          <div style="background-image:url('');" class="mdl-card mdl-cell mdl-cell--12-col">
-            <div class="mdl-card__media mdl-color-text--grey-50">
+<div class="mdl-card mdl-cell mdl-cell--12-col">
+    <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/{{.Key.StringID}}');">
                 <h3><a href="/entry/{{.Key.StringID}}">{{.Title}}</a></h3>
             </div>
             <div class="mdl-color-text--grey-600 mdl-card__supporting-text">

@@ -2,13 +2,9 @@ package main
 
 //Editor Generate
 //
-//  # loading template(article.tmpl,action.tmpl)
-//
-//  # gopherjs build editor.go
-//  # mv editor*js* ../static/js
-//
 
 import (
+	"bufio"
 	"bytes"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
@@ -28,20 +24,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func parseArticle(article string) (*present.Doc, error) {
-	r := strings.NewReader(article)
-	return present.Parse(r, "root", 0)
-}
-
-func render(doc *present.Doc) (*bytes.Buffer, error) {
-	w := bytes.NewBuffer([]byte{})
-	err := doc.Render(w, gblTmpl)
-	if err != nil {
-		return nil, err
-	}
-	return w, nil
 }
 
 func main() {
@@ -127,15 +109,39 @@ func redraw() {
 	md := jQuery(INPUT).Val()
 
 	art := header + "\n" + md
-	doc, _ := parseArticle(art)
+	ctx := present.Context{ReadFile: readFile}
 
-	w, _ := render(doc)
+	reader := strings.NewReader(art)
+	doc, err := ctx.Parse(reader, "blog.article", 0)
+	if err != nil {
+		return
+	}
 
-	jQuery(OUTPUT).Contents().Find("html").SetHtml(w.String())
+	rtn := struct {
+		*present.Doc
+		Template    *template.Template
+		PlayEnabled bool
+		StringID    string
+	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val()}
+	//Render
+	var b bytes.Buffer
+	writer := bufio.NewWriter(&b)
+	err = gblTmpl.ExecuteTemplate(writer, "root", rtn)
+	if err != nil {
+		return
+	}
+	writer.Flush()
+
+	jQuery(OUTPUT).Contents().Find("html").SetHtml(string(b.Bytes()))
 }
 
 func playable(c present.Code) bool {
 	return present.PlayEnabled && c.Play && c.Ext == ".go"
+}
+
+func readFile(name string) ([]byte, error) {
+	//select file data
+	return nil, nil
 }
 
 const (

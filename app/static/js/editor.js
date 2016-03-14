@@ -2896,11 +2896,12 @@ $packages["sync"] = (function() {
 	return $pkg;
 })();
 $packages["io"] = (function() {
-	var $pkg = {}, $init, errors, sync, Reader, Writer, RuneReader, stringWriter, sliceType, errWhence, errOffset, WriteString, ReadAtLeast, ReadFull;
+	var $pkg = {}, $init, errors, sync, Reader, Writer, ReaderFrom, RuneReader, stringWriter, sliceType, errWhence, errOffset, WriteString, ReadAtLeast, ReadFull;
 	errors = $packages["errors"];
 	sync = $packages["sync"];
 	Reader = $pkg.Reader = $newType(8, $kindInterface, "io.Reader", "Reader", "io", null);
 	Writer = $pkg.Writer = $newType(8, $kindInterface, "io.Writer", "Writer", "io", null);
+	ReaderFrom = $pkg.ReaderFrom = $newType(8, $kindInterface, "io.ReaderFrom", "ReaderFrom", "io", null);
 	RuneReader = $pkg.RuneReader = $newType(8, $kindInterface, "io.RuneReader", "RuneReader", "io", null);
 	stringWriter = $pkg.stringWriter = $newType(8, $kindInterface, "io.stringWriter", "stringWriter", "io", null);
 	sliceType = $sliceType($Uint8);
@@ -2977,6 +2978,7 @@ $packages["io"] = (function() {
 	$pkg.ReadFull = ReadFull;
 	Reader.init([{prop: "Read", name: "Read", pkg: "", typ: $funcType([sliceType], [$Int, $error], false)}]);
 	Writer.init([{prop: "Write", name: "Write", pkg: "", typ: $funcType([sliceType], [$Int, $error], false)}]);
+	ReaderFrom.init([{prop: "ReadFrom", name: "ReadFrom", pkg: "", typ: $funcType([Reader], [$Int64, $error], false)}]);
 	RuneReader.init([{prop: "ReadRune", name: "ReadRune", pkg: "", typ: $funcType([], [$Int32, $Int, $error], false)}]);
 	stringWriter.init([{prop: "WriteString", name: "WriteString", pkg: "", typ: $funcType([$String], [$Int, $error], false)}]);
 	$init = function() {
@@ -5148,6 +5150,622 @@ $packages["bytes"] = (function() {
 	$pkg.$init = $init;
 	return $pkg;
 })();
+$packages["bufio"] = (function() {
+	var $pkg = {}, $init, bytes, errors, io, utf8, Writer, Scanner, SplitFunc, sliceType, ptrType$1, ptrType$2, errNegativeRead, errNegativeWrite, NewWriterSize, NewWriter, NewScanner, dropCR, ScanLines;
+	bytes = $packages["bytes"];
+	errors = $packages["errors"];
+	io = $packages["io"];
+	utf8 = $packages["unicode/utf8"];
+	Writer = $pkg.Writer = $newType(0, $kindStruct, "bufio.Writer", "Writer", "bufio", function(err_, buf_, n_, wr_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.err = $ifaceNil;
+			this.buf = sliceType.nil;
+			this.n = 0;
+			this.wr = $ifaceNil;
+			return;
+		}
+		this.err = err_;
+		this.buf = buf_;
+		this.n = n_;
+		this.wr = wr_;
+	});
+	Scanner = $pkg.Scanner = $newType(0, $kindStruct, "bufio.Scanner", "Scanner", "bufio", function(r_, split_, maxTokenSize_, token_, buf_, start_, end_, err_, empties_, scanCalled_, done_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.r = $ifaceNil;
+			this.split = $throwNilPointerError;
+			this.maxTokenSize = 0;
+			this.token = sliceType.nil;
+			this.buf = sliceType.nil;
+			this.start = 0;
+			this.end = 0;
+			this.err = $ifaceNil;
+			this.empties = 0;
+			this.scanCalled = false;
+			this.done = false;
+			return;
+		}
+		this.r = r_;
+		this.split = split_;
+		this.maxTokenSize = maxTokenSize_;
+		this.token = token_;
+		this.buf = buf_;
+		this.start = start_;
+		this.end = end_;
+		this.err = err_;
+		this.empties = empties_;
+		this.scanCalled = scanCalled_;
+		this.done = done_;
+	});
+	SplitFunc = $pkg.SplitFunc = $newType(4, $kindFunc, "bufio.SplitFunc", "SplitFunc", "bufio", null);
+	sliceType = $sliceType($Uint8);
+	ptrType$1 = $ptrType(Writer);
+	ptrType$2 = $ptrType(Scanner);
+	NewWriterSize = function(w, size) {
+		var $ptr, _tuple, b, ok, size, w;
+		_tuple = $assertType(w, ptrType$1, true);
+		b = _tuple[0];
+		ok = _tuple[1];
+		if (ok && b.buf.$length >= size) {
+			return b;
+		}
+		if (size <= 0) {
+			size = 4096;
+		}
+		return new Writer.ptr($ifaceNil, $makeSlice(sliceType, size), 0, w);
+	};
+	$pkg.NewWriterSize = NewWriterSize;
+	NewWriter = function(w) {
+		var $ptr, w;
+		return NewWriterSize(w, 4096);
+	};
+	$pkg.NewWriter = NewWriter;
+	Writer.ptr.prototype.Reset = function(w) {
+		var $ptr, b, w;
+		b = this;
+		b.err = $ifaceNil;
+		b.n = 0;
+		b.wr = w;
+	};
+	Writer.prototype.Reset = function(w) { return this.$val.Reset(w); };
+	Writer.ptr.prototype.Flush = function() {
+		var $ptr, _r, b, err, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; b = $f.b; err = $f.err; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		b = this;
+		_r = b.flush(); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		err = _r;
+		return err;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Writer.ptr.prototype.Flush }; } $f.$ptr = $ptr; $f._r = _r; $f.b = b; $f.err = err; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Writer.prototype.Flush = function() { return this.$val.Flush(); };
+	Writer.ptr.prototype.flush = function() {
+		var $ptr, _r, _tuple, b, err, n, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _tuple = $f._tuple; b = $f.b; err = $f.err; n = $f.n; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		b = this;
+		if (!($interfaceIsEqual(b.err, $ifaceNil))) {
+			return b.err;
+		}
+		if (b.n === 0) {
+			return $ifaceNil;
+		}
+		_r = b.wr.Write($subslice(b.buf, 0, b.n)); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_tuple = _r;
+		n = _tuple[0];
+		err = _tuple[1];
+		if (n < b.n && $interfaceIsEqual(err, $ifaceNil)) {
+			err = io.ErrShortWrite;
+		}
+		if (!($interfaceIsEqual(err, $ifaceNil))) {
+			if (n > 0 && n < b.n) {
+				$copySlice($subslice(b.buf, 0, (b.n - n >> 0)), $subslice(b.buf, n, b.n));
+			}
+			b.n = b.n - (n) >> 0;
+			b.err = err;
+			return err;
+		}
+		b.n = 0;
+		return $ifaceNil;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Writer.ptr.prototype.flush }; } $f.$ptr = $ptr; $f._r = _r; $f._tuple = _tuple; $f.b = b; $f.err = err; $f.n = n; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Writer.prototype.flush = function() { return this.$val.flush(); };
+	Writer.ptr.prototype.Available = function() {
+		var $ptr, b;
+		b = this;
+		return b.buf.$length - b.n >> 0;
+	};
+	Writer.prototype.Available = function() { return this.$val.Available(); };
+	Writer.ptr.prototype.Buffered = function() {
+		var $ptr, b;
+		b = this;
+		return b.n;
+	};
+	Writer.prototype.Buffered = function() { return this.$val.Buffered(); };
+	Writer.ptr.prototype.Write = function(p) {
+		var $ptr, _r, _r$1, _tmp, _tmp$1, _tmp$2, _tmp$3, _tuple, b, err, n, n$1, nn, p, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; _tmp$2 = $f._tmp$2; _tmp$3 = $f._tmp$3; _tuple = $f._tuple; b = $f.b; err = $f.err; n = $f.n; n$1 = $f.n$1; nn = $f.nn; p = $f.p; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		nn = 0;
+		err = $ifaceNil;
+		b = this;
+		/* while (true) { */ case 1:
+			/* if (!(p.$length > b.Available() && $interfaceIsEqual(b.err, $ifaceNil))) { break; } */ if(!(p.$length > b.Available() && $interfaceIsEqual(b.err, $ifaceNil))) { $s = 2; continue; }
+			n = 0;
+			/* */ if (b.Buffered() === 0) { $s = 3; continue; }
+			/* */ $s = 4; continue;
+			/* if (b.Buffered() === 0) { */ case 3:
+				_r = b.wr.Write(p); /* */ $s = 6; case 6: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+				_tuple = _r;
+				n = _tuple[0];
+				b.err = _tuple[1];
+				$s = 5; continue;
+			/* } else { */ case 4:
+				n = $copySlice($subslice(b.buf, b.n), p);
+				b.n = b.n + (n) >> 0;
+				_r$1 = b.flush(); /* */ $s = 7; case 7: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+				_r$1;
+			/* } */ case 5:
+			nn = nn + (n) >> 0;
+			p = $subslice(p, n);
+		/* } */ $s = 1; continue; case 2:
+		if (!($interfaceIsEqual(b.err, $ifaceNil))) {
+			_tmp = nn;
+			_tmp$1 = b.err;
+			nn = _tmp;
+			err = _tmp$1;
+			return [nn, err];
+		}
+		n$1 = $copySlice($subslice(b.buf, b.n), p);
+		b.n = b.n + (n$1) >> 0;
+		nn = nn + (n$1) >> 0;
+		_tmp$2 = nn;
+		_tmp$3 = $ifaceNil;
+		nn = _tmp$2;
+		err = _tmp$3;
+		return [nn, err];
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Writer.ptr.prototype.Write }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f._tmp$2 = _tmp$2; $f._tmp$3 = _tmp$3; $f._tuple = _tuple; $f.b = b; $f.err = err; $f.n = n; $f.n$1 = n$1; $f.nn = nn; $f.p = p; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Writer.prototype.Write = function(p) { return this.$val.Write(p); };
+	Writer.ptr.prototype.WriteByte = function(c) {
+		var $ptr, _r, _v, b, c, x, x$1, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _v = $f._v; b = $f.b; c = $f.c; x = $f.x; x$1 = $f.x$1; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		b = this;
+		if (!($interfaceIsEqual(b.err, $ifaceNil))) {
+			return b.err;
+		}
+		if (!(b.Available() <= 0)) { _v = false; $s = 3; continue s; }
+		_r = b.flush(); /* */ $s = 4; case 4: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_v = !($interfaceIsEqual(_r, $ifaceNil)); case 3:
+		/* */ if (_v) { $s = 1; continue; }
+		/* */ $s = 2; continue;
+		/* if (_v) { */ case 1:
+			return b.err;
+		/* } */ case 2:
+		(x = b.buf, x$1 = b.n, ((x$1 < 0 || x$1 >= x.$length) ? $throwRuntimeError("index out of range") : x.$array[x.$offset + x$1] = c));
+		b.n = b.n + (1) >> 0;
+		return $ifaceNil;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Writer.ptr.prototype.WriteByte }; } $f.$ptr = $ptr; $f._r = _r; $f._v = _v; $f.b = b; $f.c = c; $f.x = x; $f.x$1 = x$1; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Writer.prototype.WriteByte = function(c) { return this.$val.WriteByte(c); };
+	Writer.ptr.prototype.WriteRune = function(r) {
+		var $ptr, _r, _r$1, _r$2, _tmp, _tmp$1, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, _tuple, b, err, n, r, size, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; _tmp$2 = $f._tmp$2; _tmp$3 = $f._tmp$3; _tmp$4 = $f._tmp$4; _tmp$5 = $f._tmp$5; _tmp$6 = $f._tmp$6; _tmp$7 = $f._tmp$7; _tmp$8 = $f._tmp$8; _tmp$9 = $f._tmp$9; _tuple = $f._tuple; b = $f.b; err = $f.err; n = $f.n; r = $f.r; size = $f.size; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		size = 0;
+		err = $ifaceNil;
+		b = this;
+		/* */ if (r < 128) { $s = 1; continue; }
+		/* */ $s = 2; continue;
+		/* if (r < 128) { */ case 1:
+			_r = b.WriteByte((r << 24 >>> 24)); /* */ $s = 3; case 3: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+			err = _r;
+			if (!($interfaceIsEqual(err, $ifaceNil))) {
+				_tmp = 0;
+				_tmp$1 = err;
+				size = _tmp;
+				err = _tmp$1;
+				return [size, err];
+			}
+			_tmp$2 = 1;
+			_tmp$3 = $ifaceNil;
+			size = _tmp$2;
+			err = _tmp$3;
+			return [size, err];
+		/* } */ case 2:
+		if (!($interfaceIsEqual(b.err, $ifaceNil))) {
+			_tmp$4 = 0;
+			_tmp$5 = b.err;
+			size = _tmp$4;
+			err = _tmp$5;
+			return [size, err];
+		}
+		n = b.Available();
+		/* */ if (n < 4) { $s = 4; continue; }
+		/* */ $s = 5; continue;
+		/* if (n < 4) { */ case 4:
+			_r$1 = b.flush(); /* */ $s = 6; case 6: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+			_r$1;
+			/* */ if (!($interfaceIsEqual(b.err, $ifaceNil))) { $s = 7; continue; }
+			/* */ $s = 8; continue;
+			/* if (!($interfaceIsEqual(b.err, $ifaceNil))) { */ case 7:
+				_tmp$6 = 0;
+				_tmp$7 = b.err;
+				size = _tmp$6;
+				err = _tmp$7;
+				return [size, err];
+			/* } */ case 8:
+			n = b.Available();
+			/* */ if (n < 4) { $s = 9; continue; }
+			/* */ $s = 10; continue;
+			/* if (n < 4) { */ case 9:
+				_r$2 = b.WriteString($encodeRune(r)); /* */ $s = 11; case 11: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+				_tuple = _r$2;
+				size = _tuple[0];
+				err = _tuple[1];
+				/* */ $s = 12; case 12:
+				return [size, err];
+			/* } */ case 10:
+		/* } */ case 5:
+		size = utf8.EncodeRune($subslice(b.buf, b.n), r);
+		b.n = b.n + (size) >> 0;
+		_tmp$8 = size;
+		_tmp$9 = $ifaceNil;
+		size = _tmp$8;
+		err = _tmp$9;
+		return [size, err];
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Writer.ptr.prototype.WriteRune }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f._tmp$2 = _tmp$2; $f._tmp$3 = _tmp$3; $f._tmp$4 = _tmp$4; $f._tmp$5 = _tmp$5; $f._tmp$6 = _tmp$6; $f._tmp$7 = _tmp$7; $f._tmp$8 = _tmp$8; $f._tmp$9 = _tmp$9; $f._tuple = _tuple; $f.b = b; $f.err = err; $f.n = n; $f.r = r; $f.size = size; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Writer.prototype.WriteRune = function(r) { return this.$val.WriteRune(r); };
+	Writer.ptr.prototype.WriteString = function(s) {
+		var $ptr, _r, b, n, n$1, nn, s, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; b = $f.b; n = $f.n; n$1 = $f.n$1; nn = $f.nn; s = $f.s; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		b = this;
+		nn = 0;
+		/* while (true) { */ case 1:
+			/* if (!(s.length > b.Available() && $interfaceIsEqual(b.err, $ifaceNil))) { break; } */ if(!(s.length > b.Available() && $interfaceIsEqual(b.err, $ifaceNil))) { $s = 2; continue; }
+			n = $copyString($subslice(b.buf, b.n), s);
+			b.n = b.n + (n) >> 0;
+			nn = nn + (n) >> 0;
+			s = s.substring(n);
+			_r = b.flush(); /* */ $s = 3; case 3: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+			_r;
+		/* } */ $s = 1; continue; case 2:
+		if (!($interfaceIsEqual(b.err, $ifaceNil))) {
+			return [nn, b.err];
+		}
+		n$1 = $copyString($subslice(b.buf, b.n), s);
+		b.n = b.n + (n$1) >> 0;
+		nn = nn + (n$1) >> 0;
+		return [nn, $ifaceNil];
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Writer.ptr.prototype.WriteString }; } $f.$ptr = $ptr; $f._r = _r; $f.b = b; $f.n = n; $f.n$1 = n$1; $f.nn = nn; $f.s = s; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Writer.prototype.WriteString = function(s) { return this.$val.WriteString(s); };
+	Writer.ptr.prototype.ReadFrom = function(r) {
+		var $ptr, _r, _r$1, _r$2, _r$3, _tmp, _tmp$1, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tuple, _tuple$1, _tuple$2, b, err, err1, m, n, nr, ok, r, w, x, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _r$3 = $f._r$3; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; _tmp$2 = $f._tmp$2; _tmp$3 = $f._tmp$3; _tmp$4 = $f._tmp$4; _tmp$5 = $f._tmp$5; _tuple = $f._tuple; _tuple$1 = $f._tuple$1; _tuple$2 = $f._tuple$2; b = $f.b; err = $f.err; err1 = $f.err1; m = $f.m; n = $f.n; nr = $f.nr; ok = $f.ok; r = $f.r; w = $f.w; x = $f.x; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		n = new $Int64(0, 0);
+		err = $ifaceNil;
+		b = this;
+		/* */ if (b.Buffered() === 0) { $s = 1; continue; }
+		/* */ $s = 2; continue;
+		/* if (b.Buffered() === 0) { */ case 1:
+			_tuple = $assertType(b.wr, io.ReaderFrom, true);
+			w = _tuple[0];
+			ok = _tuple[1];
+			/* */ if (ok) { $s = 3; continue; }
+			/* */ $s = 4; continue;
+			/* if (ok) { */ case 3:
+				_r = w.ReadFrom(r); /* */ $s = 5; case 5: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+				_tuple$1 = _r;
+				n = _tuple$1[0];
+				err = _tuple$1[1];
+				/* */ $s = 6; case 6:
+				return [n, err];
+			/* } */ case 4:
+		/* } */ case 2:
+		m = 0;
+		/* while (true) { */ case 7:
+			/* */ if (b.Available() === 0) { $s = 9; continue; }
+			/* */ $s = 10; continue;
+			/* if (b.Available() === 0) { */ case 9:
+				_r$1 = b.flush(); /* */ $s = 11; case 11: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+				err1 = _r$1;
+				/* */ if (!($interfaceIsEqual(err1, $ifaceNil))) { $s = 12; continue; }
+				/* */ $s = 13; continue;
+				/* if (!($interfaceIsEqual(err1, $ifaceNil))) { */ case 12:
+					_tmp = n;
+					_tmp$1 = err1;
+					n = _tmp;
+					err = _tmp$1;
+					return [n, err];
+				/* } */ case 13:
+			/* } */ case 10:
+			nr = 0;
+			/* while (true) { */ case 14:
+				/* if (!(nr < 100)) { break; } */ if(!(nr < 100)) { $s = 15; continue; }
+				_r$2 = r.Read($subslice(b.buf, b.n)); /* */ $s = 16; case 16: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+				_tuple$2 = _r$2;
+				m = _tuple$2[0];
+				err = _tuple$2[1];
+				if (!((m === 0)) || !($interfaceIsEqual(err, $ifaceNil))) {
+					/* break; */ $s = 15; continue;
+				}
+				nr = nr + (1) >> 0;
+			/* } */ $s = 14; continue; case 15:
+			if (nr === 100) {
+				_tmp$2 = n;
+				_tmp$3 = io.ErrNoProgress;
+				n = _tmp$2;
+				err = _tmp$3;
+				return [n, err];
+			}
+			b.n = b.n + (m) >> 0;
+			n = (x = new $Int64(0, m), new $Int64(n.$high + x.$high, n.$low + x.$low));
+			if (!($interfaceIsEqual(err, $ifaceNil))) {
+				/* break; */ $s = 8; continue;
+			}
+		/* } */ $s = 7; continue; case 8:
+		/* */ if ($interfaceIsEqual(err, io.EOF)) { $s = 17; continue; }
+		/* */ $s = 18; continue;
+		/* if ($interfaceIsEqual(err, io.EOF)) { */ case 17:
+			/* */ if (b.Available() === 0) { $s = 19; continue; }
+			/* */ $s = 20; continue;
+			/* if (b.Available() === 0) { */ case 19:
+				_r$3 = b.flush(); /* */ $s = 22; case 22: if($c) { $c = false; _r$3 = _r$3.$blk(); } if (_r$3 && _r$3.$blk !== undefined) { break s; }
+				err = _r$3;
+				$s = 21; continue;
+			/* } else { */ case 20:
+				err = $ifaceNil;
+			/* } */ case 21:
+		/* } */ case 18:
+		_tmp$4 = n;
+		_tmp$5 = err;
+		n = _tmp$4;
+		err = _tmp$5;
+		return [n, err];
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Writer.ptr.prototype.ReadFrom }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._r$3 = _r$3; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f._tmp$2 = _tmp$2; $f._tmp$3 = _tmp$3; $f._tmp$4 = _tmp$4; $f._tmp$5 = _tmp$5; $f._tuple = _tuple; $f._tuple$1 = _tuple$1; $f._tuple$2 = _tuple$2; $f.b = b; $f.err = err; $f.err1 = err1; $f.m = m; $f.n = n; $f.nr = nr; $f.ok = ok; $f.r = r; $f.w = w; $f.x = x; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Writer.prototype.ReadFrom = function(r) { return this.$val.ReadFrom(r); };
+	NewScanner = function(r) {
+		var $ptr, r;
+		return new Scanner.ptr(r, ScanLines, 65536, sliceType.nil, sliceType.nil, 0, 0, $ifaceNil, 0, false, false);
+	};
+	$pkg.NewScanner = NewScanner;
+	Scanner.ptr.prototype.Err = function() {
+		var $ptr, s;
+		s = this;
+		if ($interfaceIsEqual(s.err, io.EOF)) {
+			return $ifaceNil;
+		}
+		return s.err;
+	};
+	Scanner.prototype.Err = function() { return this.$val.Err(); };
+	Scanner.ptr.prototype.Bytes = function() {
+		var $ptr, s;
+		s = this;
+		return s.token;
+	};
+	Scanner.prototype.Bytes = function() { return this.$val.Bytes(); };
+	Scanner.ptr.prototype.Text = function() {
+		var $ptr, s;
+		s = this;
+		return $bytesToString(s.token);
+	};
+	Scanner.prototype.Text = function() { return this.$val.Text(); };
+	Scanner.ptr.prototype.Scan = function() {
+		var $ptr, _q, _r, _r$1, _tuple, _tuple$1, advance, err, err$1, loop, n, newBuf, newSize, s, token, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _q = $f._q; _r = $f._r; _r$1 = $f._r$1; _tuple = $f._tuple; _tuple$1 = $f._tuple$1; advance = $f.advance; err = $f.err; err$1 = $f.err$1; loop = $f.loop; n = $f.n; newBuf = $f.newBuf; newSize = $f.newSize; s = $f.s; token = $f.token; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		s = this;
+		if (s.done) {
+			return false;
+		}
+		s.scanCalled = true;
+		/* while (true) { */ case 1:
+			/* */ if (s.end > s.start || !($interfaceIsEqual(s.err, $ifaceNil))) { $s = 3; continue; }
+			/* */ $s = 4; continue;
+			/* if (s.end > s.start || !($interfaceIsEqual(s.err, $ifaceNil))) { */ case 3:
+				_r = s.split($subslice(s.buf, s.start, s.end), !($interfaceIsEqual(s.err, $ifaceNil))); /* */ $s = 5; case 5: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+				_tuple = _r;
+				advance = _tuple[0];
+				token = _tuple[1];
+				err = _tuple[2];
+				if (!($interfaceIsEqual(err, $ifaceNil))) {
+					if ($interfaceIsEqual(err, $pkg.ErrFinalToken)) {
+						s.token = token;
+						s.done = true;
+						return true;
+					}
+					s.setErr(err);
+					return false;
+				}
+				if (!s.advance(advance)) {
+					return false;
+				}
+				s.token = token;
+				if (!(token === sliceType.nil)) {
+					if ($interfaceIsEqual(s.err, $ifaceNil) || advance > 0) {
+						s.empties = 0;
+					} else {
+						s.empties = s.empties + (1) >> 0;
+						if (s.empties > 100) {
+							$panic(new $String("bufio.Scan: 100 empty tokens without progressing"));
+						}
+					}
+					return true;
+				}
+			/* } */ case 4:
+			if (!($interfaceIsEqual(s.err, $ifaceNil))) {
+				s.start = 0;
+				s.end = 0;
+				return false;
+			}
+			if (s.start > 0 && ((s.end === s.buf.$length) || s.start > (_q = s.buf.$length / 2, (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero")))) {
+				$copySlice(s.buf, $subslice(s.buf, s.start, s.end));
+				s.end = s.end - (s.start) >> 0;
+				s.start = 0;
+			}
+			/* */ if (s.end === s.buf.$length) { $s = 6; continue; }
+			/* */ $s = 7; continue;
+			/* if (s.end === s.buf.$length) { */ case 6:
+				if (s.buf.$length >= s.maxTokenSize || s.buf.$length > 1073741823) {
+					s.setErr($pkg.ErrTooLong);
+					return false;
+				}
+				newSize = $imul(s.buf.$length, 2);
+				if (newSize === 0) {
+					newSize = 4096;
+				}
+				if (newSize > s.maxTokenSize) {
+					newSize = s.maxTokenSize;
+				}
+				newBuf = $makeSlice(sliceType, newSize);
+				$copySlice(newBuf, $subslice(s.buf, s.start, s.end));
+				s.buf = newBuf;
+				s.end = s.end - (s.start) >> 0;
+				s.start = 0;
+				/* continue; */ $s = 1; continue;
+			/* } */ case 7:
+			loop = 0;
+			/* while (true) { */ case 8:
+				_r$1 = s.r.Read($subslice(s.buf, s.end, s.buf.$length)); /* */ $s = 10; case 10: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+				_tuple$1 = _r$1;
+				n = _tuple$1[0];
+				err$1 = _tuple$1[1];
+				s.end = s.end + (n) >> 0;
+				if (!($interfaceIsEqual(err$1, $ifaceNil))) {
+					s.setErr(err$1);
+					/* break; */ $s = 9; continue;
+				}
+				if (n > 0) {
+					s.empties = 0;
+					/* break; */ $s = 9; continue;
+				}
+				loop = loop + (1) >> 0;
+				if (loop > 100) {
+					s.setErr(io.ErrNoProgress);
+					/* break; */ $s = 9; continue;
+				}
+			/* } */ $s = 8; continue; case 9:
+		/* } */ $s = 1; continue; case 2:
+		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: Scanner.ptr.prototype.Scan }; } $f.$ptr = $ptr; $f._q = _q; $f._r = _r; $f._r$1 = _r$1; $f._tuple = _tuple; $f._tuple$1 = _tuple$1; $f.advance = advance; $f.err = err; $f.err$1 = err$1; $f.loop = loop; $f.n = n; $f.newBuf = newBuf; $f.newSize = newSize; $f.s = s; $f.token = token; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Scanner.prototype.Scan = function() { return this.$val.Scan(); };
+	Scanner.ptr.prototype.advance = function(n) {
+		var $ptr, n, s;
+		s = this;
+		if (n < 0) {
+			s.setErr($pkg.ErrNegativeAdvance);
+			return false;
+		}
+		if (n > (s.end - s.start >> 0)) {
+			s.setErr($pkg.ErrAdvanceTooFar);
+			return false;
+		}
+		s.start = s.start + (n) >> 0;
+		return true;
+	};
+	Scanner.prototype.advance = function(n) { return this.$val.advance(n); };
+	Scanner.ptr.prototype.setErr = function(err) {
+		var $ptr, err, s;
+		s = this;
+		if ($interfaceIsEqual(s.err, $ifaceNil) || $interfaceIsEqual(s.err, io.EOF)) {
+			s.err = err;
+		}
+	};
+	Scanner.prototype.setErr = function(err) { return this.$val.setErr(err); };
+	Scanner.ptr.prototype.Buffer = function(buf, max) {
+		var $ptr, buf, max, s;
+		s = this;
+		if (s.scanCalled) {
+			$panic(new $String("Buffer called after Scan"));
+		}
+		s.buf = $subslice(buf, 0, buf.$capacity);
+		s.maxTokenSize = max;
+	};
+	Scanner.prototype.Buffer = function(buf, max) { return this.$val.Buffer(buf, max); };
+	Scanner.ptr.prototype.Split = function(split) {
+		var $ptr, s, split;
+		s = this;
+		if (s.scanCalled) {
+			$panic(new $String("Split called after Scan"));
+		}
+		s.split = split;
+	};
+	Scanner.prototype.Split = function(split) { return this.$val.Split(split); };
+	dropCR = function(data) {
+		var $ptr, data, x;
+		if (data.$length > 0 && ((x = data.$length - 1 >> 0, ((x < 0 || x >= data.$length) ? $throwRuntimeError("index out of range") : data.$array[data.$offset + x])) === 13)) {
+			return $subslice(data, 0, (data.$length - 1 >> 0));
+		}
+		return data;
+	};
+	ScanLines = function(data, atEOF) {
+		var $ptr, _tmp, _tmp$1, _tmp$10, _tmp$11, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, advance, atEOF, data, err, i, token;
+		advance = 0;
+		token = sliceType.nil;
+		err = $ifaceNil;
+		if (atEOF && (data.$length === 0)) {
+			_tmp = 0;
+			_tmp$1 = sliceType.nil;
+			_tmp$2 = $ifaceNil;
+			advance = _tmp;
+			token = _tmp$1;
+			err = _tmp$2;
+			return [advance, token, err];
+		}
+		i = bytes.IndexByte(data, 10);
+		if (i >= 0) {
+			_tmp$3 = i + 1 >> 0;
+			_tmp$4 = dropCR($subslice(data, 0, i));
+			_tmp$5 = $ifaceNil;
+			advance = _tmp$3;
+			token = _tmp$4;
+			err = _tmp$5;
+			return [advance, token, err];
+		}
+		if (atEOF) {
+			_tmp$6 = data.$length;
+			_tmp$7 = dropCR(data);
+			_tmp$8 = $ifaceNil;
+			advance = _tmp$6;
+			token = _tmp$7;
+			err = _tmp$8;
+			return [advance, token, err];
+		}
+		_tmp$9 = 0;
+		_tmp$10 = sliceType.nil;
+		_tmp$11 = $ifaceNil;
+		advance = _tmp$9;
+		token = _tmp$10;
+		err = _tmp$11;
+		return [advance, token, err];
+	};
+	$pkg.ScanLines = ScanLines;
+	ptrType$1.methods = [{prop: "Reset", name: "Reset", pkg: "", typ: $funcType([io.Writer], [], false)}, {prop: "Flush", name: "Flush", pkg: "", typ: $funcType([], [$error], false)}, {prop: "flush", name: "flush", pkg: "bufio", typ: $funcType([], [$error], false)}, {prop: "Available", name: "Available", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Buffered", name: "Buffered", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Write", name: "Write", pkg: "", typ: $funcType([sliceType], [$Int, $error], false)}, {prop: "WriteByte", name: "WriteByte", pkg: "", typ: $funcType([$Uint8], [$error], false)}, {prop: "WriteRune", name: "WriteRune", pkg: "", typ: $funcType([$Int32], [$Int, $error], false)}, {prop: "WriteString", name: "WriteString", pkg: "", typ: $funcType([$String], [$Int, $error], false)}, {prop: "ReadFrom", name: "ReadFrom", pkg: "", typ: $funcType([io.Reader], [$Int64, $error], false)}];
+	ptrType$2.methods = [{prop: "Err", name: "Err", pkg: "", typ: $funcType([], [$error], false)}, {prop: "Bytes", name: "Bytes", pkg: "", typ: $funcType([], [sliceType], false)}, {prop: "Text", name: "Text", pkg: "", typ: $funcType([], [$String], false)}, {prop: "Scan", name: "Scan", pkg: "", typ: $funcType([], [$Bool], false)}, {prop: "advance", name: "advance", pkg: "bufio", typ: $funcType([$Int], [$Bool], false)}, {prop: "setErr", name: "setErr", pkg: "bufio", typ: $funcType([$error], [], false)}, {prop: "Buffer", name: "Buffer", pkg: "", typ: $funcType([sliceType, $Int], [], false)}, {prop: "Split", name: "Split", pkg: "", typ: $funcType([SplitFunc], [], false)}];
+	Writer.init([{prop: "err", name: "err", pkg: "bufio", typ: $error, tag: ""}, {prop: "buf", name: "buf", pkg: "bufio", typ: sliceType, tag: ""}, {prop: "n", name: "n", pkg: "bufio", typ: $Int, tag: ""}, {prop: "wr", name: "wr", pkg: "bufio", typ: io.Writer, tag: ""}]);
+	Scanner.init([{prop: "r", name: "r", pkg: "bufio", typ: io.Reader, tag: ""}, {prop: "split", name: "split", pkg: "bufio", typ: SplitFunc, tag: ""}, {prop: "maxTokenSize", name: "maxTokenSize", pkg: "bufio", typ: $Int, tag: ""}, {prop: "token", name: "token", pkg: "bufio", typ: sliceType, tag: ""}, {prop: "buf", name: "buf", pkg: "bufio", typ: sliceType, tag: ""}, {prop: "start", name: "start", pkg: "bufio", typ: $Int, tag: ""}, {prop: "end", name: "end", pkg: "bufio", typ: $Int, tag: ""}, {prop: "err", name: "err", pkg: "bufio", typ: $error, tag: ""}, {prop: "empties", name: "empties", pkg: "bufio", typ: $Int, tag: ""}, {prop: "scanCalled", name: "scanCalled", pkg: "bufio", typ: $Bool, tag: ""}, {prop: "done", name: "done", pkg: "bufio", typ: $Bool, tag: ""}]);
+	SplitFunc.init([sliceType, $Bool], [$Int, sliceType, $error], false);
+	$init = function() {
+		$pkg.$init = function() {};
+		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		$r = bytes.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = errors.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = io.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = utf8.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$pkg.ErrInvalidUnreadByte = errors.New("bufio: invalid use of UnreadByte");
+		$pkg.ErrInvalidUnreadRune = errors.New("bufio: invalid use of UnreadRune");
+		$pkg.ErrBufferFull = errors.New("bufio: buffer full");
+		$pkg.ErrNegativeCount = errors.New("bufio: negative count");
+		errNegativeRead = errors.New("bufio: reader returned negative count from Read");
+		errNegativeWrite = errors.New("bufio: writer returned negative count from Write");
+		$pkg.ErrTooLong = errors.New("bufio.Scanner: token too long");
+		$pkg.ErrNegativeAdvance = errors.New("bufio.Scanner: SplitFunc returns negative advance count");
+		$pkg.ErrAdvanceTooFar = errors.New("bufio.Scanner: SplitFunc returns advance count beyond input");
+		$pkg.ErrFinalToken = errors.New("final token");
+		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
+	};
+	$pkg.$init = $init;
+	return $pkg;
+})();
 $packages["github.com/gopherjs/jquery"] = (function() {
 	var $pkg = {}, $init, js, JQuery, Event, JQueryCoordinates, Deferred, sliceType, funcType$1, mapType, sliceType$1, funcType$2, funcType$3, ptrType, sliceType$2, ptrType$1, NewJQuery, Ajax;
 	js = $packages["github.com/gopherjs/gopherjs/js"];
@@ -6147,283 +6765,6 @@ $packages["github.com/gopherjs/jquery"] = (function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		$r = js.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
-	};
-	$pkg.$init = $init;
-	return $pkg;
-})();
-$packages["bufio"] = (function() {
-	var $pkg = {}, $init, bytes, errors, io, utf8, Scanner, SplitFunc, sliceType, ptrType$2, errNegativeRead, errNegativeWrite, NewScanner, dropCR, ScanLines;
-	bytes = $packages["bytes"];
-	errors = $packages["errors"];
-	io = $packages["io"];
-	utf8 = $packages["unicode/utf8"];
-	Scanner = $pkg.Scanner = $newType(0, $kindStruct, "bufio.Scanner", "Scanner", "bufio", function(r_, split_, maxTokenSize_, token_, buf_, start_, end_, err_, empties_, scanCalled_, done_) {
-		this.$val = this;
-		if (arguments.length === 0) {
-			this.r = $ifaceNil;
-			this.split = $throwNilPointerError;
-			this.maxTokenSize = 0;
-			this.token = sliceType.nil;
-			this.buf = sliceType.nil;
-			this.start = 0;
-			this.end = 0;
-			this.err = $ifaceNil;
-			this.empties = 0;
-			this.scanCalled = false;
-			this.done = false;
-			return;
-		}
-		this.r = r_;
-		this.split = split_;
-		this.maxTokenSize = maxTokenSize_;
-		this.token = token_;
-		this.buf = buf_;
-		this.start = start_;
-		this.end = end_;
-		this.err = err_;
-		this.empties = empties_;
-		this.scanCalled = scanCalled_;
-		this.done = done_;
-	});
-	SplitFunc = $pkg.SplitFunc = $newType(4, $kindFunc, "bufio.SplitFunc", "SplitFunc", "bufio", null);
-	sliceType = $sliceType($Uint8);
-	ptrType$2 = $ptrType(Scanner);
-	NewScanner = function(r) {
-		var $ptr, r;
-		return new Scanner.ptr(r, ScanLines, 65536, sliceType.nil, sliceType.nil, 0, 0, $ifaceNil, 0, false, false);
-	};
-	$pkg.NewScanner = NewScanner;
-	Scanner.ptr.prototype.Err = function() {
-		var $ptr, s;
-		s = this;
-		if ($interfaceIsEqual(s.err, io.EOF)) {
-			return $ifaceNil;
-		}
-		return s.err;
-	};
-	Scanner.prototype.Err = function() { return this.$val.Err(); };
-	Scanner.ptr.prototype.Bytes = function() {
-		var $ptr, s;
-		s = this;
-		return s.token;
-	};
-	Scanner.prototype.Bytes = function() { return this.$val.Bytes(); };
-	Scanner.ptr.prototype.Text = function() {
-		var $ptr, s;
-		s = this;
-		return $bytesToString(s.token);
-	};
-	Scanner.prototype.Text = function() { return this.$val.Text(); };
-	Scanner.ptr.prototype.Scan = function() {
-		var $ptr, _q, _r, _r$1, _tuple, _tuple$1, advance, err, err$1, loop, n, newBuf, newSize, s, token, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _q = $f._q; _r = $f._r; _r$1 = $f._r$1; _tuple = $f._tuple; _tuple$1 = $f._tuple$1; advance = $f.advance; err = $f.err; err$1 = $f.err$1; loop = $f.loop; n = $f.n; newBuf = $f.newBuf; newSize = $f.newSize; s = $f.s; token = $f.token; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		s = this;
-		if (s.done) {
-			return false;
-		}
-		s.scanCalled = true;
-		/* while (true) { */ case 1:
-			/* */ if (s.end > s.start || !($interfaceIsEqual(s.err, $ifaceNil))) { $s = 3; continue; }
-			/* */ $s = 4; continue;
-			/* if (s.end > s.start || !($interfaceIsEqual(s.err, $ifaceNil))) { */ case 3:
-				_r = s.split($subslice(s.buf, s.start, s.end), !($interfaceIsEqual(s.err, $ifaceNil))); /* */ $s = 5; case 5: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-				_tuple = _r;
-				advance = _tuple[0];
-				token = _tuple[1];
-				err = _tuple[2];
-				if (!($interfaceIsEqual(err, $ifaceNil))) {
-					if ($interfaceIsEqual(err, $pkg.ErrFinalToken)) {
-						s.token = token;
-						s.done = true;
-						return true;
-					}
-					s.setErr(err);
-					return false;
-				}
-				if (!s.advance(advance)) {
-					return false;
-				}
-				s.token = token;
-				if (!(token === sliceType.nil)) {
-					if ($interfaceIsEqual(s.err, $ifaceNil) || advance > 0) {
-						s.empties = 0;
-					} else {
-						s.empties = s.empties + (1) >> 0;
-						if (s.empties > 100) {
-							$panic(new $String("bufio.Scan: 100 empty tokens without progressing"));
-						}
-					}
-					return true;
-				}
-			/* } */ case 4:
-			if (!($interfaceIsEqual(s.err, $ifaceNil))) {
-				s.start = 0;
-				s.end = 0;
-				return false;
-			}
-			if (s.start > 0 && ((s.end === s.buf.$length) || s.start > (_q = s.buf.$length / 2, (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero")))) {
-				$copySlice(s.buf, $subslice(s.buf, s.start, s.end));
-				s.end = s.end - (s.start) >> 0;
-				s.start = 0;
-			}
-			/* */ if (s.end === s.buf.$length) { $s = 6; continue; }
-			/* */ $s = 7; continue;
-			/* if (s.end === s.buf.$length) { */ case 6:
-				if (s.buf.$length >= s.maxTokenSize || s.buf.$length > 1073741823) {
-					s.setErr($pkg.ErrTooLong);
-					return false;
-				}
-				newSize = $imul(s.buf.$length, 2);
-				if (newSize === 0) {
-					newSize = 4096;
-				}
-				if (newSize > s.maxTokenSize) {
-					newSize = s.maxTokenSize;
-				}
-				newBuf = $makeSlice(sliceType, newSize);
-				$copySlice(newBuf, $subslice(s.buf, s.start, s.end));
-				s.buf = newBuf;
-				s.end = s.end - (s.start) >> 0;
-				s.start = 0;
-				/* continue; */ $s = 1; continue;
-			/* } */ case 7:
-			loop = 0;
-			/* while (true) { */ case 8:
-				_r$1 = s.r.Read($subslice(s.buf, s.end, s.buf.$length)); /* */ $s = 10; case 10: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
-				_tuple$1 = _r$1;
-				n = _tuple$1[0];
-				err$1 = _tuple$1[1];
-				s.end = s.end + (n) >> 0;
-				if (!($interfaceIsEqual(err$1, $ifaceNil))) {
-					s.setErr(err$1);
-					/* break; */ $s = 9; continue;
-				}
-				if (n > 0) {
-					s.empties = 0;
-					/* break; */ $s = 9; continue;
-				}
-				loop = loop + (1) >> 0;
-				if (loop > 100) {
-					s.setErr(io.ErrNoProgress);
-					/* break; */ $s = 9; continue;
-				}
-			/* } */ $s = 8; continue; case 9:
-		/* } */ $s = 1; continue; case 2:
-		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: Scanner.ptr.prototype.Scan }; } $f.$ptr = $ptr; $f._q = _q; $f._r = _r; $f._r$1 = _r$1; $f._tuple = _tuple; $f._tuple$1 = _tuple$1; $f.advance = advance; $f.err = err; $f.err$1 = err$1; $f.loop = loop; $f.n = n; $f.newBuf = newBuf; $f.newSize = newSize; $f.s = s; $f.token = token; $f.$s = $s; $f.$r = $r; return $f;
-	};
-	Scanner.prototype.Scan = function() { return this.$val.Scan(); };
-	Scanner.ptr.prototype.advance = function(n) {
-		var $ptr, n, s;
-		s = this;
-		if (n < 0) {
-			s.setErr($pkg.ErrNegativeAdvance);
-			return false;
-		}
-		if (n > (s.end - s.start >> 0)) {
-			s.setErr($pkg.ErrAdvanceTooFar);
-			return false;
-		}
-		s.start = s.start + (n) >> 0;
-		return true;
-	};
-	Scanner.prototype.advance = function(n) { return this.$val.advance(n); };
-	Scanner.ptr.prototype.setErr = function(err) {
-		var $ptr, err, s;
-		s = this;
-		if ($interfaceIsEqual(s.err, $ifaceNil) || $interfaceIsEqual(s.err, io.EOF)) {
-			s.err = err;
-		}
-	};
-	Scanner.prototype.setErr = function(err) { return this.$val.setErr(err); };
-	Scanner.ptr.prototype.Buffer = function(buf, max) {
-		var $ptr, buf, max, s;
-		s = this;
-		if (s.scanCalled) {
-			$panic(new $String("Buffer called after Scan"));
-		}
-		s.buf = $subslice(buf, 0, buf.$capacity);
-		s.maxTokenSize = max;
-	};
-	Scanner.prototype.Buffer = function(buf, max) { return this.$val.Buffer(buf, max); };
-	Scanner.ptr.prototype.Split = function(split) {
-		var $ptr, s, split;
-		s = this;
-		if (s.scanCalled) {
-			$panic(new $String("Split called after Scan"));
-		}
-		s.split = split;
-	};
-	Scanner.prototype.Split = function(split) { return this.$val.Split(split); };
-	dropCR = function(data) {
-		var $ptr, data, x;
-		if (data.$length > 0 && ((x = data.$length - 1 >> 0, ((x < 0 || x >= data.$length) ? $throwRuntimeError("index out of range") : data.$array[data.$offset + x])) === 13)) {
-			return $subslice(data, 0, (data.$length - 1 >> 0));
-		}
-		return data;
-	};
-	ScanLines = function(data, atEOF) {
-		var $ptr, _tmp, _tmp$1, _tmp$10, _tmp$11, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, advance, atEOF, data, err, i, token;
-		advance = 0;
-		token = sliceType.nil;
-		err = $ifaceNil;
-		if (atEOF && (data.$length === 0)) {
-			_tmp = 0;
-			_tmp$1 = sliceType.nil;
-			_tmp$2 = $ifaceNil;
-			advance = _tmp;
-			token = _tmp$1;
-			err = _tmp$2;
-			return [advance, token, err];
-		}
-		i = bytes.IndexByte(data, 10);
-		if (i >= 0) {
-			_tmp$3 = i + 1 >> 0;
-			_tmp$4 = dropCR($subslice(data, 0, i));
-			_tmp$5 = $ifaceNil;
-			advance = _tmp$3;
-			token = _tmp$4;
-			err = _tmp$5;
-			return [advance, token, err];
-		}
-		if (atEOF) {
-			_tmp$6 = data.$length;
-			_tmp$7 = dropCR(data);
-			_tmp$8 = $ifaceNil;
-			advance = _tmp$6;
-			token = _tmp$7;
-			err = _tmp$8;
-			return [advance, token, err];
-		}
-		_tmp$9 = 0;
-		_tmp$10 = sliceType.nil;
-		_tmp$11 = $ifaceNil;
-		advance = _tmp$9;
-		token = _tmp$10;
-		err = _tmp$11;
-		return [advance, token, err];
-	};
-	$pkg.ScanLines = ScanLines;
-	ptrType$2.methods = [{prop: "Err", name: "Err", pkg: "", typ: $funcType([], [$error], false)}, {prop: "Bytes", name: "Bytes", pkg: "", typ: $funcType([], [sliceType], false)}, {prop: "Text", name: "Text", pkg: "", typ: $funcType([], [$String], false)}, {prop: "Scan", name: "Scan", pkg: "", typ: $funcType([], [$Bool], false)}, {prop: "advance", name: "advance", pkg: "bufio", typ: $funcType([$Int], [$Bool], false)}, {prop: "setErr", name: "setErr", pkg: "bufio", typ: $funcType([$error], [], false)}, {prop: "Buffer", name: "Buffer", pkg: "", typ: $funcType([sliceType, $Int], [], false)}, {prop: "Split", name: "Split", pkg: "", typ: $funcType([SplitFunc], [], false)}];
-	Scanner.init([{prop: "r", name: "r", pkg: "bufio", typ: io.Reader, tag: ""}, {prop: "split", name: "split", pkg: "bufio", typ: SplitFunc, tag: ""}, {prop: "maxTokenSize", name: "maxTokenSize", pkg: "bufio", typ: $Int, tag: ""}, {prop: "token", name: "token", pkg: "bufio", typ: sliceType, tag: ""}, {prop: "buf", name: "buf", pkg: "bufio", typ: sliceType, tag: ""}, {prop: "start", name: "start", pkg: "bufio", typ: $Int, tag: ""}, {prop: "end", name: "end", pkg: "bufio", typ: $Int, tag: ""}, {prop: "err", name: "err", pkg: "bufio", typ: $error, tag: ""}, {prop: "empties", name: "empties", pkg: "bufio", typ: $Int, tag: ""}, {prop: "scanCalled", name: "scanCalled", pkg: "bufio", typ: $Bool, tag: ""}, {prop: "done", name: "done", pkg: "bufio", typ: $Bool, tag: ""}]);
-	SplitFunc.init([sliceType, $Bool], [$Int, sliceType, $error], false);
-	$init = function() {
-		$pkg.$init = function() {};
-		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		$r = bytes.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = errors.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = io.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = utf8.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$pkg.ErrInvalidUnreadByte = errors.New("bufio: invalid use of UnreadByte");
-		$pkg.ErrInvalidUnreadRune = errors.New("bufio: invalid use of UnreadRune");
-		$pkg.ErrBufferFull = errors.New("bufio: buffer full");
-		$pkg.ErrNegativeCount = errors.New("bufio: negative count");
-		errNegativeRead = errors.New("bufio: reader returned negative count from Read");
-		errNegativeWrite = errors.New("bufio: writer returned negative count from Write");
-		$pkg.ErrTooLong = errors.New("bufio.Scanner: token too long");
-		$pkg.ErrNegativeAdvance = errors.New("bufio.Scanner: SplitFunc returns negative advance count");
-		$pkg.ErrAdvanceTooFar = errors.New("bufio.Scanner: SplitFunc returns advance count beyond input");
-		$pkg.ErrFinalToken = errors.New("final token");
 		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
 	$pkg.$init = $init;
@@ -45894,7 +46235,7 @@ $packages["regexp"] = (function() {
 	return $pkg;
 })();
 $packages["golang.org/x/tools/present"] = (function() {
-	var $pkg = {}, $init, bufio, bytes, errors, fmt, html, template, io, ioutil, log, url, filepath, regexp, strconv, strings, time, unicode, utf8, Background, Caption, Code, codeTemplateData, codeLine, HTML, Iframe, Image, Link, Doc, Author, Section, Elem, Text, List, Lines, Context, ParseMode, Video, funcType, sliceType, sliceType$1, sliceType$2, sliceType$3, arrayType, arrayType$1, ptrType, ptrType$1, structType, ptrType$2, structType$1, sliceType$4, sliceType$5, structType$2, funcType$1, ptrType$3, ptrType$4, sliceType$6, sliceType$7, ptrType$5, ptrType$6, funcType$2, ptrType$7, funcType$3, highlightRE, hlCommentRE, codeRE, leadingSpaceRE, codeTemplate, parsers, funcs, isHeading, _r, _r$1, _r$2, _r$3, _tuple, _r$4, _r$5, _r$6, _r$7, addrToByteRange, addrNumber, addrRegexp, init, parseBackground, init$1, parseCaption, init$2, parseCode, formatLines, rawCode, codeLines, parseArgs, init$3, parseHTML, init$4, parseIframe, init$5, parseImage, init$6, parseLink, renderLink, parseInlineLink, Template, Register, renderElem, init$7, execTemplate, readLines, Parse, lesserHeading, parseSections, parseHeader, parseAuthors, parseURL, parseTime, init$8, Style, font, split, init$9, parseVideo;
+	var $pkg = {}, $init, bufio, bytes, errors, fmt, html, template, io, ioutil, log, url, filepath, regexp, strconv, strings, time, unicode, utf8, Background, Caption, Code, codeTemplateData, codeLine, HTML, Iframe, Image, Link, Doc, Author, Section, Elem, Text, List, Lines, Context, ParseMode, Video, funcType, sliceType, sliceType$1, sliceType$2, sliceType$3, arrayType, arrayType$1, ptrType, ptrType$1, structType, ptrType$2, structType$1, sliceType$4, sliceType$5, structType$2, funcType$1, ptrType$3, ptrType$4, sliceType$6, sliceType$7, ptrType$5, ptrType$6, funcType$2, ptrType$7, funcType$3, highlightRE, hlCommentRE, codeRE, leadingSpaceRE, codeTemplate, parsers, funcs, isHeading, _r, _r$1, _r$2, _r$3, _tuple, _r$4, _r$5, _r$6, _r$7, addrToByteRange, addrNumber, addrRegexp, init, parseBackground, init$1, parseCaption, init$2, parseCode, formatLines, rawCode, codeLines, parseArgs, init$3, parseHTML, init$4, parseIframe, init$5, parseImage, init$6, parseLink, renderLink, parseInlineLink, Template, Register, renderElem, init$7, execTemplate, readLines, lesserHeading, parseSections, parseHeader, parseAuthors, parseURL, parseTime, init$8, Style, font, split, init$9, parseVideo;
 	bufio = $packages["bufio"];
 	bytes = $packages["bytes"];
 	errors = $packages["errors"];
@@ -47251,16 +47592,6 @@ $packages["golang.org/x/tools/present"] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: Context.ptr.prototype.Parse }; } $f.$ptr = $ptr; $f._r$10 = _r$10; $f._r$11 = _r$11; $f._r$8 = _r$8; $f._r$9 = _r$9; $f._tuple$1 = _tuple$1; $f._tuple$2 = _tuple$2; $f._tuple$3 = _tuple$3; $f.ctx = ctx; $f.doc = doc; $f.err = err; $f.lines = lines; $f.mode = mode; $f.name = name; $f.r = r; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	Context.prototype.Parse = function(r, name, mode) { return this.$val.Parse(r, name, mode); };
-	Parse = function(r, name, mode) {
-		var $ptr, _r$8, ctx, mode, name, r, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r$8 = $f._r$8; ctx = $f.ctx; mode = $f.mode; name = $f.name; r = $f.r; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		ctx = new Context.ptr(ioutil.ReadFile);
-		_r$8 = ctx.Parse(r, name, mode); /* */ $s = 1; case 1: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
-		/* */ $s = 2; case 2:
-		return _r$8;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: Parse }; } $f.$ptr = $ptr; $f._r$8 = _r$8; $f.ctx = ctx; $f.mode = mode; $f.name = name; $f.r = r; $f.$s = $s; $f.$r = $r; return $f;
-	};
-	$pkg.Parse = Parse;
 	lesserHeading = function(text, prefix) {
 		var $ptr, _r$8, prefix, text, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r$8 = $f._r$8; prefix = $f.prefix; text = $f.text; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -47950,7 +48281,8 @@ $packages["golang.org/x/tools/present"] = (function() {
 	return $pkg;
 })();
 $packages["main"] = (function() {
-	var $pkg = {}, $init, bytes, js, jquery, present, template, strconv, strings, ptrType, funcType, sliceType, ptrType$1, sliceType$1, funcType$1, mapType, funcType$2, funcType$3, gblTmpl, jQuery, init, parseArticle, render, main, ajax, resize, redraw, playable;
+	var $pkg = {}, $init, bufio, bytes, js, jquery, present, template, strconv, strings, ptrType, funcType, sliceType, funcType$1, mapType, funcType$2, funcType$3, ptrType$1, structType, sliceType$1, arrayType, arrayType$1, gblTmpl, jQuery, init, main, ajax, resize, redraw, playable, readFile;
+	bufio = $packages["bufio"];
 	bytes = $packages["bytes"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	jquery = $packages["github.com/gopherjs/jquery"];
@@ -47960,13 +48292,16 @@ $packages["main"] = (function() {
 	strings = $packages["strings"];
 	ptrType = $ptrType(template.Template);
 	funcType = $funcType([present.Code], [$Bool], false);
-	sliceType = $sliceType($Uint8);
-	ptrType$1 = $ptrType(bytes.Buffer);
-	sliceType$1 = $sliceType($emptyInterface);
+	sliceType = $sliceType($emptyInterface);
 	funcType$1 = $funcType([jquery.Event], [], false);
 	mapType = $mapType($String, $emptyInterface);
 	funcType$2 = $funcType([mapType], [], false);
 	funcType$3 = $funcType([$emptyInterface], [], false);
+	ptrType$1 = $ptrType(present.Doc);
+	structType = $structType([{prop: "Doc", name: "", pkg: "", typ: ptrType$1, tag: ""}, {prop: "Template", name: "Template", pkg: "", typ: ptrType, tag: ""}, {prop: "PlayEnabled", name: "PlayEnabled", pkg: "", typ: $Bool, tag: ""}, {prop: "StringID", name: "StringID", pkg: "", typ: $String, tag: ""}]);
+	sliceType$1 = $sliceType($Uint8);
+	arrayType = $arrayType($Uint8, 4);
+	arrayType$1 = $arrayType($Uint8, 64);
 	init = function() {
 		var $ptr, _r, _r$1, _r$2, _tuple, err, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _tuple = $f._tuple; err = $f.err; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -47974,7 +48309,7 @@ $packages["main"] = (function() {
 		gblTmpl = _r;
 		_r$1 = gblTmpl.Funcs($makeMap($String.keyFor, [{ k: "playable", v: new funcType(playable) }])); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 		_r$1;
-		_r$2 = gblTmpl.Parse("\n\t{{define \"root\"}}\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"description\" content=\"A front-end template that helps you build fast, modern mobile web apps.\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>BlogName-{{.Title}}</title>\n\n    <!-- Add to homescreen for Chrome on Android -->\n    <meta name=\"mobile-web-app-capable\" content=\"yes\">\n    <link rel=\"icon\" sizes=\"192x192\" href=\"/static/images/touch/chrome-touch-icon-192x192.png\">\n\n    <!-- Add to homescreen for Safari on iOS -->\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black\">\n    <meta name=\"apple-mobile-web-app-title\" content=\"Material Design Lite\">\n    <link rel=\"apple-touch-icon-precomposed\" href=\"apple-touch-icon-precomposed.png\">\n\n    <!-- Tile icon for Win8 (144x144 + tile color) -->\n    <meta name=\"msapplication-TileImage\" content=\"/static/images/touch/ms-touch-icon-144x144-precomposed.png\">\n    <meta name=\"msapplication-TileColor\" content=\"#3372DF\">\n\n    <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">\n    <link rel=\"stylesheet\" href=\"https://code.getmdl.io/1.1.1/material.indigo-pink.min.css\">\n    <script defer src=\"https://code.getmdl.io/1.1.1/material.min.js\"></script>\n\n    <link rel=\"stylesheet\" href=\"/static/css/styles.css\">\n    <style>\n    #top {\n      position: fixed;\n      display: block;\n      right: 0;\n      bottom: 0;\n      margin-right: 40px;\n      margin-bottom: 40px;\n      z-index: 900;\n    }\n    </style>\n  </head>\n  <body>\n    <div class=\"demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded\">\n      <main class=\"mdl-layout__content\">\n        <div class=\"demo-back\">\n          <a class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\" href=\"index.html\" title=\"go back\" role=\"button\">\n            <i class=\"material-icons\" role=\"presentation\">arrow_back</i>\n          </a>\n        </div>\n        <div class=\"demo-blog__posts mdl-grid\">\n          <div class=\"mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col\">\n\n\n            <div class=\"mdl-card__media mdl-color-text--grey-50\">\n            <h3>{{.Title}}</h3>\n            </div>\n\n\n\n        {{if .Authors}}\n          {{range .Authors}}\n            <div class=\"author\">\n              {{range .Elem}}{{elem $.Template .}}{{end}}\n            </div>\n          {{end}}\n        {{end}}\n\n            <div class=\"mdl-color-text--grey-700 mdl-card__supporting-text meta\">\n              <div class=\"minilogo\"></div>\n              <div>\n\n                <strong>The Newist</strong>\n                <span>2 days ago</span>\n\n              </div>\n              <div class=\"section-spacer\"></div>\n              <div class=\"meta__favorites\">\n                425 <i class=\"material-icons\" role=\"presentation\">favorite</i>\n                <span class=\"visuallyhidden\">favorites</span>\n              </div>\n              <div>\n                <i class=\"material-icons\" role=\"presentation\">bookmark</i>\n                <span class=\"visuallyhidden\">bookmark</span>\n              </div>\n              <div>\n                <i class=\"material-icons\" role=\"presentation\">share</i>\n                <span class=\"visuallyhidden\">share</span>\n              </div>\n            </div>\n\n\n\n\n\n            <div class=\"mdl-color-text--grey-700 mdl-card\" style=\"padding-left:20px\">\n\n        {{with .Sections}}\n          <div id=\"toc\">\n            {{template \"TOC\" .}}\n          </div>\n        {{end}}\n\n        {{range .Sections}}\n          {{elem $.Template .}}\n        {{end}}{{/* of Section block */}}\n\n\n            </div>\n\n            <div class=\"mdl-color-text--primary-contrast mdl-card__supporting-text comments\">\n              <form>\n                <div class=\"mdl-textfield mdl-js-textfield mdl-textfield--floating-label\">\n                  <textarea rows=1 class=\"mdl-textfield__input\" id=\"comment\"></textarea>\n                  <label for=\"comment\" class=\"mdl-textfield__label\">Join the discussion</label>\n                </div>\n                <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                  <i class=\"material-icons\" role=\"presentation\">check</i><span class=\"visuallyhidden\">add comment</span>\n                </button>\n              </form>\n              <div class=\"comment mdl-color-text--grey-700\">\n                <header class=\"comment__header\">\n                  <img src=\"/static/images/co1.jpg\" class=\"comment__avatar\">\n                  <div class=\"comment__author\">\n                    <strong>James Splayd</strong>\n                    <span>2 days ago</span>\n                  </div>\n                </header>\n                <div class=\"comment__text\">\n                  In in culpa nulla elit esse. Ex cillum enim aliquip sit sit ullamco ex eiusmod fugiat. Cupidatat ad minim officia mollit laborum magna dolor tempor cupidatat mollit. Est velit sit ad aliqua ullamco laborum excepteur dolore proident incididunt in labore elit.\n                </div>\n\n                <nav class=\"comment__actions\">\n                  <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                    <i class=\"material-icons\" role=\"presentation\">thumb_up</i><span class=\"visuallyhidden\">like comment</span>\n                  </button>\n                  <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                    <i class=\"material-icons\" role=\"presentation\">thumb_down</i><span class=\"visuallyhidden\">dislike comment</span>\n                  </button>\n                  <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                    <i class=\"material-icons\" role=\"presentation\">share</i><span class=\"visuallyhidden\">share comment</span>\n                  </button>\n                </nav>\n                <div class=\"comment__answers\">\n                  <div class=\"comment\">\n                    <header class=\"comment__header\">\n                      <img src=\"/static/images/co2.jpg\" class=\"comment__avatar\">\n                      <div class=\"comment__author\">\n                        <strong>John Dufry</strong>\n                        <span>2 days ago</span>\n                      </div>\n                    </header>\n                    <div class=\"comment__text\">\n                      Yep, agree!\n                    </div>\n                    <nav class=\"comment__actions\">\n                      <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                        <i class=\"material-icons\" role=\"presentation\">thumb_up</i><span class=\"visuallyhidden\">like comment</span>\n                      </button>\n                      <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                        <i class=\"material-icons\" role=\"presentation\">thumb_down</i><span class=\"visuallyhidden\">dislike comment</span>\n                      </button>\n                      <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                        <i class=\"material-icons\" role=\"presentation\">share</i><span class=\"visuallyhidden\">share comment</span>\n                      </button>\n                    </nav>\n                  </div>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          <nav class=\"demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col\">\n            <a href=\"index.html\" class=\"demo-nav__button\">\n              <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900\" role=\"presentation\">\n                <i class=\"material-icons\">arrow_back</i>\n              </button>\n              Newer\n            </a>\n            <div class=\"section-spacer\"></div>\n            <a href=\"index.html\" class=\"demo-nav__button\">\n              Older\n              <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900\" role=\"presentation\">\n                <i class=\"material-icons\">arrow_forward</i>\n              </button>\n            </a>\n          </nav>\n        </div>\n        <footer class=\"mdl-mini-footer\">\n          <div class=\"mdl-mini-footer--left-section\">\n            <button class=\"mdl-mini-footer--social-btn social-btn social-btn__twitter\">\n              <span class=\"visuallyhidden\">Twitter</span>\n            </button>\n            <button class=\"mdl-mini-footer--social-btn social-btn social-btn__blogger\">\n              <span class=\"visuallyhidden\">Facebook</span>\n            </button>\n            <button class=\"mdl-mini-footer--social-btn social-btn social-btn__gplus\">\n              <span class=\"visuallyhidden\">Google Plus</span>\n            </button>\n          </div>\n\n          <div class=\"mdl-mini-footer--right-section\">\n            <button class=\"mdl-mini-footer--social-btn social-btn__share\">\n              <i class=\"material-icons\" role=\"presentation\">share</i>\n              <span class=\"visuallyhidden\">share</span>\n            </button>\n          </div>\n        </footer>\n      </main>\n      <div class=\"mdl-layout__obfuscator\"></div>\n    </div>\n\n    <a href=\"#\" id=\"top\" class=\"mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast\">TOP</a>\n\n  </body>\n</html>\n{{end}}\n\n{{define \"TOC\"}}\n  <ul>\n  {{range .}}\n    <li><a href=\"#TOC_{{.FormattedNumber}}\">{{.Title}}</a></li>\n    {{with .Sections}}{{template \"TOC\" .}}{{end}}\n  {{end}}\n  </ul>\n{{end}}\n\n{{define \"newline\"}}\n{{/* No automatic line break. Paragraphs are free-form. */}}\n{{end}}\n\n\t{/*\nThis is the action template.\nIt determines how the formatting actions are rendered.\n*/}\n\n{{define \"section\"}}\n  <h{{len .Number}} id=\"TOC_{{.FormattedNumber}}\">{{.Title}}</h{{len .Number}}>\n  {{range .Elem}}{{elem $.Template .}}{{end}}\n{{end}}\n\n{{define \"list\"}}\n  <ul>\n  {{range .Bullet}}\n    <li>{{style .}}</li>\n  {{end}}\n  </ul>\n{{end}}\n\n{{define \"text\"}}\n  {{if .Pre}}\n  <div class=\"code\"><pre>{{range .Lines}}{{.}}{{end}}</pre></div>\n  {{else}}\n  <p>\n    {{range $i, $l := .Lines}}{{if $i}}{{template \"newline\"}}\n    {{end}}{{style $l}}{{end}}\n  </p>\n  {{end}}\n{{end}}\n\n{{define \"code\"}}\n  <div class=\"code{{if playable .}} playground{{end}}\" contenteditable=\"true\" spellcheck=\"false\">{{.Text}}</div>\n{{end}}\n\n{{define \"image\"}}\n<div class=\"image\">\n  <img src=\"{{.URL}}\"{{with .Height}} height=\"{{.}}\"{{end}}{{with .Width}} width=\"{{.}}\"{{end}}>\n</div>\n{{end}}\n\n{{define \"iframe\"}}\n<iframe src=\"{{.URL}}\"{{with .Height}} height=\"{{.}}\"{{end}}{{with .Width}} width=\"{{.}}\"{{end}}></iframe>\n{{end}}\n\n{{define \"link\"}}<p class=\"link\"><a href=\"{{.URL}}\" target=\"_blank\">{{style .Label}}</a></p>{{end}}\n\n{{define \"html\"}}{{.HTML}}{{end}}\n\n{{define \"caption\"}}<figcaption>{{style .Text}}</figcaption>{{end}}\n\n"); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+		_r$2 = gblTmpl.Parse("\n\t{{define \"root\"}}\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"description\" content=\"A front-end template that helps you build fast, modern mobile web apps.\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>BlogName-{{.Title}}</title>\n\n    <!-- Add to homescreen for Chrome on Android -->\n    <meta name=\"mobile-web-app-capable\" content=\"yes\">\n    <link rel=\"icon\" sizes=\"192x192\" href=\"/static/images/touch/chrome-touch-icon-192x192.png\">\n\n    <!-- Add to homescreen for Safari on iOS -->\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black\">\n    <meta name=\"apple-mobile-web-app-title\" content=\"Material Design Lite\">\n    <link rel=\"apple-touch-icon-precomposed\" href=\"apple-touch-icon-precomposed.png\">\n\n    <!-- Tile icon for Win8 (144x144 + tile color) -->\n    <meta name=\"msapplication-TileImage\" content=\"/static/images/touch/ms-touch-icon-144x144-precomposed.png\">\n    <meta name=\"msapplication-TileColor\" content=\"#3372DF\">\n\n    <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">\n    <link rel=\"stylesheet\" href=\"https://code.getmdl.io/1.1.1/material.indigo-blue.min.css\">\n    <script defer src=\"https://code.getmdl.io/1.1.1/material.min.js\"></script>\n\n    <link rel=\"stylesheet\" href=\"/static/css/styles.css\">\n    <style>\n    #top {\n      position: fixed;\n      display: block;\n      right: 0;\n      bottom: 0;\n      margin-right: 40px;\n      margin-bottom: 40px;\n      z-index: 900;\n    }\n    </style>\n  </head>\n  <body>\n    <div class=\"demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded\">\n      <main class=\"mdl-layout__content\">\n        <div class=\"demo-back\">\n          <a class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\" href=\"index.html\" title=\"go back\" role=\"button\">\n            <i class=\"material-icons\" role=\"presentation\">arrow_back</i>\n          </a>\n        </div>\n        <div class=\"demo-blog__posts mdl-grid\">\n          <div class=\"mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col\">\n\n\n              <div class=\"mdl-card__media mdl-color-text--grey-50\" style=\"background-image:url('/file/{{.StringID}}');\">\n            <h3>{{.Title}}</h3>\n            </div>\n\n        {{if .Authors}}\n          {{range .Authors}}\n            <div class=\"author\">\n              {{range .Elem}}{{elem $.Template .}}{{end}}\n            </div>\n          {{end}}\n        {{end}}\n\n            <div class=\"mdl-color-text--grey-700 mdl-card__supporting-text meta\">\n              <div class=\"minilogo\"></div>\n              <div>\n\n                <strong>The Newist</strong>\n                <span>2 days ago</span>\n\n              </div>\n              <div class=\"section-spacer\"></div>\n              <div class=\"meta__favorites\">\n                425 <i class=\"material-icons\" role=\"presentation\">favorite</i>\n                <span class=\"visuallyhidden\">favorites</span>\n              </div>\n              <div>\n                <i class=\"material-icons\" role=\"presentation\">bookmark</i>\n                <span class=\"visuallyhidden\">bookmark</span>\n              </div>\n              <div>\n                <i class=\"material-icons\" role=\"presentation\">share</i>\n                <span class=\"visuallyhidden\">share</span>\n              </div>\n            </div>\n\n\n\n\n\n            <div class=\"mdl-color-text--grey-700 mdl-card\" style=\"padding-left:20px\">\n\n        {{with .Sections}}\n          <div id=\"toc\">\n            {{template \"TOC\" .}}\n          </div>\n        {{end}}\n\n        {{range .Sections}}\n          {{elem $.Template .}}\n        {{end}}{{/* of Section block */}}\n\n\n            </div>\n\n            <div class=\"mdl-color-text--primary-contrast mdl-card__supporting-text comments\">\n              <form>\n                <div class=\"mdl-textfield mdl-js-textfield mdl-textfield--floating-label\">\n                  <textarea rows=1 class=\"mdl-textfield__input\" id=\"comment\"></textarea>\n                  <label for=\"comment\" class=\"mdl-textfield__label\">Join the discussion</label>\n                </div>\n                <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                  <i class=\"material-icons\" role=\"presentation\">check</i><span class=\"visuallyhidden\">add comment</span>\n                </button>\n              </form>\n              <div class=\"comment mdl-color-text--grey-700\">\n                <header class=\"comment__header\">\n                  <img src=\"/static/images/co1.jpg\" class=\"comment__avatar\">\n                  <div class=\"comment__author\">\n                    <strong>James Splayd</strong>\n                    <span>2 days ago</span>\n                  </div>\n                </header>\n                <div class=\"comment__text\">\n                  In in culpa nulla elit esse. Ex cillum enim aliquip sit sit ullamco ex eiusmod fugiat. Cupidatat ad minim officia mollit laborum magna dolor tempor cupidatat mollit. Est velit sit ad aliqua ullamco laborum excepteur dolore proident incididunt in labore elit.\n                </div>\n\n                <nav class=\"comment__actions\">\n                  <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                    <i class=\"material-icons\" role=\"presentation\">thumb_up</i><span class=\"visuallyhidden\">like comment</span>\n                  </button>\n                  <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                    <i class=\"material-icons\" role=\"presentation\">thumb_down</i><span class=\"visuallyhidden\">dislike comment</span>\n                  </button>\n                  <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                    <i class=\"material-icons\" role=\"presentation\">share</i><span class=\"visuallyhidden\">share comment</span>\n                  </button>\n                </nav>\n                <div class=\"comment__answers\">\n                  <div class=\"comment\">\n                    <header class=\"comment__header\">\n                      <img src=\"/static/images/co2.jpg\" class=\"comment__avatar\">\n                      <div class=\"comment__author\">\n                        <strong>John Dufry</strong>\n                        <span>2 days ago</span>\n                      </div>\n                    </header>\n                    <div class=\"comment__text\">\n                      Yep, agree!\n                    </div>\n                    <nav class=\"comment__actions\">\n                      <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                        <i class=\"material-icons\" role=\"presentation\">thumb_up</i><span class=\"visuallyhidden\">like comment</span>\n                      </button>\n                      <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                        <i class=\"material-icons\" role=\"presentation\">thumb_down</i><span class=\"visuallyhidden\">dislike comment</span>\n                      </button>\n                      <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon\">\n                        <i class=\"material-icons\" role=\"presentation\">share</i><span class=\"visuallyhidden\">share comment</span>\n                      </button>\n                    </nav>\n                  </div>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          <nav class=\"demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col\">\n            <a href=\"index.html\" class=\"demo-nav__button\">\n              <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900\" role=\"presentation\">\n                <i class=\"material-icons\">arrow_back</i>\n              </button>\n              Newer\n            </a>\n            <div class=\"section-spacer\"></div>\n            <a href=\"index.html\" class=\"demo-nav__button\">\n              Older\n              <button class=\"mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900\" role=\"presentation\">\n                <i class=\"material-icons\">arrow_forward</i>\n              </button>\n            </a>\n          </nav>\n        </div>\n        <footer class=\"mdl-mini-footer\">\n          <div class=\"mdl-mini-footer--left-section\">\n            <button class=\"mdl-mini-footer--social-btn social-btn social-btn__twitter\">\n              <span class=\"visuallyhidden\">Twitter</span>\n            </button>\n            <button class=\"mdl-mini-footer--social-btn social-btn social-btn__blogger\">\n              <span class=\"visuallyhidden\">Facebook</span>\n            </button>\n            <button class=\"mdl-mini-footer--social-btn social-btn social-btn__gplus\">\n              <span class=\"visuallyhidden\">Google Plus</span>\n            </button>\n          </div>\n\n          <div class=\"mdl-mini-footer--right-section\">\n            <button class=\"mdl-mini-footer--social-btn social-btn__share\">\n              <i class=\"material-icons\" role=\"presentation\">share</i>\n              <span class=\"visuallyhidden\">share</span>\n            </button>\n          </div>\n        </footer>\n      </main>\n      <div class=\"mdl-layout__obfuscator\"></div>\n    </div>\n\n    <a href=\"#\" id=\"top\" class=\"mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast\">TOP</a>\n\n  </body>\n</html>\n{{end}}\n\n{{define \"TOC\"}}\n  <ul>\n  {{range .}}\n    <li><a href=\"#TOC_{{.FormattedNumber}}\">{{.Title}}</a></li>\n    {{with .Sections}}{{template \"TOC\" .}}{{end}}\n  {{end}}\n  </ul>\n{{end}}\n\n{{define \"newline\"}}\n{{/* No automatic line break. Paragraphs are free-form. */}}\n{{end}}\n\n\t{/*\nThis is the action template.\nIt determines how the formatting actions are rendered.\n*/}\n\n{{define \"section\"}}\n  <h{{len .Number}} id=\"TOC_{{.FormattedNumber}}\">{{.Title}}</h{{len .Number}}>\n  {{range .Elem}}{{elem $.Template .}}{{end}}\n{{end}}\n\n{{define \"list\"}}\n  <ul>\n  {{range .Bullet}}\n    <li>{{style .}}</li>\n  {{end}}\n  </ul>\n{{end}}\n\n{{define \"text\"}}\n  {{if .Pre}}\n  <div class=\"code\"><pre>{{range .Lines}}{{.}}{{end}}</pre></div>\n  {{else}}\n  <p>\n    {{range $i, $l := .Lines}}{{if $i}}{{template \"newline\"}}\n    {{end}}{{style $l}}{{end}}\n  </p>\n  {{end}}\n{{end}}\n\n{{define \"code\"}}\n  <div class=\"code{{if playable .}} playground{{end}}\" contenteditable=\"true\" spellcheck=\"false\">{{.Text}}</div>\n{{end}}\n\n{{define \"image\"}}\n<div class=\"image\">\n  <img src=\"{{.URL}}\"{{with .Height}} height=\"{{.}}\"{{end}}{{with .Width}} width=\"{{.}}\"{{end}}>\n</div>\n{{end}}\n\n{{define \"iframe\"}}\n<iframe src=\"{{.URL}}\"{{with .Height}} height=\"{{.}}\"{{end}}{{with .Width}} width=\"{{.}}\"{{end}}></iframe>\n{{end}}\n\n{{define \"link\"}}<p class=\"link\"><a href=\"{{.URL}}\" target=\"_blank\">{{style .Label}}</a></p>{{end}}\n\n{{define \"html\"}}{{.HTML}}{{end}}\n\n{{define \"caption\"}}<figcaption>{{style .Text}}</figcaption>{{end}}\n\n"); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
 		_tuple = _r$2;
 		err = _tuple[1];
 		if (!($interfaceIsEqual(err, $ifaceNil))) {
@@ -47982,31 +48317,10 @@ $packages["main"] = (function() {
 		}
 		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: init }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._tuple = _tuple; $f.err = err; $f.$s = $s; $f.$r = $r; return $f;
 	};
-	parseArticle = function(article) {
-		var $ptr, _r, article, r, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; article = $f.article; r = $f.r; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		r = strings.NewReader(article);
-		_r = present.Parse(r, "root", 0); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-		/* */ $s = 2; case 2:
-		return _r;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: parseArticle }; } $f.$ptr = $ptr; $f._r = _r; $f.article = article; $f.r = r; $f.$s = $s; $f.$r = $r; return $f;
-	};
-	render = function(doc) {
-		var $ptr, _r, doc, err, w, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; doc = $f.doc; err = $f.err; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		w = bytes.NewBuffer(new sliceType([]));
-		_r = doc.Render(w, gblTmpl); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-		err = _r;
-		if (!($interfaceIsEqual(err, $ifaceNil))) {
-			return [ptrType$1.nil, err];
-		}
-		return [w, $ifaceNil];
-		/* */ } return; } if ($f === undefined) { $f = { $blk: render }; } $f.$ptr = $ptr; $f._r = _r; $f.doc = doc; $f.err = err; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
-	};
 	main = function() {
 		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, _r$8, _r$9, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; _r$6 = $f._r$6; _r$7 = $f._r$7; _r$8 = $f._r$8; _r$9 = $f._r$9; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		_r = jQuery(new sliceType$1([new $String("document")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = jQuery(new sliceType([new $String("document")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r$1 = _r.Ready((function $b() {
 			var $ptr, $s, $r;
 			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -48015,8 +48329,8 @@ $packages["main"] = (function() {
 			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.$s = $s; $f.$r = $r; return $f;
 		})); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 		_r$1;
-		_r$2 = jQuery(new sliceType$1([new $jsObjectPtr($global)])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
-		_r$3 = _r$2.Resize(new sliceType$1([new funcType$1((function $b(e) {
+		_r$2 = jQuery(new sliceType([new $jsObjectPtr($global)])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+		_r$3 = _r$2.Resize(new sliceType([new funcType$1((function $b(e) {
 			var $ptr, e, $s, $r;
 			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			e = $clone(e, jquery.Event);
@@ -48024,8 +48338,8 @@ $packages["main"] = (function() {
 			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
 		}))])); /* */ $s = 4; case 4: if($c) { $c = false; _r$3 = _r$3.$blk(); } if (_r$3 && _r$3.$blk !== undefined) { break s; }
 		_r$3;
-		_r$4 = jQuery(new sliceType$1([new $String("textarea#editor")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
-		_r$5 = _r$4.On(new sliceType$1([new $String("keydown"), new funcType$1((function $b(e) {
+		_r$4 = jQuery(new sliceType([new $String("textarea#editor")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
+		_r$5 = _r$4.On(new sliceType([new $String("keydown"), new funcType$1((function $b(e) {
 			var $ptr, e, $s, $r;
 			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			e = $clone(e, jquery.Event);
@@ -48033,8 +48347,8 @@ $packages["main"] = (function() {
 			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
 		}))])); /* */ $s = 6; case 6: if($c) { $c = false; _r$5 = _r$5.$blk(); } if (_r$5 && _r$5.$blk !== undefined) { break s; }
 		_r$5;
-		_r$6 = jQuery(new sliceType$1([new $String("button#publish")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
-		_r$7 = _r$6.On(new sliceType$1([new $String("click"), new funcType$1((function $b(e) {
+		_r$6 = jQuery(new sliceType([new $String("button#publish")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
+		_r$7 = _r$6.On(new sliceType([new $String("click"), new funcType$1((function $b(e) {
 			var $ptr, e, $s, $r;
 			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			e = $clone(e, jquery.Event);
@@ -48042,8 +48356,8 @@ $packages["main"] = (function() {
 			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
 		}))])); /* */ $s = 8; case 8: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
 		_r$7;
-		_r$8 = jQuery(new sliceType$1([new $String("button#save")])); /* */ $s = 9; case 9: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
-		_r$9 = _r$8.On(new sliceType$1([new $String("click"), new funcType$1((function $b(e) {
+		_r$8 = jQuery(new sliceType([new $String("button#save")])); /* */ $s = 9; case 9: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
+		_r$9 = _r$8.On(new sliceType([new $String("click"), new funcType$1((function $b(e) {
 			var $ptr, e, $s, $r;
 			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			e = $clone(e, jquery.Event);
@@ -48056,14 +48370,14 @@ $packages["main"] = (function() {
 	ajax = function(url) {
 		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, ajaxopt, data, id, url, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; _r$6 = $f._r$6; _r$7 = $f._r$7; ajaxopt = $f.ajaxopt; data = $f.data; id = $f.id; url = $f.url; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		_r = jQuery(new sliceType$1([new $String("input#ID")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = jQuery(new sliceType([new $String("input#ID")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r$1 = _r.Val(); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 		id = _r$1;
-		_r$2 = jQuery(new sliceType$1([new $String("input#Title")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+		_r$2 = jQuery(new sliceType([new $String("input#Title")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
 		_r$3 = _r$2.Val(); /* */ $s = 4; case 4: if($c) { $c = false; _r$3 = _r$3.$blk(); } if (_r$3 && _r$3.$blk !== undefined) { break s; }
-		_r$4 = jQuery(new sliceType$1([new $String("input#Tags")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
+		_r$4 = jQuery(new sliceType([new $String("input#Tags")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
 		_r$5 = _r$4.Val(); /* */ $s = 6; case 6: if($c) { $c = false; _r$5 = _r$5.$blk(); } if (_r$5 && _r$5.$blk !== undefined) { break s; }
-		_r$6 = jQuery(new sliceType$1([new $String("textarea#editor")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
+		_r$6 = jQuery(new sliceType([new $String("textarea#editor")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
 		_r$7 = _r$6.Val(); /* */ $s = 8; case 8: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
 		data = $makeMap($String.keyFor, [{ k: "Title", v: new $String(_r$3) }, { k: "Tags", v: new $String(_r$5) }, { k: "Markdown", v: new $String(_r$7) }]);
 		ajaxopt = $makeMap($String.keyFor, [{ k: "async", v: new $Bool(true) }, { k: "type", v: new $String("POST") }, { k: "url", v: new $String("/admin/article/" + url + "/" + id) }, { k: "dataType", v: new $String("json") }, { k: "data", v: new js.M(data) }, { k: "success", v: new funcType$2((function(data$1) {
@@ -48077,87 +48391,108 @@ $packages["main"] = (function() {
 	resize = function() {
 		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, _r$8, _r$9, height, margin, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; _r$6 = $f._r$6; _r$7 = $f._r$7; _r$8 = $f._r$8; _r$9 = $f._r$9; height = $f.height; margin = $f.margin; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		_r = jQuery(new sliceType$1([new $jsObjectPtr($global)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = jQuery(new sliceType([new $jsObjectPtr($global)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r$1 = _r.Height(); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 		height = _r$1;
 		margin = 215;
-		_r$2 = jQuery(new sliceType$1([new $String("div#left")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+		_r$2 = jQuery(new sliceType([new $String("div#left")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
 		_r$3 = _r$2.SetHeight(strconv.Itoa(height - margin >> 0)); /* */ $s = 4; case 4: if($c) { $c = false; _r$3 = _r$3.$blk(); } if (_r$3 && _r$3.$blk !== undefined) { break s; }
 		_r$3;
-		_r$4 = jQuery(new sliceType$1([new $String("div#right")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
+		_r$4 = jQuery(new sliceType([new $String("div#right")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
 		_r$5 = _r$4.SetHeight(strconv.Itoa(height - margin >> 0)); /* */ $s = 6; case 6: if($c) { $c = false; _r$5 = _r$5.$blk(); } if (_r$5 && _r$5.$blk !== undefined) { break s; }
 		_r$5;
-		_r$6 = jQuery(new sliceType$1([new $String("textarea#editor")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
+		_r$6 = jQuery(new sliceType([new $String("textarea#editor")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
 		_r$7 = _r$6.SetHeight(strconv.Itoa(height - margin >> 0)); /* */ $s = 8; case 8: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
 		_r$7;
-		_r$8 = jQuery(new sliceType$1([new $String("iframe#result")])); /* */ $s = 9; case 9: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
+		_r$8 = jQuery(new sliceType([new $String("iframe#result")])); /* */ $s = 9; case 9: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
 		_r$9 = _r$8.SetHeight(strconv.Itoa(height - margin >> 0)); /* */ $s = 10; case 10: if($c) { $c = false; _r$9 = _r$9.$blk(); } if (_r$9 && _r$9.$blk !== undefined) { break s; }
 		_r$9;
 		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: resize }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._r$3 = _r$3; $f._r$4 = _r$4; $f._r$5 = _r$5; $f._r$6 = _r$6; $f._r$7 = _r$7; $f._r$8 = _r$8; $f._r$9 = _r$9; $f.height = height; $f.margin = margin; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	redraw = function() {
-		var $ptr, _r, _r$1, _r$10, _r$11, _r$12, _r$13, _r$14, _r$15, _r$16, _r$17, _r$18, _r$19, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, _r$8, _r$9, _tuple, _tuple$1, art, author, doc, header, job, mail, md, title, twitter, url, w, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$10 = $f._r$10; _r$11 = $f._r$11; _r$12 = $f._r$12; _r$13 = $f._r$13; _r$14 = $f._r$14; _r$15 = $f._r$15; _r$16 = $f._r$16; _r$17 = $f._r$17; _r$18 = $f._r$18; _r$19 = $f._r$19; _r$2 = $f._r$2; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; _r$6 = $f._r$6; _r$7 = $f._r$7; _r$8 = $f._r$8; _r$9 = $f._r$9; _tuple = $f._tuple; _tuple$1 = $f._tuple$1; art = $f.art; author = $f.author; doc = $f.doc; header = $f.header; job = $f.job; mail = $f.mail; md = $f.md; title = $f.title; twitter = $f.twitter; url = $f.url; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		_r = jQuery(new sliceType$1([new $String("input#Title")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		var $ptr, _r, _r$1, _r$10, _r$11, _r$12, _r$13, _r$14, _r$15, _r$16, _r$17, _r$18, _r$19, _r$2, _r$20, _r$21, _r$22, _r$3, _r$4, _r$5, _r$6, _r$7, _r$8, _r$9, _tuple, art, author, b, ctx, doc, err, header, job, mail, md, reader, rtn, title, twitter, url, writer, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$10 = $f._r$10; _r$11 = $f._r$11; _r$12 = $f._r$12; _r$13 = $f._r$13; _r$14 = $f._r$14; _r$15 = $f._r$15; _r$16 = $f._r$16; _r$17 = $f._r$17; _r$18 = $f._r$18; _r$19 = $f._r$19; _r$2 = $f._r$2; _r$20 = $f._r$20; _r$21 = $f._r$21; _r$22 = $f._r$22; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; _r$6 = $f._r$6; _r$7 = $f._r$7; _r$8 = $f._r$8; _r$9 = $f._r$9; _tuple = $f._tuple; art = $f.art; author = $f.author; b = $f.b; ctx = $f.ctx; doc = $f.doc; err = $f.err; header = $f.header; job = $f.job; mail = $f.mail; md = $f.md; reader = $f.reader; rtn = $f.rtn; title = $f.title; twitter = $f.twitter; url = $f.url; writer = $f.writer; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		b = [b];
+		_r = jQuery(new sliceType([new $String("input#Title")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r$1 = _r.Val(); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 		title = _r$1;
-		_r$2 = jQuery(new sliceType$1([new $String("input#Name")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+		_r$2 = jQuery(new sliceType([new $String("input#Name")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
 		_r$3 = _r$2.Val(); /* */ $s = 4; case 4: if($c) { $c = false; _r$3 = _r$3.$blk(); } if (_r$3 && _r$3.$blk !== undefined) { break s; }
 		author = _r$3;
-		_r$4 = jQuery(new sliceType$1([new $String("input#Job")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
+		_r$4 = jQuery(new sliceType([new $String("input#Job")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
 		_r$5 = _r$4.Val(); /* */ $s = 6; case 6: if($c) { $c = false; _r$5 = _r$5.$blk(); } if (_r$5 && _r$5.$blk !== undefined) { break s; }
 		job = _r$5;
-		_r$6 = jQuery(new sliceType$1([new $String("input#Email")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
+		_r$6 = jQuery(new sliceType([new $String("input#Email")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
 		_r$7 = _r$6.Val(); /* */ $s = 8; case 8: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
 		mail = _r$7;
-		_r$8 = jQuery(new sliceType$1([new $String("input#URL")])); /* */ $s = 9; case 9: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
+		_r$8 = jQuery(new sliceType([new $String("input#URL")])); /* */ $s = 9; case 9: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
 		_r$9 = _r$8.Val(); /* */ $s = 10; case 10: if($c) { $c = false; _r$9 = _r$9.$blk(); } if (_r$9 && _r$9.$blk !== undefined) { break s; }
 		url = _r$9;
-		_r$10 = jQuery(new sliceType$1([new $String("input#TwitterId")])); /* */ $s = 11; case 11: if($c) { $c = false; _r$10 = _r$10.$blk(); } if (_r$10 && _r$10.$blk !== undefined) { break s; }
+		_r$10 = jQuery(new sliceType([new $String("input#TwitterId")])); /* */ $s = 11; case 11: if($c) { $c = false; _r$10 = _r$10.$blk(); } if (_r$10 && _r$10.$blk !== undefined) { break s; }
 		_r$11 = _r$10.Val(); /* */ $s = 12; case 12: if($c) { $c = false; _r$11 = _r$11.$blk(); } if (_r$11 && _r$11.$blk !== undefined) { break s; }
 		twitter = "@" + _r$11;
 		header = title + "\n\n" + author + "\n" + job + "\n" + mail + "\n" + url + "\n" + twitter + "\n";
-		_r$12 = jQuery(new sliceType$1([new $String("textarea#editor")])); /* */ $s = 13; case 13: if($c) { $c = false; _r$12 = _r$12.$blk(); } if (_r$12 && _r$12.$blk !== undefined) { break s; }
+		_r$12 = jQuery(new sliceType([new $String("textarea#editor")])); /* */ $s = 13; case 13: if($c) { $c = false; _r$12 = _r$12.$blk(); } if (_r$12 && _r$12.$blk !== undefined) { break s; }
 		_r$13 = _r$12.Val(); /* */ $s = 14; case 14: if($c) { $c = false; _r$13 = _r$13.$blk(); } if (_r$13 && _r$13.$blk !== undefined) { break s; }
 		md = _r$13;
 		art = header + "\n" + md;
-		_r$14 = parseArticle(art); /* */ $s = 15; case 15: if($c) { $c = false; _r$14 = _r$14.$blk(); } if (_r$14 && _r$14.$blk !== undefined) { break s; }
+		ctx = new present.Context.ptr(readFile);
+		reader = strings.NewReader(art);
+		_r$14 = ctx.Parse(reader, "blog.article", 0); /* */ $s = 15; case 15: if($c) { $c = false; _r$14 = _r$14.$blk(); } if (_r$14 && _r$14.$blk !== undefined) { break s; }
 		_tuple = _r$14;
 		doc = _tuple[0];
-		_r$15 = render(doc); /* */ $s = 16; case 16: if($c) { $c = false; _r$15 = _r$15.$blk(); } if (_r$15 && _r$15.$blk !== undefined) { break s; }
-		_tuple$1 = _r$15;
-		w = _tuple$1[0];
-		_r$16 = jQuery(new sliceType$1([new $String("iframe#result")])); /* */ $s = 17; case 17: if($c) { $c = false; _r$16 = _r$16.$blk(); } if (_r$16 && _r$16.$blk !== undefined) { break s; }
-		_r$17 = _r$16.Contents(); /* */ $s = 18; case 18: if($c) { $c = false; _r$17 = _r$17.$blk(); } if (_r$17 && _r$17.$blk !== undefined) { break s; }
-		_r$18 = _r$17.Find(new sliceType$1([new $String("html")])); /* */ $s = 19; case 19: if($c) { $c = false; _r$18 = _r$18.$blk(); } if (_r$18 && _r$18.$blk !== undefined) { break s; }
-		_r$19 = _r$18.SetHtml(new $String(w.String())); /* */ $s = 20; case 20: if($c) { $c = false; _r$19 = _r$19.$blk(); } if (_r$19 && _r$19.$blk !== undefined) { break s; }
-		_r$19;
-		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: redraw }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$10 = _r$10; $f._r$11 = _r$11; $f._r$12 = _r$12; $f._r$13 = _r$13; $f._r$14 = _r$14; $f._r$15 = _r$15; $f._r$16 = _r$16; $f._r$17 = _r$17; $f._r$18 = _r$18; $f._r$19 = _r$19; $f._r$2 = _r$2; $f._r$3 = _r$3; $f._r$4 = _r$4; $f._r$5 = _r$5; $f._r$6 = _r$6; $f._r$7 = _r$7; $f._r$8 = _r$8; $f._r$9 = _r$9; $f._tuple = _tuple; $f._tuple$1 = _tuple$1; $f.art = art; $f.author = author; $f.doc = doc; $f.header = header; $f.job = job; $f.mail = mail; $f.md = md; $f.title = title; $f.twitter = twitter; $f.url = url; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
+		err = _tuple[1];
+		if (!($interfaceIsEqual(err, $ifaceNil))) {
+			return;
+		}
+		_r$15 = jQuery(new sliceType([new $String("input#ID")])); /* */ $s = 16; case 16: if($c) { $c = false; _r$15 = _r$15.$blk(); } if (_r$15 && _r$15.$blk !== undefined) { break s; }
+		_r$16 = _r$15.Val(); /* */ $s = 17; case 17: if($c) { $c = false; _r$16 = _r$16.$blk(); } if (_r$16 && _r$16.$blk !== undefined) { break s; }
+		rtn = new structType.ptr(doc, gblTmpl, true, _r$16);
+		b[0] = new bytes.Buffer.ptr(sliceType$1.nil, 0, arrayType.zero(), arrayType$1.zero(), 0);
+		writer = bufio.NewWriter(b[0]);
+		_r$17 = gblTmpl.ExecuteTemplate(writer, "root", new rtn.constructor.elem(rtn)); /* */ $s = 18; case 18: if($c) { $c = false; _r$17 = _r$17.$blk(); } if (_r$17 && _r$17.$blk !== undefined) { break s; }
+		err = _r$17;
+		if (!($interfaceIsEqual(err, $ifaceNil))) {
+			return;
+		}
+		_r$18 = writer.Flush(); /* */ $s = 19; case 19: if($c) { $c = false; _r$18 = _r$18.$blk(); } if (_r$18 && _r$18.$blk !== undefined) { break s; }
+		_r$18;
+		_r$19 = jQuery(new sliceType([new $String("iframe#result")])); /* */ $s = 20; case 20: if($c) { $c = false; _r$19 = _r$19.$blk(); } if (_r$19 && _r$19.$blk !== undefined) { break s; }
+		_r$20 = _r$19.Contents(); /* */ $s = 21; case 21: if($c) { $c = false; _r$20 = _r$20.$blk(); } if (_r$20 && _r$20.$blk !== undefined) { break s; }
+		_r$21 = _r$20.Find(new sliceType([new $String("html")])); /* */ $s = 22; case 22: if($c) { $c = false; _r$21 = _r$21.$blk(); } if (_r$21 && _r$21.$blk !== undefined) { break s; }
+		_r$22 = _r$21.SetHtml(new $String($bytesToString(b[0].Bytes()))); /* */ $s = 23; case 23: if($c) { $c = false; _r$22 = _r$22.$blk(); } if (_r$22 && _r$22.$blk !== undefined) { break s; }
+		_r$22;
+		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: redraw }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$10 = _r$10; $f._r$11 = _r$11; $f._r$12 = _r$12; $f._r$13 = _r$13; $f._r$14 = _r$14; $f._r$15 = _r$15; $f._r$16 = _r$16; $f._r$17 = _r$17; $f._r$18 = _r$18; $f._r$19 = _r$19; $f._r$2 = _r$2; $f._r$20 = _r$20; $f._r$21 = _r$21; $f._r$22 = _r$22; $f._r$3 = _r$3; $f._r$4 = _r$4; $f._r$5 = _r$5; $f._r$6 = _r$6; $f._r$7 = _r$7; $f._r$8 = _r$8; $f._r$9 = _r$9; $f._tuple = _tuple; $f.art = art; $f.author = author; $f.b = b; $f.ctx = ctx; $f.doc = doc; $f.err = err; $f.header = header; $f.job = job; $f.mail = mail; $f.md = md; $f.reader = reader; $f.rtn = rtn; $f.title = title; $f.twitter = twitter; $f.url = url; $f.writer = writer; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	playable = function(c) {
 		var $ptr, c;
 		c = $clone(c, present.Code);
 		return present.PlayEnabled && c.Play && c.Ext === ".go";
 	};
+	readFile = function(name) {
+		var $ptr, name;
+		return [sliceType$1.nil, $ifaceNil];
+	};
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		$r = bytes.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = js.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = jquery.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = present.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = template.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = strconv.$init(); /* */ $s = 6; case 6: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = strings.$init(); /* */ $s = 7; case 7: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = bufio.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = bytes.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = js.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = jquery.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = present.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = template.$init(); /* */ $s = 6; case 6: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = strconv.$init(); /* */ $s = 7; case 7: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = strings.$init(); /* */ $s = 8; case 8: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		gblTmpl = ptrType.nil;
 		jQuery = jquery.NewJQuery;
-		$r = init(); /* */ $s = 8; case 8: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		/* */ if ($pkg === $mainPkg) { $s = 9; continue; }
-		/* */ $s = 10; continue;
-		/* if ($pkg === $mainPkg) { */ case 9:
-			$r = main(); /* */ $s = 11; case 11: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = init(); /* */ $s = 9; case 9: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		/* */ if ($pkg === $mainPkg) { $s = 10; continue; }
+		/* */ $s = 11; continue;
+		/* if ($pkg === $mainPkg) { */ case 10:
+			$r = main(); /* */ $s = 12; case 12: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 			$mainFinished = true;
-		/* } */ case 10:
+		/* } */ case 11:
 		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
 	$pkg.$init = $init;

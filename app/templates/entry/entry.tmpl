@@ -23,7 +23,7 @@
     <meta name="msapplication-TileColor" content="#3372DF">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
     <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/styles.css">
@@ -51,11 +51,9 @@
           <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
 
 
-            <div class="mdl-card__media mdl-color-text--grey-50">
+              <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/{{.StringID}}');">
             <h3>{{.Title}}</h3>
             </div>
-
-
 
         {{if .Authors}}
           {{range .Authors}}

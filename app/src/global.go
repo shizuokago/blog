@@ -1,26 +1,31 @@
 package blog
 
 import (
+	"bufio"
+	"bytes"
 	"html/template"
 	"mime"
 	"net/http"
-	"path/filepath"
+	"strings"
 
 	"github.com/gorilla/mux"
 	_ "golang.org/x/tools/playground"
 	"golang.org/x/tools/present"
 )
 
-var basePath = "./"
-var articleTemplate *template.Template
+var tmpl *template.Template
 
 func init() {
-	initTemplates(basePath)
+
+	var err error
+	tmpl, err = createTemplate()
+	if err != nil {
+		panic(err)
+	}
 	present.PlayEnabled = true
 
 	// App Engine has no /etc/mime.types
 	mime.AddExtensionType(".svg", "image/svg+xml")
-	mime.AddExtensionType(".article", "text/html")
 
 	r := mux.NewRouter()
 
@@ -45,17 +50,66 @@ func playable(c present.Code) bool {
 	return present.PlayEnabled && c.Play && c.Ext == ".go"
 }
 
-func initTemplates(base string) error {
-	// Locate the template file.
-	actionTmpl := filepath.Join(base, "templates/action.tmpl")
-	contentTmpl := filepath.Join(base, "templates/article.tmpl")
+func createTemplate() (*template.Template, error) {
+	action := "templates/entry/action.tmpl"
+	entry := "templates/entry/entry.tmpl"
 
-	// Read and parse the input.
-	tmpl := present.Template()
+	tmpl = present.Template()
 	tmpl = tmpl.Funcs(template.FuncMap{"playable": playable})
-	if _, err := tmpl.ParseFiles(actionTmpl, contentTmpl); err != nil {
-		return err
+	_, err := tmpl.ParseFiles(action, entry)
+	if err != nil {
+		return nil, err
 	}
-	articleTemplate = tmpl
-	return nil
+	return tmpl, nil
+}
+
+func readFile(name string) ([]byte, error) {
+	//select file data
+	return nil, nil
+}
+
+func createHtml(r *http.Request, art *Article) ([]byte, error) {
+
+	//select user
+	u, err := getUser(r)
+	if err != nil {
+		return nil, err
+	}
+
+	//create header
+	header := art.Title + "\n\n" +
+		u.Name + "\n" +
+		u.Job + "\n" +
+		u.Email + "\n" +
+		u.URL + "\n" +
+		u.TwitterId + "\n"
+
+	txt := header + "\n" + string(art.Markdown)
+
+	ctx := present.Context{ReadFile: readFile}
+
+	reader := strings.NewReader(txt)
+	doc, err := ctx.Parse(reader, "blog.article", 0)
+	if err != nil {
+		return nil, err
+	}
+
+	rtn := struct {
+		*present.Doc
+		Template    *template.Template
+		PlayEnabled bool
+		StringID    string
+	}{doc, tmpl, true, art.Key.StringID()}
+
+	//Render
+	var b bytes.Buffer
+	writer := bufio.NewWriter(&b)
+	err = tmpl.ExecuteTemplate(writer, "root", rtn)
+
+	if err != nil {
+		return nil, err
+	}
+	writer.Flush()
+
+	return b.Bytes(), nil
 }
