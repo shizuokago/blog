@@ -47950,7 +47950,7 @@ $packages["golang.org/x/tools/present"] = (function() {
 	return $pkg;
 })();
 $packages["main"] = (function() {
-	var $pkg = {}, $init, bytes, js, jquery, present, template, strconv, strings, ptrType, funcType, sliceType, ptrType$1, sliceType$1, funcType$1, mapType, funcType$2, funcType$3, gblTmpl, jQuery, init, parseArticle, render, main, resize, redraw, playable;
+	var $pkg = {}, $init, bytes, js, jquery, present, template, strconv, strings, ptrType, funcType, sliceType, ptrType$1, sliceType$1, funcType$1, mapType, funcType$2, funcType$3, gblTmpl, jQuery, init, parseArticle, render, main, ajax, resize, redraw, playable;
 	bytes = $packages["bytes"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	jquery = $packages["github.com/gopherjs/jquery"];
@@ -48034,37 +48034,45 @@ $packages["main"] = (function() {
 		}))])); /* */ $s = 6; case 6: if($c) { $c = false; _r$5 = _r$5.$blk(); } if (_r$5 && _r$5.$blk !== undefined) { break s; }
 		_r$5;
 		_r$6 = jQuery(new sliceType$1([new $String("button#publish")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
-		_r$7 = _r$6.On(new sliceType$1([new $String("click"), new funcType$1((function(e) {
-			var $ptr, e;
+		_r$7 = _r$6.On(new sliceType$1([new $String("click"), new funcType$1((function $b(e) {
+			var $ptr, e, $s, $r;
+			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			e = $clone(e, jquery.Event);
+			$r = ajax("publish"); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
 		}))])); /* */ $s = 8; case 8: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
 		_r$7;
 		_r$8 = jQuery(new sliceType$1([new $String("button#save")])); /* */ $s = 9; case 9: if($c) { $c = false; _r$8 = _r$8.$blk(); } if (_r$8 && _r$8.$blk !== undefined) { break s; }
 		_r$9 = _r$8.On(new sliceType$1([new $String("click"), new funcType$1((function $b(e) {
-			var $ptr, _r$10, _r$11, _r$12, _r$13, _r$14, _r$15, _r$16, _r$9, ajaxopt, data, e, id, $s, $r;
-			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r$10 = $f._r$10; _r$11 = $f._r$11; _r$12 = $f._r$12; _r$13 = $f._r$13; _r$14 = $f._r$14; _r$15 = $f._r$15; _r$16 = $f._r$16; _r$9 = $f._r$9; ajaxopt = $f.ajaxopt; data = $f.data; e = $f.e; id = $f.id; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+			var $ptr, e, $s, $r;
+			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			e = $clone(e, jquery.Event);
-			_r$9 = jQuery(new sliceType$1([new $String("input#ID")])); /* */ $s = 1; case 1: if($c) { $c = false; _r$9 = _r$9.$blk(); } if (_r$9 && _r$9.$blk !== undefined) { break s; }
-			_r$10 = _r$9.Val(); /* */ $s = 2; case 2: if($c) { $c = false; _r$10 = _r$10.$blk(); } if (_r$10 && _r$10.$blk !== undefined) { break s; }
-			id = _r$10;
-			_r$11 = jQuery(new sliceType$1([new $String("input#Title")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$11 = _r$11.$blk(); } if (_r$11 && _r$11.$blk !== undefined) { break s; }
-			_r$12 = _r$11.Val(); /* */ $s = 4; case 4: if($c) { $c = false; _r$12 = _r$12.$blk(); } if (_r$12 && _r$12.$blk !== undefined) { break s; }
-			_r$13 = jQuery(new sliceType$1([new $String("input#Tags")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$13 = _r$13.$blk(); } if (_r$13 && _r$13.$blk !== undefined) { break s; }
-			_r$14 = _r$13.Val(); /* */ $s = 6; case 6: if($c) { $c = false; _r$14 = _r$14.$blk(); } if (_r$14 && _r$14.$blk !== undefined) { break s; }
-			_r$15 = jQuery(new sliceType$1([new $String("textarea#editor")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$15 = _r$15.$blk(); } if (_r$15 && _r$15.$blk !== undefined) { break s; }
-			_r$16 = _r$15.Val(); /* */ $s = 8; case 8: if($c) { $c = false; _r$16 = _r$16.$blk(); } if (_r$16 && _r$16.$blk !== undefined) { break s; }
-			data = $makeMap($String.keyFor, [{ k: "Title", v: new $String(_r$12) }, { k: "Tags", v: new $String(_r$14) }, { k: "Markdown", v: new $String(_r$16) }]);
-			ajaxopt = $makeMap($String.keyFor, [{ k: "async", v: new $Bool(true) }, { k: "type", v: new $String("POST") }, { k: "url", v: new $String("/admin/article/save/" + id) }, { k: "dataType", v: new $String("json") }, { k: "data", v: new js.M(data) }, { k: "success", v: new funcType$2((function(data$1) {
-				var $ptr, data$1;
-			})) }, { k: "error", v: new funcType$3((function(status) {
-				var $ptr, status;
-			})) }]);
-			console.log(ajaxopt);
-			jquery.Ajax(ajaxopt);
-			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f._r$10 = _r$10; $f._r$11 = _r$11; $f._r$12 = _r$12; $f._r$13 = _r$13; $f._r$14 = _r$14; $f._r$15 = _r$15; $f._r$16 = _r$16; $f._r$9 = _r$9; $f.ajaxopt = ajaxopt; $f.data = data; $f.e = e; $f.id = id; $f.$s = $s; $f.$r = $r; return $f;
+			$r = ajax("save"); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+			/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: $b }; } $f.$ptr = $ptr; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
 		}))])); /* */ $s = 10; case 10: if($c) { $c = false; _r$9 = _r$9.$blk(); } if (_r$9 && _r$9.$blk !== undefined) { break s; }
 		_r$9;
 		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._r$3 = _r$3; $f._r$4 = _r$4; $f._r$5 = _r$5; $f._r$6 = _r$6; $f._r$7 = _r$7; $f._r$8 = _r$8; $f._r$9 = _r$9; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	ajax = function(url) {
+		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, ajaxopt, data, id, url, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $ptr = $f.$ptr; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _r$3 = $f._r$3; _r$4 = $f._r$4; _r$5 = $f._r$5; _r$6 = $f._r$6; _r$7 = $f._r$7; ajaxopt = $f.ajaxopt; data = $f.data; id = $f.id; url = $f.url; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		_r = jQuery(new sliceType$1([new $String("input#ID")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r$1 = _r.Val(); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+		id = _r$1;
+		_r$2 = jQuery(new sliceType$1([new $String("input#Title")])); /* */ $s = 3; case 3: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+		_r$3 = _r$2.Val(); /* */ $s = 4; case 4: if($c) { $c = false; _r$3 = _r$3.$blk(); } if (_r$3 && _r$3.$blk !== undefined) { break s; }
+		_r$4 = jQuery(new sliceType$1([new $String("input#Tags")])); /* */ $s = 5; case 5: if($c) { $c = false; _r$4 = _r$4.$blk(); } if (_r$4 && _r$4.$blk !== undefined) { break s; }
+		_r$5 = _r$4.Val(); /* */ $s = 6; case 6: if($c) { $c = false; _r$5 = _r$5.$blk(); } if (_r$5 && _r$5.$blk !== undefined) { break s; }
+		_r$6 = jQuery(new sliceType$1([new $String("textarea#editor")])); /* */ $s = 7; case 7: if($c) { $c = false; _r$6 = _r$6.$blk(); } if (_r$6 && _r$6.$blk !== undefined) { break s; }
+		_r$7 = _r$6.Val(); /* */ $s = 8; case 8: if($c) { $c = false; _r$7 = _r$7.$blk(); } if (_r$7 && _r$7.$blk !== undefined) { break s; }
+		data = $makeMap($String.keyFor, [{ k: "Title", v: new $String(_r$3) }, { k: "Tags", v: new $String(_r$5) }, { k: "Markdown", v: new $String(_r$7) }]);
+		ajaxopt = $makeMap($String.keyFor, [{ k: "async", v: new $Bool(true) }, { k: "type", v: new $String("POST") }, { k: "url", v: new $String("/admin/article/" + url + "/" + id) }, { k: "dataType", v: new $String("json") }, { k: "data", v: new js.M(data) }, { k: "success", v: new funcType$2((function(data$1) {
+			var $ptr, data$1;
+		})) }, { k: "error", v: new funcType$3((function(status) {
+			var $ptr, status;
+		})) }]);
+		jquery.Ajax(ajaxopt);
+		/* */ $s = -1; case -1: } return; } if ($f === undefined) { $f = { $blk: ajax }; } $f.$ptr = $ptr; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._r$3 = _r$3; $f._r$4 = _r$4; $f._r$5 = _r$5; $f._r$6 = _r$6; $f._r$7 = _r$7; $f.ajaxopt = ajaxopt; $f.data = data; $f.id = id; $f.url = url; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	resize = function() {
 		var $ptr, _r, _r$1, _r$2, _r$3, _r$4, _r$5, _r$6, _r$7, _r$8, _r$9, height, margin, $s, $r;

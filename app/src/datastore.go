@@ -82,7 +82,7 @@ type Article struct {
 	Title    string
 	SubTitle string
 	Tags     string
-	Markdown datastore.ByteString
+	Markdown datastore.ByteString `datastore:",noindex"`
 	ds.Meta
 }
 
@@ -122,7 +122,7 @@ func getArticle(r *http.Request, id string) (*Article, error) {
 	return &rtn, nil
 }
 
-func updateArticle(r *http.Request, id string) error {
+func updateArticle(r *http.Request, id string) (*Article, error) {
 
 	r.ParseForm()
 	title := r.FormValue("Title")
@@ -131,7 +131,7 @@ func updateArticle(r *http.Request, id string) error {
 
 	art, err := getArticle(r, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	c := appengine.NewContext(r)
@@ -142,10 +142,10 @@ func updateArticle(r *http.Request, id string) error {
 
 	err = ds.Put(c, art)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return art, nil
 }
 
 const KIND_HTML = "Html"
@@ -156,11 +156,118 @@ type Html struct {
 	ds.Meta
 }
 
-const KIND_HTML_DATA = "HtmlData"
+func getHtmlKey(r *http.Request, key string) *datastore.Key {
+	c := appengine.NewContext(r)
+	return datastore.NewKey(c, KIND_HTML, key, 0, nil)
+}
+
+func getHtml(r *http.Request, k string) (*Html, error) {
+
+	c := appengine.NewContext(r)
+
+	rtn := Html{}
+	key := getHtmlKey(r, k)
+	err := ds.Get(c, key, &rtn)
+	return &rtn, err
+
+}
+
+func updateHtml(r *http.Request, key string) error {
+
+	c := appengine.NewContext(r)
+	art, err := updateArticle(r, key)
+	if err != nil {
+		return err
+	}
+
+	html, err := getHtml(r, key)
+	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
+		return verr.Root(err)
+	}
+
+	var data *HtmlData
+	dk := getHtmlDataKey(r, key)
+
+	//get html
+	if err != nil && verr.Root(err) == datastore.ErrNoSuchEntity {
+		// first
+		html = &Html{}
+		k := getHtmlKey(r, key)
+		html.SetKey(k)
+
+		data = &HtmlData{}
+		data.SetKey(dk)
+	} else {
+		err = ds.Get(c, dk, data)
+		if err != nil {
+			return err
+		}
+	}
+
+	html.Title = art.Title
+	html.SubTitle = art.SubTitle
+
+	b, err := createHtml(r, art)
+	if err != nil {
+		return err
+	}
+	data.Content = b
+
+	err = ds.Put(c, html)
+	if err != nil {
+		return err
+	}
+
+	err = ds.Put(c, data)
+	return err
+}
+
+func selectHtml(r *http.Request, page int) ([]Html, error) {
+
+	c := appengine.NewContext(r)
+
+	q := datastore.NewQuery(KIND_HTML).
+		Order("- CreatedAt")
+
+	var s []Html
+	err := ds.ExecuteQuery(c, q, &s)
+
+	//TODO 違う
+	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
+		return nil, verr.Root(err)
+	}
+
+	return s, nil
+}
+
+const KIND_HTMLDATA = "HtmlData"
 
 type HtmlData struct {
 	key     *datastore.Key
-	Content datastore.ByteString
+	Content datastore.ByteString `datastore:",noindex"`
+}
+
+func getHtmlDataKey(r *http.Request, key string) *datastore.Key {
+	c := appengine.NewContext(r)
+	return datastore.NewKey(c, KIND_HTMLDATA, key, 0, nil)
+}
+
+func (d *HtmlData) GetKey() *datastore.Key {
+	return d.key
+}
+
+func (d *HtmlData) SetKey(k *datastore.Key) {
+	d.key = k
+}
+
+func getHtmlData(r *http.Request, k string) (*HtmlData, error) {
+
+	c := appengine.NewContext(r)
+	rtn := HtmlData{}
+	key := getHtmlDataKey(r, k)
+	err := ds.Get(c, key, &rtn)
+
+	return &rtn, err
 }
 
 const KIND_FILE = "File"

@@ -1,46 +1,45 @@
 package blog
 
 import (
+	"github.com/gorilla/mux"
+
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
 )
 
-func init() {
+var indexTmpl *template.Template
 
+func init() {
+	var err error
+	tmpl := filepath.Join("./", "templates/index.tmpl")
+	indexTmpl, err = template.ParseFiles(tmpl)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
-
 	//Get PageNum
 	page := 1
-
 	//Get PageList
-	articles, err := selectArticle(r, page)
+	htmls, err := selectHtml(r, page)
 	if err != nil {
 		log.Println(err)
 	}
-
-	tmpl := filepath.Join("./", "templates/index.tmpl")
-	tmplObj, err := template.ParseFiles(tmpl)
-	if err != nil {
-		log.Println(err)
-	}
-	tmplObj.Execute(w, articles)
+	indexTmpl.Execute(w, htmls)
 }
 
 func entryHandler(w http.ResponseWriter, r *http.Request) {
-
 	//Get Key
-	//vars := mux.Vars("Key")
+	vars := mux.Vars(r)
+	id := vars["key"]
 
-	//Render
-
-	tmpl := filepath.Join("./", "templates/entry.tmpl")
-	tmplObj, err := template.ParseFiles(tmpl)
+	data, err := getHtmlData(r, id)
 	if err != nil {
 		log.Println(err)
 	}
-	tmplObj.Execute(w, nil)
+
+	w.Write(data.Content)
 }

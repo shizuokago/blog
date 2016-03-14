@@ -60,34 +60,34 @@ func main() {
 	})
 
 	jQuery(PUBLISH).On(jquery.CLICK, func(e jquery.Event) {
-
+		ajax("publish")
 	})
 
 	jQuery(SAVE).On(jquery.CLICK, func(e jquery.Event) {
-
-		id := jQuery(ARTICLE_ID).Val()
-		data := js.M{
-			"Title":    jQuery(TITLE).Val(),
-			"Tags":     jQuery(TAGS).Val(),
-			"Markdown": jQuery(INPUT).Val(),
-		}
-		ajaxopt := js.M{
-			"async":    true,
-			"type":     "POST",
-			"url":      "/admin/article/save/" + id,
-			"dataType": "json",
-			"data":     data,
-			"success": func(data map[string]interface{}) {
-			},
-			"error": func(status interface{}) {
-			},
-		}
-
-		println(ajaxopt)
-		//ajax call:
-		jquery.Ajax(ajaxopt)
-
+		ajax("save")
 	})
+}
+
+func ajax(url string) {
+	id := jQuery(ARTICLE_ID).Val()
+	data := js.M{
+		"Title":    jQuery(TITLE).Val(),
+		"Tags":     jQuery(TAGS).Val(),
+		"Markdown": jQuery(INPUT).Val(),
+	}
+	ajaxopt := js.M{
+		"async":    true,
+		"type":     "POST",
+		"url":      "/admin/article/" + url + "/" + id,
+		"dataType": "json",
+		"data":     data,
+		"success": func(data map[string]interface{}) {
+		},
+		"error": func(status interface{}) {
+		},
+	}
+	//ajax call:
+	jquery.Ajax(ajaxopt)
 }
 
 func resize() {
