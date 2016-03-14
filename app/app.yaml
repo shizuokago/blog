@@ -12,7 +12,7 @@ handlers:
     application_readable: true
   - url: /admin/.*
     script: _go_app
-    login: required
+    login: admin
     secure: always
   - url: /.*
     script: _go_app
