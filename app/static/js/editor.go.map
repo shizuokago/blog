@@ -251,9 +251,7 @@ const (
 
 
 
-
-
-            <div class="mdl-color-text--grey-700 mdl-card" style="padding-left:20px">
+            <div class="mdl-color-text--grey-700 mdl-card" style="padding-left:20px;width:100%;">
 
         {{with .Sections}}
           <div id="toc">

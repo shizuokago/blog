@@ -2,8 +2,6 @@
 
 
 
-
-
 ## Using
 
 	"github.com/gopherjs/gopherjs"
@@ -28,12 +26,20 @@
 
 ## Original
 
-    blog design
+  index HTML
     ./app/templates/index.tmpl
-    ./app/templates/entry/*
 
-    backgroung image
-    ./app/static/images/backgound
+  article HTML
+    ./app/templates/entry/entry.tmpl
+    ./app/templates/entry/action.tmpl
+
+  stylesheet
+    ./app/static/css/style.css
+
+  backgroung image
+    ./app/static/images/bg_1024.jpg
+    ./app/static/images/bg_2048.jpg
+    ./app/static/images/bg_2880.jpg
 
 
 ### if you change design
