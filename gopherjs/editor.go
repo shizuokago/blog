@@ -37,8 +37,13 @@ func main() {
 		resize()
 	})
 
+	cnt := 0
 	jQuery(INPUT).On(jquery.KEYDOWN, func(e jquery.Event) {
-		redraw()
+		cnt++
+		if cnt == 15 {
+			redraw()
+			cnt = 0
+		}
 	})
 
 	jQuery(PUBLISH).On(jquery.CLICK, func(e jquery.Event) {
@@ -51,12 +56,16 @@ func main() {
 }
 
 func ajax(url string) {
+
+	// TOAST ON
+
 	id := jQuery(ARTICLE_ID).Val()
 	data := js.M{
 		"Title":    jQuery(TITLE).Val(),
 		"Tags":     jQuery(TAGS).Val(),
 		"Markdown": jQuery(INPUT).Val(),
 	}
+
 	ajaxopt := js.M{
 		"async":    true,
 		"type":     "POST",
@@ -67,8 +76,11 @@ func ajax(url string) {
 		},
 		"error": func(status interface{}) {
 		},
+		"complete": func(status interface{}) {
+			// TOAST OFF
+		},
 	}
-	//ajax call:
+
 	jquery.Ajax(ajaxopt)
 }
 

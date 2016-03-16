@@ -185,7 +185,7 @@ func updateHtml(r *http.Request, key string) error {
 		return verr.Root(err)
 	}
 
-	var data *HtmlData
+	data := &HtmlData{}
 	dk := getHtmlDataKey(r, key)
 
 	//get html
@@ -193,11 +193,11 @@ func updateHtml(r *http.Request, key string) error {
 		// first
 		html = &Html{}
 		k := getHtmlKey(r, key)
-		html.SetKey(k)
 
-		data = &HtmlData{}
+		html.SetKey(k)
 		data.SetKey(dk)
 	} else {
+
 		err = ds.Get(c, dk, data)
 		if err != nil {
 			return err
