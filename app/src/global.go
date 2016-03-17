@@ -3,7 +3,9 @@ package blog
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"html/template"
+	"io/ioutil"
 	"mime"
 	"net/http"
 	"strings"
@@ -13,7 +15,13 @@ import (
 	"golang.org/x/tools/present"
 )
 
+type Blog struct {
+	Name   string
+	Author string
+}
+
 var tmpl *template.Template
+var blog = Blog{}
 
 func init() {
 
@@ -44,6 +52,16 @@ func init() {
 
 	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 	http.Handle("/", r)
+
+	jsonString, err := ioutil.ReadFile("./static/blog.json")
+	if err != nil {
+		panic(err)
+	}
+
+	err = json.Unmarshal(jsonString, &blog)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func playable(c present.Code) bool {
@@ -68,13 +86,7 @@ func readFile(name string) ([]byte, error) {
 	return nil, nil
 }
 
-func createHtml(r *http.Request, art *Article) ([]byte, error) {
-
-	//select user
-	u, err := getUser(r)
-	if err != nil {
-		return nil, err
-	}
+func createHtml(r *http.Request, art *Article, u *User) ([]byte, error) {
 
 	//create header
 	header := art.Title + "\n\n" +
@@ -99,7 +111,8 @@ func createHtml(r *http.Request, art *Article) ([]byte, error) {
 		Template    *template.Template
 		PlayEnabled bool
 		StringID    string
-	}{doc, tmpl, true, art.Key.StringID()}
+		BlogName    string
+	}{doc, tmpl, true, art.Key.StringID(), blog.Name}
 
 	//Render
 	var b bytes.Buffer

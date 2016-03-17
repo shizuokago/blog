@@ -42,7 +42,8 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		Article  *Article
 		User     *User
 		Markdown string
-	}{art, u, string(art.Markdown)}
+		BlogName string
+	}{art, u, string(art.Markdown), blog.Name}
 
 	adminRender(w, "./templates/admin/edit.tmpl", s)
 }

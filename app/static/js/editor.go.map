@@ -134,7 +134,8 @@ func redraw() {
 		Template    *template.Template
 		PlayEnabled bool
 		StringID    string
-	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val()}
+		BlogName    string
+	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val()}
 	//Render
 	var b bytes.Buffer
 	writer := bufio.NewWriter(&b)
@@ -165,6 +166,7 @@ const (
 	URL        = "input#URL"
 	TWITTER    = "input#TwitterId"
 	ARTICLE_ID = "input#ID"
+	BLOGNAME   = "input#BlogName"
 	DOCUMENT   = "document"
 	INPUT      = "textarea#editor"
 	SAVE       = "button#save"
@@ -181,7 +183,7 @@ const (
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BlogName-{{.Title}}</title>
+    <title>{{.BlogName}}-{{.Title}}</title>
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">

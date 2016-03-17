@@ -1,11 +1,12 @@
 package blog
 
 import (
-	verr "github.com/knightso/base/errors"
-	"github.com/knightso/base/gae/ds"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
+	verr "github.com/knightso/base/errors"
+	"github.com/knightso/base/gae/ds"
 	"github.com/pborman/uuid"
 
 	"google.golang.org/appengine"
@@ -15,13 +16,6 @@ import (
 
 func init() {
 	ds.DefaultCache = true
-}
-
-const KIND_BLOG = "Blog"
-
-type Blog struct {
-	Name string
-	ds.Meta
 }
 
 const KIND_USER = "User"
@@ -137,6 +131,7 @@ func updateArticle(r *http.Request, id string) (*Article, error) {
 	c := appengine.NewContext(r)
 
 	art.Title = title
+	art.SubTitle = createSubTitle(r.FormValue("Markdown"))
 	art.Tags = tags
 	art.Markdown = mark
 
@@ -148,11 +143,23 @@ func updateArticle(r *http.Request, id string) (*Article, error) {
 	return art, nil
 }
 
+func createSubTitle(src string) string {
+
+	dst := strings.Replace(src, "\n", "", -1)
+	dst = strings.Replace(dst, "*", "", -1)
+
+	if len(dst) > 1500 {
+		dst = string([]rune(dst[0:500]))
+	}
+	return dst
+}
+
 const KIND_HTML = "Html"
 
 type Html struct {
 	Title    string
 	SubTitle string
+	Author   string
 	ds.Meta
 }
 
@@ -175,6 +182,12 @@ func getHtml(r *http.Request, k string) (*Html, error) {
 func updateHtml(r *http.Request, key string) error {
 
 	c := appengine.NewContext(r)
+
+	u, err := getUser(r)
+	if err != nil {
+		return err
+	}
+
 	art, err := updateArticle(r, key)
 	if err != nil {
 		return err
@@ -206,8 +219,9 @@ func updateHtml(r *http.Request, key string) error {
 
 	html.Title = art.Title
 	html.SubTitle = art.SubTitle
+	html.Author = u.Name
 
-	b, err := createHtml(r, art)
+	b, err := createHtml(r, art, u)
 	if err != nil {
 		return err
 	}

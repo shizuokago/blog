@@ -4,26 +4,35 @@
 
 <div class="mdl-cell mdl-cell--11-col">
 
-
     <!-- Wide card with share menu button -->
     <style>
-.demo-card-wide.mdl-card {
+.card-wide.mdl-card {
   float:left;
-  width: 512px;
+  width: 420px;
   margin:10px;
 }
-.demo-card-wide > .mdl-card__title {
+.card-wide > .mdl-card__title {
   color: #fff;
   height: 176px;
 }
-.demo-card-wide > .mdl-card__menu {
+.card-wide > .mdl-card__menu {
   color: #fff;
+}
+
+.title {
+  font-size : 24px;
+  text-shadow:
+    0px -1px #aaa,
+    1px 0px #555,
+    0px 1px #aaa,
+    -1px 1px #555;
 }
     </style>
 {{range .}}
-<div class="demo-card-wide mdl-card mdl-shadow--2dp">
+
+<div class="card-wide mdl-card mdl-shadow--2dp">
     <div class="mdl-card__title" style="background: url('/file/{{.Key.StringID}}') center / cover;">
-    <h4 class="mdl-card__title-text" class="title">{{.Title}}</h2>
+    <div class="mdl-card__title-text title">{{.Title}}</div>
 </div>
 <div class="mdl-card__supporting-text">
 {{.SubTitle}}

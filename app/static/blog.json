@@ -1,0 +1,4 @@
+{
+    "BlogName" : "{{.Name}}",
+    "Author" : "{{.Author}}"
+}

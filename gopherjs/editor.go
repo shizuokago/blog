@@ -134,7 +134,8 @@ func redraw() {
 		Template    *template.Template
 		PlayEnabled bool
 		StringID    string
-	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val()}
+		BlogName    string
+	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val()}
 	//Render
 	var b bytes.Buffer
 	writer := bufio.NewWriter(&b)
@@ -165,6 +166,7 @@ const (
 	URL        = "input#URL"
 	TWITTER    = "input#TwitterId"
 	ARTICLE_ID = "input#ID"
+	BLOGNAME   = "input#BlogName"
 	DOCUMENT   = "document"
 	INPUT      = "textarea#editor"
 	SAVE       = "button#save"

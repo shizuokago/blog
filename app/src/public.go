@@ -28,7 +28,13 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	indexTmpl.Execute(w, htmls)
+
+	data := struct {
+		BlogName string
+		HTMLs    []Html
+	}{blog.Name, htmls}
+
+	indexTmpl.Execute(w, data)
 }
 
 func entryHandler(w http.ResponseWriter, r *http.Request) {
