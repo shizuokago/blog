@@ -12,6 +12,7 @@ import (
 	"html/template"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var gblTmpl *template.Template
@@ -97,6 +98,11 @@ func resize() {
 	jQuery(OUTPUT).SetHeight(strconv.Itoa(height - margin))
 }
 
+type Html struct {
+	Author    string
+	CreatedAt time.Time
+}
+
 func redraw() {
 
 	title := jQuery(TITLE).Val()
@@ -129,13 +135,19 @@ func redraw() {
 		return
 	}
 
+	html := Html{
+		Author:    author,
+		CreatedAt: time.Now(),
+	}
+
 	rtn := struct {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
 		StringID    string
 		BlogName    string
-	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val()}
+		HTML        Html
+	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
 	//Render
 	var b bytes.Buffer
 	writer := bufio.NewWriter(&b)

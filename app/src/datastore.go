@@ -148,8 +148,8 @@ func createSubTitle(src string) string {
 	dst := strings.Replace(src, "\n", "", -1)
 	dst = strings.Replace(dst, "*", "", -1)
 
-	if len(dst) > 1500 {
-		dst = string([]rune(dst[0:500]))
+	if len(dst) > 600 {
+		dst = string([]rune(dst[0:200]))
 	}
 	return dst
 }
@@ -221,7 +221,7 @@ func updateHtml(r *http.Request, key string) error {
 	html.SubTitle = art.SubTitle
 	html.Author = u.Name
 
-	b, err := createHtml(r, art, u)
+	b, err := createHtml(r, art, u, html)
 	if err != nil {
 		return err
 	}

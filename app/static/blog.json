@@ -1,4 +1,4 @@
 {
-    "BlogName" : "{{.Name}}",
+    "Name" : "Shizuoka.go",
     "Author" : "{{.Author}}"
 }

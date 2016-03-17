@@ -86,7 +86,7 @@ func readFile(name string) ([]byte, error) {
 	return nil, nil
 }
 
-func createHtml(r *http.Request, art *Article, u *User) ([]byte, error) {
+func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, error) {
 
 	//create header
 	header := art.Title + "\n\n" +
@@ -112,7 +112,8 @@ func createHtml(r *http.Request, art *Article, u *User) ([]byte, error) {
 		PlayEnabled bool
 		StringID    string
 		BlogName    string
-	}{doc, tmpl, true, art.Key.StringID(), blog.Name}
+		HTML        *Html
+	}{doc, tmpl, true, art.Key.StringID(), blog.Name, html}
 
 	//Render
 	var b bytes.Buffer
