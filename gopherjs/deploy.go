@@ -25,7 +25,7 @@ func init() {
 
 func main() {
 
-	err := run()
+	err := run("Blog Title")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -67,8 +67,8 @@ func createGoFile() error {
 }
 
 func generateJSFile() error {
-	//err := Command("gopherjs", "build", "-m", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
-	err := Command("gopherjs", "build", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
+	err := Command("gopherjs", "build", "-m", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
+	//err := Command("gopherjs", "build", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
 	if err != nil {
 		fmt.Println("GopherJS build error")
 		return err
@@ -136,7 +136,7 @@ func deploy() error {
 	return nil
 }
 
-func run() error {
+func run(title string) error {
 
 	//create work dir
 	err := os.Mkdir(WORK_DIR, 0777)

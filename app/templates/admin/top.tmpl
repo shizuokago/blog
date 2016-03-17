@@ -23,7 +23,7 @@
 {{range .}}
 <div class="demo-card-wide mdl-card mdl-shadow--2dp">
     <div class="mdl-card__title" style="background: url('/file/{{.Key.StringID}}') center / cover;">
-    <h2 class="mdl-card__title-text" class="title">{{.Title}}</h2>
+    <h4 class="mdl-card__title-text" class="title">{{.Title}}</h2>
 </div>
 <div class="mdl-card__supporting-text">
 {{.SubTitle}}
@@ -33,10 +33,15 @@
 EDIT
 </a>
 </div>
+
 <div class="mdl-card__menu">
+
+<!--
 <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
 <i class="material-icons">share</i>
 </button>
+-->
+
 </div>
 </div>
 {{end}}
