@@ -50,7 +50,6 @@
         <div class="demo-blog__posts mdl-grid">
           <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
 
-
               <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/{{.StringID}}');">
             <h3 class="title">{{.Title}}</h3>
             </div>
@@ -70,8 +69,8 @@
               <div class="minilogo"></div>
 
               <div>
-                <strong> {{ .HTML.Author }} </strong>
-                <span> {{ .HTML.CreatedAt }} </span>
+                <strong style="width:100%;"> {{ .HTML.Author }} </strong>
+                <span> {{ convert  .HTML.CreatedAt }} </span>
               </div>
 
               <div class="section-spacer"></div>
@@ -165,7 +164,7 @@
       <div class="mdl-layout__obfuscator"></div>
     </div>
 
-    <a href="#" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">TOP</a>
+    <a href="#top" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">TOP</a>
 
   </body>
 </html>

@@ -499,14 +499,14 @@ body .demo-blog {
 }
 
 h1 {
-    font-size : 48px;
+    font-size : 32px;
     margin-top :10px;
     margin-bottom :10px;
     border-bottom: 1px solid #aaa;
 }
 
 h2 {
-    font-size : 32px;
+    font-size : 28px;
     margin-top :5px;
     margin-bottom :5px;
     border-bottom: 1px solid #eee;

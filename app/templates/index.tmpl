@@ -1,3 +1,4 @@
+{{define "root"}}
 <!doctype html>
 <html lang="en">
   <head>
@@ -59,7 +60,7 @@
               <div class="minilogo"></div>
               <div>
                 <strong>{{ .Author }}</strong>
-                <span>{{ .CreatedAt }}</span>
+                <span>{{ convert .CreatedAt }}</span>
               </div>
             </div>
           </div>
@@ -102,7 +103,7 @@
       </main>
       <div class="mdl-layout__obfuscator"></div>
     </div>
-    <a href="#" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--white">TOP</a>
+    <a href="#top" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--white">TOP</a>
   </body>
 
   <script>
@@ -121,3 +122,4 @@
     });
   </script>
 </html>
+{{end}}

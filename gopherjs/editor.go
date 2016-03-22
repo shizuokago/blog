@@ -20,8 +20,11 @@ var jQuery = jquery.NewJQuery
 
 func init() {
 	gblTmpl = present.Template()
-	gblTmpl.Funcs(template.FuncMap{"playable": playable})
-	_, err := gblTmpl.Parse(TMPL)
+	funcMap := template.FuncMap{
+		"playable": playable,
+		"convert":  convert,
+	}
+	_, err := gblTmpl.Funcs(funcMap).Parse(TMPL)
 	if err != nil {
 		panic(err)
 	}
@@ -148,9 +151,11 @@ func redraw() {
 		BlogName    string
 		HTML        Html
 	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
+
 	//Render
 	var b bytes.Buffer
 	writer := bufio.NewWriter(&b)
+
 	err = gblTmpl.ExecuteTemplate(writer, "root", rtn)
 	if err != nil {
 		return
@@ -162,6 +167,12 @@ func redraw() {
 
 func playable(c present.Code) bool {
 	return present.PlayEnabled && c.Play && c.Ext == ".go"
+}
+
+func convert(t time.Time) string {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jt := t.In(jst)
+	return jt.Format("2000/01/01 01:01")
 }
 
 func readFile(name string) ([]byte, error) {

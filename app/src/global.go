@@ -9,6 +9,7 @@ import (
 	"mime"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	_ "golang.org/x/tools/playground"
@@ -68,12 +69,23 @@ func playable(c present.Code) bool {
 	return present.PlayEnabled && c.Play && c.Ext == ".go"
 }
 
+func convert(t time.Time) string {
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	jt := t.In(jst)
+	return jt.Format("2006/01/02 15:04")
+}
+
 func createTemplate() (*template.Template, error) {
+
 	action := "templates/entry/action.tmpl"
 	entry := "templates/entry/entry.tmpl"
 
 	tmpl = present.Template()
-	tmpl = tmpl.Funcs(template.FuncMap{"playable": playable})
+	funcMap := template.FuncMap{
+		"playable": playable,
+		"convert":  convert,
+	}
+	tmpl = tmpl.Funcs(funcMap)
 	_, err := tmpl.ParseFiles(action, entry)
 	if err != nil {
 		return nil, err

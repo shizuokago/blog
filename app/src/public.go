@@ -6,17 +6,19 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 )
 
 var indexTmpl *template.Template
 
 func init() {
+
+	funcMap := template.FuncMap{"convert": convert}
+
 	var err error
-	tmpl := filepath.Join("./", "templates/index.tmpl")
-	indexTmpl, err = template.ParseFiles(tmpl)
+	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./templates/index.tmpl")
+	//indexTmpl, err = template.ParseFiles("./templates/index.tmpl")
 	if err != nil {
-		log.Println(err)
+		panic(err)
 	}
 }
 
@@ -34,7 +36,10 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		HTMLs    []Html
 	}{blog.Name, htmls}
 
-	indexTmpl.Execute(w, data)
+	err = indexTmpl.Execute(w, data)
+	if err != nil {
+		log.Println(indexTmpl)
+	}
 }
 
 func entryHandler(w http.ResponseWriter, r *http.Request) {

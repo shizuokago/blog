@@ -20,8 +20,11 @@ var jQuery = jquery.NewJQuery
 
 func init() {
 	gblTmpl = present.Template()
-	gblTmpl.Funcs(template.FuncMap{"playable": playable})
-	_, err := gblTmpl.Parse(TMPL)
+	funcMap := template.FuncMap{
+		"playable": playable,
+		"convert":  convert,
+	}
+	_, err := gblTmpl.Funcs(funcMap).Parse(TMPL)
 	if err != nil {
 		panic(err)
 	}
@@ -148,9 +151,11 @@ func redraw() {
 		BlogName    string
 		HTML        Html
 	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
+
 	//Render
 	var b bytes.Buffer
 	writer := bufio.NewWriter(&b)
+
 	err = gblTmpl.ExecuteTemplate(writer, "root", rtn)
 	if err != nil {
 		return
@@ -162,6 +167,12 @@ func redraw() {
 
 func playable(c present.Code) bool {
 	return present.PlayEnabled && c.Play && c.Ext == ".go"
+}
+
+func convert(t time.Time) string {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jt := t.In(jst)
+	return jt.Format("2000/01/01 01:01")
 }
 
 func readFile(name string) ([]byte, error) {
@@ -239,7 +250,6 @@ const (
         <div class="demo-blog__posts mdl-grid">
           <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
 
-
               <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/{{.StringID}}');">
             <h3 class="title">{{.Title}}</h3>
             </div>
@@ -259,8 +269,8 @@ const (
               <div class="minilogo"></div>
 
               <div>
-                <strong> {{ .HTML.Author }} </strong>
-                <span> {{ .HTML.CreatedAt }} </span>
+                <strong style="width:100%;"> {{ .HTML.Author }} </strong>
+                <span> {{ convert  .HTML.CreatedAt }} </span>
               </div>
 
               <div class="section-spacer"></div>
@@ -354,7 +364,7 @@ const (
       <div class="mdl-layout__obfuscator"></div>
     </div>
 
-    <a href="#" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">TOP</a>
+    <a href="#top" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">TOP</a>
 
   </body>
 </html>
