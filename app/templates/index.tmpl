@@ -10,7 +10,6 @@
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="icon" sizes="192x192" href="images/android-desktop.png">
 
     <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +18,6 @@
     <link rel="apple-touch-icon-precomposed" href="images/ios-desktop.png">
 
     <!-- Tile icon for Win8 (144x144 + tile color) -->
-    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
     <meta name="msapplication-TileColor" content="#3372DF">
 
     <link rel="shortcut icon" href="/static/images/favicon.png">
@@ -29,21 +27,11 @@
     <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/styles.css">
-    <style>
-    #top {
-      position: fixed;
-      display: block;
-      right: 0;
-      bottom: 0;
-      margin-right: 40px;
-      margin-bottom: 40px;
-      z-index: 900;
-    }
-    </style>
   </head>
   <body>
+
     <div class="demo-blog mdl-layout mdl-js-layout has-drawer is-upgraded">
-      <main class="mdl-layout__content">
+      <main class="mdl-layout__content" id="start">
         <div class="demo-blog__posts mdl-grid">
 
 {{ range .HTMLs }}
@@ -103,7 +91,7 @@
       </main>
       <div class="mdl-layout__obfuscator"></div>
     </div>
-    <a href="#top" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--white">TOP</a>
+    <a href="#start" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--white">TOP</a>
   </body>
 
   <script>
