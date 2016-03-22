@@ -170,9 +170,9 @@ func playable(c present.Code) bool {
 }
 
 func convert(t time.Time) string {
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	jst, _ := time.LoadLocation("Asia/Tokyo")
 	jt := t.In(jst)
-	return jt.Format("2000/01/01 01:01")
+	return jt.Format("2006/01/02 15:04")
 }
 
 func readFile(name string) ([]byte, error) {
