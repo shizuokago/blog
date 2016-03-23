@@ -431,7 +431,7 @@ body .demo-blog {
   color: white;
   z-index: 9999;
 }
-.demo-blog .section-spacer {
+.demo-blog .section-spacer .mdl-layout-spacer {
   -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
           flex-grow: 1;

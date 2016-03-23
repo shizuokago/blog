@@ -46,10 +46,12 @@ func init() {
 	r.HandleFunc("/admin/", adminHandler).Methods("GET")
 
 	r.HandleFunc("/admin/article/create", createArticleHandler).Methods("POST")
-	r.HandleFunc("/admin/article/edit/{key}", editArticleHandler).Methods("Get")
+	r.HandleFunc("/admin/article/edit/{key}", editArticleHandler).Methods("GET")
 
 	r.HandleFunc("/admin/article/save/{key}", saveArticleHandler).Methods("POST")
 	r.HandleFunc("/admin/article/publish/{key}", publishArticleHandler).Methods("POST")
+
+	r.HandleFunc("/admin/article/delete/{key}", deleteArticleHandler).Methods("GET")
 
 	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 	http.Handle("/", r)
@@ -138,4 +140,7 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 	writer.Flush()
 
 	return b.Bytes(), nil
+}
+
+func resizeImage() {
 }

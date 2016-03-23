@@ -154,6 +154,10 @@ func createSubTitle(src string) string {
 	return dst
 }
 
+func deleteArticle(r *http.Request, id string) error {
+	return nil
+}
+
 const KIND_HTML = "Html"
 
 type Html struct {
@@ -310,13 +314,18 @@ func createArticle(r *http.Request) (string, error) {
 		return "", err
 	}
 
+	if len(b) >= (1024 * 1024 * 1) {
+	}
+
 	c := appengine.NewContext(r)
 	id := uuid.New()
 
+	base := "* Seciton1"
 	article := &Article{
 		Title:    "New Title",
-		Markdown: []byte("* Section1"),
+		Markdown: []byte(base),
 	}
+
 	article.Key = getArticleKey(r, id)
 	err = ds.Put(c, article)
 	if err != nil {

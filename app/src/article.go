@@ -79,3 +79,12 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
+
+func deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["key"]
+	err := deleteArticle(r, id)
+	if err != nil {
+	}
+	http.Redirect(w, r, "/admin/", 301)
+}

@@ -27,6 +27,13 @@
     0px 1px #aaa,
     -1px 1px #555;
 }
+
+.mdl-layout-spacer {
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+
     </style>
 {{range .}}
 
@@ -34,24 +41,30 @@
     <div class="mdl-card__title" style="background: url('/file/{{.Key.StringID}}') center / cover;">
     <div class="mdl-card__title-text title">{{.Title}}</div>
 </div>
-<div class="mdl-card__supporting-text">
+
+<div class="mdl-card__supporting-text" style="max-height:50px;min-height:50px;">
 {{.SubTitle}}
 </div>
+
 <div class="mdl-card__actions mdl-card--border">
-    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="/admin/article/edit/{{.Key.StringID}}">
-EDIT
-</a>
+
+{{.UpdatedAt}}
+
+<button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
+<i class="material-icons right-section">delete</i>
+</button>
+
 </div>
+
 
 <div class="mdl-card__menu">
 
-<!--
-<button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
-<i class="material-icons">share</i>
+<button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.StringID}}">
+<i class="material-icons">mode_edit</i>
 </button>
--->
 
 </div>
+
 </div>
 {{end}}
 
@@ -75,8 +88,19 @@ EDIT
 <script src="/static/js/jquery.min.js"></script>
 
 <script>
+
 $("#addBtn").click(function() {
     $("#file").click();
+    return false;
+});
+
+$("button.editBtn").click(function(e) {
+    location.href = "/admin/article/edit/" + $(e.currentTarget).data("id");
+    return false;
+});
+
+$("button.deleteBtn").click(function(e) {
+    location.href = "/admin/article/delete/" + $(e.currentTarget).data("id");
     return false;
 });
 
@@ -84,6 +108,9 @@ $("#file").change(function() {
     $(this).closest("form").submit();
     return false;
 });
+
+
+
 </script>
 
 {{end}}
