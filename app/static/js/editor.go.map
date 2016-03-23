@@ -61,7 +61,9 @@ func main() {
 
 func ajax(url string) {
 
-	// TOAST ON
+	d := js.Global.Get("document")
+	dialog := d.Call("querySelector", "#dialog")
+	dialog.Call("showModal")
 
 	id := jQuery(ARTICLE_ID).Val()
 	data := js.M{
@@ -81,7 +83,7 @@ func ajax(url string) {
 		"error": func(status interface{}) {
 		},
 		"complete": func(status interface{}) {
-			// TOAST OFF
+			dialog.Call("close")
 		},
 	}
 
@@ -170,9 +172,9 @@ func playable(c present.Code) bool {
 }
 
 func convert(t time.Time) string {
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-	jt := t.In(jst)
-	return jt.Format("2000/01/01 01:01")
+	//jst, _ := time.LoadLocation("Asia/Tokyo")
+	//jt := t.In(jst)
+	return t.Format("2006/01/02 15:04")
 }
 
 func readFile(name string) ([]byte, error) {
@@ -227,21 +229,11 @@ const (
     <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/styles.css">
-    <style>
-    #top {
-      position: fixed;
-      display: block;
-      right: 0;
-      bottom: 0;
-      margin-right: 40px;
-      margin-bottom: 40px;
-      z-index: 900;
-    }
-    </style>
+
   </head>
   <body>
     <div class="demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
-      <main class="mdl-layout__content">
+      <main class="mdl-layout__content" id="start">
         <div class="demo-back">
           <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="/" title="go back" role="button">
             <i class="material-icons" role="presentation">arrow_back</i>
@@ -322,6 +314,7 @@ const (
 
           </div>
 
+<!--
           <nav class="demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
             <a href="" class="demo-nav__button">
               <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
@@ -337,7 +330,9 @@ const (
               </button>
             </a>
           </nav>
+-->
         </div>
+
 <!--
         <footer class="mdl-mini-footer">
           <div class="mdl-mini-footer--left-section">
@@ -364,7 +359,7 @@ const (
       <div class="mdl-layout__obfuscator"></div>
     </div>
 
-    <a href="#top" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">TOP</a>
+    <a href="#start" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"><i class="material-icons">vertical_align_top</i></a>
 
   </body>
 </html>
