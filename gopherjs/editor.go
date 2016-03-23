@@ -61,7 +61,9 @@ func main() {
 
 func ajax(url string) {
 
-	// TOAST ON
+	d := js.Global.Get("document")
+	dialog := d.Call("querySelector", "#dialog")
+	dialog.Call("showModal")
 
 	id := jQuery(ARTICLE_ID).Val()
 	data := js.M{
@@ -81,7 +83,7 @@ func ajax(url string) {
 		"error": func(status interface{}) {
 		},
 		"complete": func(status interface{}) {
-			// TOAST OFF
+			dialog.Call("close")
 		},
 	}
 
