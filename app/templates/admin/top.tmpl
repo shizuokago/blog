@@ -85,9 +85,23 @@
 
 </div>
 
+<dialog class="mdl-dialog">
+<h4 class="mdl-dialog__title">this article delete?</h4>
+<div class="mdl-dialog__content">
+<p>
+It is not possible to return again.
+</p>
+</div>
+<div class="mdl-dialog__actions">
+<button type="button" class="mdl-button delete">DELETE</button>
+<button type="button" class="mdl-button close">CLOSE</button>
+</div>
+</dialog>
+
 <script src="/static/js/jquery.min.js"></script>
 
 <script>
+
 
 $("#addBtn").click(function() {
     $("#file").click();
@@ -100,7 +114,17 @@ $("button.editBtn").click(function(e) {
 });
 
 $("button.deleteBtn").click(function(e) {
-    location.href = "/admin/article/delete/" + $(e.currentTarget).data("id");
+    var dialog = document.querySelector('dialog');
+    dialog.showModal();
+
+    dialog.querySelector('.delete').addEventListener('click', function() {
+        location.href = "/admin/article/delete/" + $(e.currentTarget).data("id");
+    });
+
+    dialog.querySelector('.close').addEventListener('click', function() {
+        dialog.close();
+    });
+
     return false;
 });
 

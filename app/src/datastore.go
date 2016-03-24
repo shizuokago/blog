@@ -155,6 +155,36 @@ func createSubTitle(src string) string {
 }
 
 func deleteArticle(r *http.Request, id string) error {
+
+	c := appengine.NewContext(r)
+	//File(background)
+	fkey := getFileKey(r, id)
+	err := ds.Delete(c, fkey)
+	if err != nil {
+		return err
+	}
+	fdkey := getFileDataKey(r, id)
+	err = ds.Delete(c, fdkey)
+	if err != nil {
+		return err
+	}
+
+	//Html
+	hkey := getHtmlKey(r, id)
+	err = ds.Delete(c, hkey)
+	hdkey := getHtmlDataKey(r, id)
+	err = ds.Delete(c, hdkey)
+	if err != nil {
+		return err
+	}
+
+	//Article
+	akey := getArticleKey(r, id)
+	err = ds.Delete(c, akey)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
