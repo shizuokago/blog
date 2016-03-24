@@ -40,8 +40,8 @@ func init() {
 
 	r.HandleFunc("/", topHandler).Methods("GET")
 	r.HandleFunc("/entry/{key}", entryHandler).Methods("GET")
-	r.HandleFunc("/file/{key}", fileHandler).Methods("GET")
 
+	r.HandleFunc("/admin/profile/upload", uploadAvatarHandler).Methods("POST")
 	r.HandleFunc("/admin/profile", profileHandler)
 	r.HandleFunc("/admin/", adminHandler).Methods("GET")
 
@@ -54,6 +54,7 @@ func init() {
 	r.HandleFunc("/admin/article/delete/{key}", deleteArticleHandler).Methods("GET")
 
 	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
+	http.HandleFunc("/file/", fileHandler)
 	http.Handle("/", r)
 
 	jsonString, err := ioutil.ReadFile("./static/blog.json")
@@ -124,10 +125,11 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
+		AuthorID    string
 		StringID    string
 		BlogName    string
 		HTML        *Html
-	}{doc, tmpl, true, art.Key.StringID(), blog.Name, html}
+	}{doc, tmpl, true, u.Key.StringID(), art.Key.StringID(), blog.Name, html}
 
 	//Render
 	var b bytes.Buffer

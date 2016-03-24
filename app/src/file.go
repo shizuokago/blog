@@ -1,20 +1,24 @@
 package blog
 
 import (
-	"github.com/gorilla/mux"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
+
 	"net/http"
+	"strings"
 )
 
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
-	name := vars["key"]
+	url := r.URL.Path
+	name := strings.Replace(url, "/file/", "", 1)
+
+	c := appengine.NewContext(r)
+	log.Infof(c, name)
 
 	file, err := getFileData(r, name)
 	if err != nil {
 	}
-
 	//set MIME
-
 	w.Write(file.Content)
 }

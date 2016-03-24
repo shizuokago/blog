@@ -149,10 +149,11 @@ func redraw() {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
+		AuthorID    string
 		StringID    string
 		BlogName    string
 		HTML        Html
-	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
+	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
 
 	//Render
 	var b bytes.Buffer

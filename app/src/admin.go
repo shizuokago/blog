@@ -42,6 +42,13 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	adminRender(w, "./templates/admin/profile.tmpl", u)
 }
 
+func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
+	err := saveAvatar(r)
+	if err != nil {
+	}
+	http.Redirect(w, r, "/admin/profile", 301)
+}
+
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)

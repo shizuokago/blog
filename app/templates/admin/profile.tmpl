@@ -32,11 +32,14 @@
 
     </div>
 
-
     <div class="mdl-cell mdl-cell--3-col"></div>
-
   </div>
 
+</form>
+
+<form method="post" action="/admin/profile/upload" enctype="multipart/form-data">
+   <button id="upload" class="mdl-button mdl-js-button mdl-button--raised"> Upload </button>
+   <input type="file" name="file" id="file" value="" style="display:none;"/>
 </form>
 
 <script>
@@ -44,6 +47,17 @@ $("#save").click(function() {
     $("#profileForm").submit();
     return false;
 });
+
+$("#upload").click(function() {
+    $("#file").click();
+    return false;
+});
+
+$("#file").change(function() {
+    $(this).closest("form").submit();
+    return false;
+});
+
 </script>
 
 {{end}}

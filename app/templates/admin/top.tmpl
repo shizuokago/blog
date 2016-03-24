@@ -38,7 +38,7 @@
 {{range .}}
 
 <div class="card-wide mdl-card mdl-shadow--2dp">
-    <div class="mdl-card__title" style="background: url('/file/{{.Key.StringID}}') center / cover;">
+    <div class="mdl-card__title" style="background: url('/file/bg/{{.Key.StringID}}') center / cover;">
     <div class="mdl-card__title-text title">{{.Title}}</div>
 </div>
 
@@ -98,10 +98,7 @@ It is not possible to return again.
 </div>
 </dialog>
 
-<script src="/static/js/jquery.min.js"></script>
-
 <script>
-
 
 $("#addBtn").click(function() {
     $("#file").click();

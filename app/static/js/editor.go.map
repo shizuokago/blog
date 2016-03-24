@@ -149,10 +149,11 @@ func redraw() {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
+		AuthorID    string
 		StringID    string
 		BlogName    string
 		HTML        Html
-	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
+	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
 
 	//Render
 	var b bytes.Buffer
@@ -242,7 +243,7 @@ const (
         <div class="demo-blog__posts mdl-grid">
           <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
 
-              <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/{{.StringID}}');">
+              <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{.StringID}}');">
             <h3 class="title">{{.Title}}</h3>
             </div>
 
@@ -258,7 +259,7 @@ const (
 
             <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
 
-              <div class="minilogo"></div>
+              <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
 
               <div>
                 <strong style="width:100%;"> {{ .HTML.Author }} </strong>
@@ -266,6 +267,8 @@ const (
               </div>
 
               <div class="section-spacer"></div>
+
+<!--
 
                 <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
                   <span class="visuallyhidden">Twitter</span>
@@ -276,7 +279,6 @@ const (
                 <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus">
                   <span class="visuallyhidden">Google Plus</span>
                 </button>
-<!--
               <div class="meta__favorites">
                 <i class="material-icons" role="presentation">favorite</i>
                 <span class="visuallyhidden">favorites</span>
@@ -333,7 +335,6 @@ const (
 -->
         </div>
 
-<!--
         <footer class="mdl-mini-footer">
           <div class="mdl-mini-footer--left-section">
             <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
@@ -346,15 +347,15 @@ const (
               <span class="visuallyhidden">Google Plus</span>
             </button>
           </div>
-
+<!--
           <div class="mdl-mini-footer--right-section">
             <button class="mdl-mini-footer--social-btn social-btn__share">
               <i class="material-icons" role="presentation">share</i>
               <span class="visuallyhidden">share</span>
             </button>
           </div>
-        </footer>
 -->
+        </footer>
       </main>
       <div class="mdl-layout__obfuscator"></div>
     </div>

@@ -194,6 +194,7 @@ type Html struct {
 	Title    string
 	SubTitle string
 	Author   string
+	AuthorID string
 	ds.Meta
 }
 
@@ -253,18 +254,20 @@ func updateHtml(r *http.Request, key string) error {
 
 	html.Title = art.Title
 	html.SubTitle = art.SubTitle
+
 	html.Author = u.Name
+	html.AuthorID = u.Key.StringID()
+
+	err = ds.Put(c, html)
+	if err != nil {
+		return err
+	}
 
 	b, err := createHtml(r, art, u, html)
 	if err != nil {
 		return err
 	}
 	data.Content = b
-
-	err = ds.Put(c, html)
-	if err != nil {
-		return err
-	}
 
 	err = ds.Put(c, data)
 	return err
@@ -362,11 +365,12 @@ func createArticle(r *http.Request) (string, error) {
 		return "", err
 	}
 
+	fid := "bg/" + id
+
 	file := &File{
 		Size: int64(len(b)),
 	}
-
-	file.Key = getFileKey(r, id)
+	file.Key = getFileKey(r, fid)
 	err = ds.Put(c, file)
 	if err != nil {
 		return "", err
@@ -376,13 +380,54 @@ func createArticle(r *http.Request) (string, error) {
 		Content: b,
 		Mime:    header.Header["Content-Type"][0],
 	}
-	fileData.SetKey(getFileDataKey(r, id))
+	fileData.SetKey(getFileDataKey(r, fid))
 	err = ds.Put(c, fileData)
 	if err != nil {
 		return "", err
 	}
 
 	return id, nil
+}
+
+func saveAvatar(r *http.Request) error {
+
+	c := appengine.NewContext(r)
+
+	upload, header, err := r.FormFile("file")
+	if err != nil {
+		//add error handling
+		return err
+	}
+	defer upload.Close()
+
+	b, err := ioutil.ReadAll(upload)
+	if err != nil {
+		return err
+	}
+
+	u := user.Current(c)
+	id := "avatar/" + u.ID
+
+	file := &File{
+		Size: int64(len(b)),
+	}
+
+	file.Key = getFileKey(r, id)
+	err = ds.Put(c, file)
+	if err != nil {
+		return err
+	}
+
+	fileData := &FileData{
+		Content: b,
+		Mime:    header.Header["Content-Type"][0],
+	}
+	fileData.SetKey(getFileDataKey(r, id))
+	err = ds.Put(c, fileData)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 const KIND_FILEDATA = "FileData"

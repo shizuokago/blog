@@ -40,7 +40,7 @@
         <div class="demo-blog__posts mdl-grid">
           <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
 
-              <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/{{.StringID}}');">
+              <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{.StringID}}');">
             <h3 class="title">{{.Title}}</h3>
             </div>
 
@@ -56,7 +56,7 @@
 
             <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
 
-              <div class="minilogo"></div>
+              <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
 
               <div>
                 <strong style="width:100%;"> {{ .HTML.Author }} </strong>

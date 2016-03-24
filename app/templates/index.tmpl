@@ -36,7 +36,7 @@
 
 {{ range .HTMLs }}
 <div class="mdl-card mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/{{.Key.StringID}}');">
+    <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{.Key.StringID}}');">
                 <h3><a class="title" href="/entry/{{.Key.StringID}}">{{.Title}}</a></h3>
             </div>
 
@@ -45,7 +45,9 @@
             </div>
 
             <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-              <div class="minilogo"></div>
+
+              <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
+
               <div>
                 <strong>{{ .Author }}</strong>
                 <span>{{ convert .CreatedAt }}</span>
