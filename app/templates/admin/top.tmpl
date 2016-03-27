@@ -71,17 +71,9 @@
 
 </div>
 
-<div class="mdl-cell mdl-cell--1-col">
-
-<button id="addBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-<i class="material-icons">add</i>
-</button>
-
 <form method="post" action="/admin/article/create" enctype="multipart/form-data" style="display:none;">
 <input type="file" name="file" id="file" value="" />
 </form>
-
-</div>
 
 </div>
 
@@ -137,7 +129,9 @@ $("#file").change(function() {
 {{end}}
 
 {{define "header_menu"}}
-
+<button id="addBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="top:30px;">
+<i class="material-icons">add</i>
+</button>
 {{end}}
 
 {{define "footer_menu"}}
