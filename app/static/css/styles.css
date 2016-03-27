@@ -287,7 +287,7 @@ body .demo-blog {
 }
 
 .mdl-card__supporting-text {
-    max-height: 64px;
+    max-height: 90px;
 }
 
 .demo-blog--blogpost .comments {
