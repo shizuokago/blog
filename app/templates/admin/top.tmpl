@@ -77,7 +77,7 @@
 
 </div>
 
-<dialog class="mdl-dialog">
+<dialog class="mdl-dialog deleteDialog">
 <h4 class="mdl-dialog__title">this article delete?</h4>
 <div class="mdl-dialog__content">
 <p>
@@ -88,6 +88,13 @@ It is not possible to return again.
 <button type="button" class="mdl-button delete">DELETE</button>
 <button type="button" class="mdl-button close">CLOSE</button>
 </div>
+</dialog>
+
+<dialog class="mdl-dialog waitDialog">
+  <h3 class="mdl-dialog__title">Wait...</h3>
+  <div class="mdl-dialog__content">
+      <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+  </div>
 </dialog>
 
 <script>
@@ -103,7 +110,7 @@ $("button.editBtn").click(function(e) {
 });
 
 $("button.deleteBtn").click(function(e) {
-    var dialog = document.querySelector('dialog');
+    var dialog = document.querySelector('dialog.deleteDialog');
     dialog.showModal();
 
     dialog.querySelector('.delete').addEventListener('click', function() {
@@ -118,6 +125,8 @@ $("button.deleteBtn").click(function(e) {
 });
 
 $("#file").change(function() {
+    var dialog = document.querySelector('dialog.waitDialog');
+    dialog.showModal();
     $(this).closest("form").submit();
     return false;
 });
