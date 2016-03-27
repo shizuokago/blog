@@ -212,11 +212,13 @@ body .demo-blog {
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
 }
+
 .demo-blog .something-else .mdl-card__media img {
   width: 64px;
   height: 64px;
   margin-bottom: 10px;
 }
+
 .demo-blog .something-else .mdl-card__supporting-text {
   background-color: #F5F5F5;
   border-bottom-left-radius: 2px;
@@ -282,6 +284,10 @@ body .demo-blog {
 
 .demo-blog--blogpost .demo-blog__posts > .mdl-card .mdl-card__media {
   height: 280px;
+}
+
+.mdl-card__supporting-text {
+    max-height: 64px;
 }
 
 .demo-blog--blogpost .comments {
