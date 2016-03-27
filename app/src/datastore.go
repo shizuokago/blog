@@ -366,17 +366,17 @@ func createArticle(r *http.Request) (string, error) {
 
 	upload, header, err := r.FormFile("file")
 	if err != nil {
-		//add error handling
 		return "", err
 	}
 	defer upload.Close()
 
 	b, err := ioutil.ReadAll(upload)
-	if err != nil {
-		return "", err
-	}
 
-	if len(b) >= (1024 * 1024 * 1) {
+	if len(b) > (1 * 1024 * 1024) {
+		b, err = resizeImage(b)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	c := appengine.NewContext(r)

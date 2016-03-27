@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"html/template"
+	"image"
+	"image/jpeg"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -12,6 +14,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/nfnt/resize"
+
 	_ "golang.org/x/tools/playground"
 	"golang.org/x/tools/present"
 )
@@ -144,5 +148,19 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 	return b.Bytes(), nil
 }
 
-func resizeImage() {
+func resizeImage(b []byte) ([]byte, error) {
+
+	buff := bytes.NewBuffer(b)
+
+	img, _, err := image.Decode(buff)
+	if err != nil {
+		return nil, err
+	}
+
+	m := resize.Resize(1000, 0, img, resize.Lanczos3)
+	buffer := new(bytes.Buffer)
+	if err := jpeg.Encode(buffer, m, nil); err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
 }

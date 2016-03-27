@@ -11,9 +11,8 @@ import (
 func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := createArticle(r)
 	if err != nil {
+		panic(err)
 	}
-
-	// Render Editor
 	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
 }
 
