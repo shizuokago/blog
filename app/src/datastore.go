@@ -150,7 +150,7 @@ func createSubTitle(src string) string {
 	dst = strings.Replace(dst, "*", "", -1)
 
 	if len(dst) > 600 {
-		dst = string([]rune(dst)[0:200])
+		dst = string([]rune(dst)[0:200]) + "..."
 	}
 	return dst
 }
