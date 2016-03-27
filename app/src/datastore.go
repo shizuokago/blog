@@ -90,7 +90,8 @@ func selectArticle(r *http.Request, page int) ([]Article, error) {
 	c := appengine.NewContext(r)
 
 	q := datastore.NewQuery("Article").
-		Order("- UpdatedAt")
+		Order("- UpdatedAt").
+		Limit(10)
 
 	var s []Article
 	err := ds.ExecuteQuery(c, q, &s)
@@ -273,22 +274,50 @@ func updateHtml(r *http.Request, key string) error {
 	return err
 }
 
-func selectHtml(r *http.Request, page int) ([]Html, error) {
+func selectHtml(r *http.Request, cursor string) ([]Html, string, error) {
 
 	c := appengine.NewContext(r)
-
 	q := datastore.NewQuery(KIND_HTML).
-		Order("- CreatedAt")
+		Order("- CreatedAt").
+		Limit(5)
 
-	var s []Html
-	err := ds.ExecuteQuery(c, q, &s)
-
-	//TODO 違う
-	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-		return nil, verr.Root(err)
+	if cursor != "" {
+		cur, err := datastore.DecodeCursor(cursor)
+		if err == nil {
+			q = q.Start(cur)
+		}
 	}
 
-	return s, nil
+	var s []Html
+
+	t := q.Run(c)
+	for {
+		var h Html
+		key, err := t.Next(&h)
+
+		if err == datastore.Done {
+			break
+		}
+		if err != nil {
+			return nil, "", err
+		}
+		h.SetKey(key)
+		s = append(s, h)
+	}
+
+	/*
+		err := ds.ExecuteQuery(c, q, &s)
+		if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
+			return nil, "", verr.Root(err)
+		}
+	*/
+
+	cur, err := t.Cursor()
+	if err != nil {
+		return nil, "", err
+	}
+
+	return s, cur.String(), nil
 }
 
 const KIND_HTMLDATA = "HtmlData"

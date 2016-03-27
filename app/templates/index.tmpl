@@ -35,38 +35,45 @@
         <div class="demo-blog__posts mdl-grid">
 
 {{ range .HTMLs }}
-<div class="mdl-card mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{.Key.StringID}}');">
-                <h3><a class="title" href="/entry/{{.Key.StringID}}">{{.Title}}</a></h3>
-            </div>
 
-            <div class="mdl-color-text--grey-600 mdl-card__supporting-text">
-                {{.SubTitle}}
-            </div>
+      <div class="mdl-card mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{  .Key.StringID  }}');">
+          <h3><a class="title" href="/entry/{{  .Key.StringID  }}">{{.Title}}</a></h3>
+        </div>
 
-            <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+        <div class="mdl-color-text--grey-600 mdl-card__supporting-text">
+           {{.SubTitle}}
+        </div>
 
-              <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
-
-              <div>
-                <strong>{{ .Author }}</strong>
-                <span>{{ convert .CreatedAt }}</span>
-              </div>
-            </div>
-          </div>
+        <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+           <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
+        <div>
+          <strong>{{ .Author }}</strong>
+          <span>{{ convert .CreatedAt }}</span>
+        </div>
+      </div>
+    </div>
 {{ end  }}
 
           <nav class="demo-nav mdl-cell mdl-cell--12-col">
+              <a href="/?cursor={{.Prev}}&prev={{.Cursor}}" class="demo-nav__button">
+              Newer
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                 <i class="material-icons">arrow_back</i>
+              </button>
+            </a>
+
             <div class="section-spacer"></div>
-            <a href="entry.html" class="demo-nav__button" title="show more">
-              More
+
+            <a href="/?cursor={{.Next}}&prev={{.Cursor}}" class="demo-nav__button" title="show more">
+              Older
               <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
                 <i class="material-icons" role="presentation">arrow_forward</i>
               </button>
             </a>
           </nav>
-
         </div>
+
         <footer class="mdl-mini-footer">
           <div class="mdl-mini-footer--left-section">
             <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
@@ -92,6 +99,7 @@
         </footer>
       </main>
       <div class="mdl-layout__obfuscator"></div>
+
     </div>
 
 

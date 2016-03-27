@@ -23,22 +23,42 @@ func init() {
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
-	//Get PageNum
-	page := 1
-	//Get PageList
-	htmls, err := selectHtml(r, page)
+
+	vals := r.URL.Query()
+
+	curS := vals["cursor"]
+	prevS := vals["prev"]
+
+	cursor := ""
+	if len(curS) > 0 {
+		cursor = curS[0]
+	}
+	prev := ""
+	if len(prevS) > 0 {
+		prev = prevS[0]
+	}
+
+	htmls, next, err := selectHtml(r, cursor)
 	if err != nil {
 		log.Println(err)
+		panic(err)
+	}
+
+	if next == cursor {
+		cursor = prev
 	}
 
 	data := struct {
 		BlogName string
 		HTMLs    []Html
-	}{blog.Name, htmls}
+		Next     string
+		Prev     string
+		Cursor   string
+	}{blog.Name, htmls, next, prev, cursor}
 
 	err = indexTmpl.Execute(w, data)
 	if err != nil {
-		log.Println(indexTmpl)
+		panic(err)
 	}
 }
 
