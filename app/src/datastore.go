@@ -354,30 +354,73 @@ const KIND_FILE = "File"
 
 type File struct {
 	Size int64
+	Type int64
 	ds.Meta
 }
+
+const (
+	FILE_TYPE_BG     = 1
+	FILE_TYPE_AVATAR = 2
+	FILE_TYPE_DATA   = 3
+)
 
 func getFileKey(r *http.Request, name string) *datastore.Key {
 	c := appengine.NewContext(r)
 	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
 }
 
-func createArticle(r *http.Request) (string, error) {
+func uploadFile(r *http.Request, id string, t int64) error {
 
 	upload, header, err := r.FormFile("file")
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer upload.Close()
 
 	b, err := ioutil.ReadAll(upload)
+	if err != nil {
+		return err
+	}
 
 	if len(b) > (1 * 1024 * 1024) {
 		b, err = resizeImage(b)
 		if err != nil {
-			return "", err
+			return err
 		}
 	}
+
+	c := appengine.NewContext(r)
+
+	dir := "data"
+	if t == FILE_TYPE_BG {
+		dir = "bg"
+	} else if t == FILE_TYPE_AVATAR {
+		dir = "avatar"
+	}
+
+	fid := dir + "/" + id
+	file := &File{
+		Size: int64(len(b)),
+		Type: t,
+	}
+	file.Key = getFileKey(r, fid)
+	err = ds.Put(c, file)
+	if err != nil {
+		return err
+	}
+	fileData := &FileData{
+		Content: b,
+		Mime:    header.Header["Content-Type"][0],
+	}
+	fileData.SetKey(getFileDataKey(r, fid))
+	err = ds.Put(c, fileData)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createArticle(r *http.Request) (string, error) {
 
 	c := appengine.NewContext(r)
 	id := uuid.New()
@@ -389,74 +432,21 @@ func createArticle(r *http.Request) (string, error) {
 	}
 
 	article.Key = getArticleKey(r, id)
-	err = ds.Put(c, article)
+	err := ds.Put(c, article)
 	if err != nil {
 		return "", err
 	}
 
-	fid := "bg/" + id
+	err = uploadFile(r, id, FILE_TYPE_BG)
 
-	file := &File{
-		Size: int64(len(b)),
-	}
-	file.Key = getFileKey(r, fid)
-	err = ds.Put(c, file)
-	if err != nil {
-		return "", err
-	}
-
-	fileData := &FileData{
-		Content: b,
-		Mime:    header.Header["Content-Type"][0],
-	}
-	fileData.SetKey(getFileDataKey(r, fid))
-	err = ds.Put(c, fileData)
-	if err != nil {
-		return "", err
-	}
-
-	return id, nil
+	return id, err
 }
 
 func saveAvatar(r *http.Request) error {
-
 	c := appengine.NewContext(r)
-
-	upload, header, err := r.FormFile("file")
-	if err != nil {
-		//add error handling
-		return err
-	}
-	defer upload.Close()
-
-	b, err := ioutil.ReadAll(upload)
-	if err != nil {
-		return err
-	}
-
 	u := user.Current(c)
-	id := "avatar/" + u.ID
-
-	file := &File{
-		Size: int64(len(b)),
-	}
-
-	file.Key = getFileKey(r, id)
-	err = ds.Put(c, file)
-	if err != nil {
-		return err
-	}
-
-	fileData := &FileData{
-		Content: b,
-		Mime:    header.Header["Content-Type"][0],
-	}
-	fileData.SetKey(getFileDataKey(r, id))
-	err = ds.Put(c, fileData)
-	if err != nil {
-		return err
-	}
-	return nil
+	err := uploadFile(r, u.ID, FILE_TYPE_AVATAR)
+	return err
 }
 
 const KIND_FILEDATA = "FileData"
