@@ -1,7 +1,6 @@
 package blog
 
 import (
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -155,6 +154,28 @@ func createSubTitle(src string) string {
 	return dst
 }
 
+func createArticle(r *http.Request) (string, error) {
+
+	c := appengine.NewContext(r)
+	id := uuid.New()
+
+	base := "* Seciton1"
+	article := &Article{
+		Title:    "New Title",
+		Markdown: []byte(base),
+	}
+
+	article.Key = getArticleKey(r, id)
+	err := ds.Put(c, article)
+	if err != nil {
+		return "", err
+	}
+
+	err = saveFile(r, id, FILE_TYPE_BG)
+
+	return id, err
+}
+
 func deleteArticle(r *http.Request, id string) error {
 
 	c := appengine.NewContext(r)
@@ -305,13 +326,6 @@ func selectHtml(r *http.Request, cursor string) ([]Html, string, error) {
 		s = append(s, h)
 	}
 
-	/*
-		err := ds.ExecuteQuery(c, q, &s)
-		if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-			return nil, "", verr.Root(err)
-		}
-	*/
-
 	cur, err := t.Cursor()
 	if err != nil {
 		return nil, "", err
@@ -369,7 +383,7 @@ func getFileKey(r *http.Request, name string) *datastore.Key {
 	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
 }
 
-func uploadFile(r *http.Request, id string, t int64) error {
+func saveFile(r *http.Request, id string, t int64) error {
 
 	upload, header, err := r.FormFile("file")
 	if err != nil {
@@ -377,16 +391,9 @@ func uploadFile(r *http.Request, id string, t int64) error {
 	}
 	defer upload.Close()
 
-	b, err := ioutil.ReadAll(upload)
+	b, err := convertImage(upload)
 	if err != nil {
 		return err
-	}
-
-	if len(b) > (1 * 1024 * 1024) {
-		b, err = resizeImage(b)
-		if err != nil {
-			return err
-		}
 	}
 
 	c := appengine.NewContext(r)
@@ -403,6 +410,7 @@ func uploadFile(r *http.Request, id string, t int64) error {
 		Size: int64(len(b)),
 		Type: t,
 	}
+
 	file.Key = getFileKey(r, fid)
 	err = ds.Put(c, file)
 	if err != nil {
@@ -420,32 +428,10 @@ func uploadFile(r *http.Request, id string, t int64) error {
 	return nil
 }
 
-func createArticle(r *http.Request) (string, error) {
-
-	c := appengine.NewContext(r)
-	id := uuid.New()
-
-	base := "* Seciton1"
-	article := &Article{
-		Title:    "New Title",
-		Markdown: []byte(base),
-	}
-
-	article.Key = getArticleKey(r, id)
-	err := ds.Put(c, article)
-	if err != nil {
-		return "", err
-	}
-
-	err = uploadFile(r, id, FILE_TYPE_BG)
-
-	return id, err
-}
-
 func saveAvatar(r *http.Request) error {
 	c := appengine.NewContext(r)
 	u := user.Current(c)
-	err := uploadFile(r, u.ID, FILE_TYPE_AVATAR)
+	err := saveFile(r, u.ID, FILE_TYPE_AVATAR)
 	return err
 }
 

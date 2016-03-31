@@ -6,13 +6,15 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"github.com/gopherjs/gopherjs/js"
-	"github.com/gopherjs/jquery"
-	"golang.org/x/tools/present"
 	"html/template"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gopherjs/gopherjs/js"
+	"github.com/gopherjs/jquery"
+
+	"golang.org/x/tools/present"
 )
 
 var gblTmpl *template.Template
@@ -179,8 +181,27 @@ func convert(t time.Time) string {
 }
 
 func readFile(name string) ([]byte, error) {
-	//select file data
-	return nil, nil
+
+	loc := js.Global.Get("location")
+	//get host
+	host := loc.Get("origin")
+	file := "/file/data/" + name
+
+	url := host.String() + file
+
+	// request
+	//resp, err := http.Get(url)
+	//if err != nil {
+	//return nil, err
+	//}
+	//defer resp.Body.Close()
+
+	//byteArray, err := ioutil.ReadAll(resp.Body)
+	//if err != nil {
+	//return nil, err
+	//}
+
+	return []byte(url), nil
 }
 
 const (

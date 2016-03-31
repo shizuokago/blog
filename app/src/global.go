@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"html/template"
-	"image"
-	"image/jpeg"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -14,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/nfnt/resize"
 
 	_ "golang.org/x/tools/playground"
 	"golang.org/x/tools/present"
@@ -56,6 +53,9 @@ func init() {
 	r.HandleFunc("/admin/article/publish/{key}", publishArticleHandler).Methods("POST")
 
 	r.HandleFunc("/admin/article/delete/{key}", deleteArticleHandler).Methods("GET")
+
+	r.HandleFunc("/admin/file/view", fileViewHandler).Methods("GET")
+	r.HandleFunc("/admin/file/upload", fileUploadHandler).Methods("POST")
 
 	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 	http.HandleFunc("/file/", fileHandler)
@@ -100,9 +100,16 @@ func createTemplate() (*template.Template, error) {
 	return tmpl, nil
 }
 
-func readFile(name string) ([]byte, error) {
-	//select file data
-	return nil, nil
+type FileDs struct {
+	request *http.Request
+}
+
+func (ds FileDs) readFile(name string) ([]byte, error) {
+	key := "data/" + name
+	file, err := getFileData(ds.request, key)
+	if err != nil {
+	}
+	return file.Content, nil
 }
 
 func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, error) {
@@ -117,7 +124,11 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 
 	txt := header + "\n" + string(art.Markdown)
 
-	ctx := present.Context{ReadFile: readFile}
+	ds := FileDs{
+		request: r,
+	}
+
+	ctx := present.Context{ReadFile: ds.readFile}
 
 	reader := strings.NewReader(txt)
 	doc, err := ctx.Parse(reader, "blog.article", 0)
@@ -146,21 +157,4 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 	writer.Flush()
 
 	return b.Bytes(), nil
-}
-
-func resizeImage(b []byte) ([]byte, error) {
-
-	buff := bytes.NewBuffer(b)
-
-	img, _, err := image.Decode(buff)
-	if err != nil {
-		return nil, err
-	}
-
-	m := resize.Resize(1000, 0, img, resize.Lanczos3)
-	buffer := new(bytes.Buffer)
-	if err := jpeg.Encode(buffer, m, nil); err != nil {
-		return nil, err
-	}
-	return buffer.Bytes(), nil
 }

@@ -1,25 +1,18 @@
 {{define "body"}}
 <style>
-
-div.mdl-textfield {
-    width:200px;
-}
-
 </style>
 
 <form action="/admin/article/save/{{.Article.Key.StringID}}" id="slideForm" method="post">
 
-<div class="mdl-grid">
-  <div class="mdl-cell mdl-cell--6-col" id="left">
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col" id="left">
       <textarea id="editor" name="editor" style="width:100%;">{{ .Markdown }}</textarea>
-  </div>
+    </div>
 
-  <div class="mdl-cell mdl-cell--6-col" id="right">
+    <div class="mdl-cell mdl-cell--6-col" id="right">
       <iframe id="result"></iframe>
+    </div>
   </div>
-</div>
-
-
 </form>
 
 <script src="/static/js/editor.js"></script>
@@ -27,15 +20,15 @@ div.mdl-textfield {
 {{end}}
 
 {{define "header_menu"}}
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" name="Title" id="Title" value="{{.Article.Title}}"/>
-        <label class="mdl-textfield__label" for="title">Title...</label>
-      </div>
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="text" name="Title" id="Title" value="{{.Article.Title}}"/>
+  <label class="mdl-textfield__label" for="title">Title...</label>
+</div>
 
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="Tags" name="Tags" value="{{.Article.Tags}}"/>
-        <label class="mdl-textfield__label" for="tags">Tags...</label>
-      </div>
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+  <input class="mdl-textfield__input" type="text" id="Tags" name="Tags" value="{{.Article.Tags}}"/>
+  <label class="mdl-textfield__label" for="tags">Tags...</label>
+</div>
 
 <input type="hidden" id="Name" value="{{.User.Name}}"/>
 <input type="hidden" id="Job" value="{{.User.Job}}"/>
@@ -50,18 +43,18 @@ div.mdl-textfield {
 {{define "footer_menu"}}
 
 <li>
-<button id="save"    class="mdl-button mdl-js-button mdl-button--raised  mdl-js-ripple-effect mdl-button--colored">
-save
-</button>
-<button id="publish" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-publish
-</button>
+  <button id="save"    class="mdl-button mdl-js-button mdl-button--raised  mdl-js-ripple-effect mdl-button--colored">
+  save
+  </button>
+  <button id="publish" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+  publish
+  </button>
 </li>
 
 <dialog id="dialog" class="mdl-dialog">
   <h3 class="mdl-dialog__title">Wait...</h3>
   <div class="mdl-dialog__content">
-      <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+    <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
   </div>
 </dialog>
 

@@ -4,12 +4,17 @@
 
 ## Using
 
-	"github.com/gopherjs/gopherjs"
-
 	"golang.org/x/tools/present"
+
 	"github.com/gorilla/mux"
 	"github.com/knightso/base"
 	"github.com/pborman/uuid"
+
+	"github.com/gopherjs/gopherjs"
+
+	"github.com/nfnt/resize"
+	"github.com/robfig/graphics-go/graphics"
+
 
 ## local serve
 ## AppEngine Deploy

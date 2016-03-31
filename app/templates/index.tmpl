@@ -28,6 +28,7 @@
 
     <link rel="stylesheet" href="/static/css/styles.css">
   </head>
+
   <body>
 
     <div class="demo-blog mdl-layout mdl-js-layout has-drawer is-upgraded">
@@ -46,32 +47,29 @@
         </div>
 
         <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-           <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
-        <div>
-          <strong>{{ .Author }}</strong>
-          <span>{{ convert .CreatedAt }}</span>
+          <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
+          <div>
+            <strong>{{ .Author }}</strong>
+            <span>{{ convert .CreatedAt }}</span>
+          </div>
         </div>
       </div>
-    </div>
 {{ end  }}
 
           <nav class="demo-nav mdl-cell mdl-cell--12-col">
-
             <a href="/?cursor={{.Prev}}&prev={{.Cursor}}" class="demo-nav__button" title="Newer">
               <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
                  <i class="material-icons">arrow_back</i>
               </button>
             </a>
-
             <div class="section-spacer"></div>
-
             <a href="/?cursor={{.Next}}&prev={{.Cursor}}" class="demo-nav__button" title="Older">
               <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
                 <i class="material-icons" role="presentation">arrow_forward</i>
               </button>
             </a>
-
           </nav>
+
         </div>
 
         <footer class="mdl-mini-footer">
@@ -87,22 +85,15 @@
             </button>
           </div>
 
-<!--
           <div class="mdl-mini-footer--right-section">
-            <button class="mdl-mini-footer--social-btn social-btn__share">
-              <i class="material-icons" role="presentation">share</i>
-              <span class="visuallyhidden">share</span>
-            </button>
           </div>
--->
 
         </footer>
       </main>
+
       <div class="mdl-layout__obfuscator"></div>
 
     </div>
-
-
 
     <a href="#start" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--white"><i class="material-icons">vertical_align_top</i></a>
   </body>

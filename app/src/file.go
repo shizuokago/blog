@@ -22,3 +22,19 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	//set MIME
 	w.Write(file.Content)
 }
+
+func fileViewHandler(w http.ResponseWriter, r *http.Request) {
+	adminRender(w, "./templates/admin/file.tmpl", nil)
+}
+
+func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
+
+	name := "test.go"
+
+	err := saveFile(r, name, FILE_TYPE_DATA)
+	if err != nil {
+		panic(err)
+	}
+
+	http.Redirect(w, r, "/admin/file/view", 301)
+}

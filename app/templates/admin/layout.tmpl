@@ -1,57 +1,53 @@
 <html>
   <head>
-  <title>Blog Manager</title>
-
+    <title>Blog Manager</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
-
     <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
     <script src="/static/js/jquery.min.js"></script>
-
   </head>
 
   <body style="background-color:#f6f6f6;">
 
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-  <header class="mdl-layout__header">
-    <div class="mdl-layout__header-row">
-      <!-- Title -->
-      <span class="mdl-layout-title">
-      <a href="/admin/" style="font-color:white;">Blog</a>
-      </span>
-      <!-- Add spacer, to align navigation to the right -->
-      <div class="mdl-layout-spacer"></div>
-      <!-- Navigation. We hide it in small screens. -->
-      <nav class="mdl-navigation mdl-layout--large-screen-only">
-        {{template "header_menu" .}}
-      </nav>
-    </div>
-  </header>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">
+          <a href="/admin/" style="font-color:white;">Blog</a>
+          </span>
+          <!-- Add spacer, to align navigation to the right -->
+          <div class="mdl-layout-spacer"></div>
+          <!-- Navigation. We hide it in small screens. -->
+          <nav class="mdl-navigation mdl-layout--large-screen-only">
+            {{template "header_menu" .}}
+          </nav>
+        </div>
+      </header>
 
-  <div class="mdl-layout__drawer">
-    <span class="mdl-layout-title">Blog</span>
+      <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Blog</span>
+    
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" href="/admin/">Articles</a>
+          <a class="mdl-navigation__link" href="/admin/profile">Profile</a>
+        </nav>
+      </div>
 
-    <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href="/admin/">Articles</a>
-      <a class="mdl-navigation__link" href="/admin/profile">Profile</a>
-    </nav>
-  </div>
+      <main id="main" class="mdl-layout__content">
+        <div class="page-content">
+            {{template "body" .}}
+        </div>
+      </main>
 
-  <main id="main" class="mdl-layout__content">
-    <div class="page-content">
-        {{template "body" .}}
-    </div>
-  </main>
-
-  <footer class="mdl-mini-footer">
-      <div class="mdl-mini-footer__right-section">
-         <ul class="mdl-mini-footer__link-list">
+      <footer class="mdl-mini-footer">
+        <div class="mdl-mini-footer__right-section">
+          <ul class="mdl-mini-footer__link-list">
             {{template "footer_menu" .}}
-         </ul>
-     </div>
-  </footer>
+          </ul>
+        </div>
+      </footer>
 
-</div>
-
+    </div>
   </body>
 </html>
