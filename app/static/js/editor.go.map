@@ -37,8 +37,15 @@ func init() {
 func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
+
+		d := js.Global.Get("document")
+		dialog := d.Call("querySelector", "#dialog")
+		dialog.Call("showModal")
+
 		draw()
 		resize()
+
+		dialog.Call("close")
 	})
 
 	jQuery(js.Global).Resize(func(e jquery.Event) {
@@ -60,9 +67,6 @@ func main() {
 
 	jQuery(SAVE).On(jquery.CLICK, func(e jquery.Event) {
 		ajax("save")
-	})
-	jQuery("img.avatar").On(jquery.ERROR, func(e jquery.Event) {
-		jQuery("img.avatar").SetAttr("src", "/static/images/somebody.jpg")
 	})
 }
 
@@ -281,9 +285,9 @@ const (
 
   <body>
     <div class="demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
-      <main class="mdl-layout__content" id="start">
+      <main class="mdl-layout__content">
         <div class="demo-back">
-          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="/" title="go back" role="button">
+          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="/" title="index" role="button" id="start">
             <i class="material-icons" role="presentation">arrow_back</i>
           </a>
         </div>
@@ -357,6 +361,7 @@ const (
         </footer>
       </main>
       <div class="mdl-layout__obfuscator"></div>
+
     </div>
 
     <a href="#start" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"><i class="material-icons">vertical_align_top</i></a>
