@@ -37,8 +37,15 @@ func init() {
 func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
+
+		d := js.Global.Get("document")
+		dialog := d.Call("querySelector", "#dialog")
+		dialog.Call("showModal")
+
 		draw()
 		resize()
+
+		dialog.Call("close")
 	})
 
 	jQuery(js.Global).Resize(func(e jquery.Event) {

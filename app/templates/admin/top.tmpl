@@ -38,32 +38,29 @@
 {{range .}}
 
 <div class="card-wide mdl-card mdl-shadow--2dp">
-    <div class="mdl-card__title" style="background: url('/file/bg/{{.Key.StringID}}') center / cover;">
-    <div class="mdl-card__title-text title">{{.Title}}</div>
-</div>
+    <div class="mdl-card__title" style="background: url('/file/bg/{{ .Key.StringID }}') center / cover;cursor:pointer;">
+        <div class="mdl-card__title-text title" href="/admin/article/edit/{{ .Key.StringID }}">{{ .Title }}</div>
+    </div>
 
-<div class="mdl-card__supporting-text" style="max-height:50px;min-height:50px;">
-{{.SubTitle}}
-</div>
+    <div class="mdl-card__supporting-text" style="max-height:50px;min-height:50px;">
+    {{ .SubTitle }}
+    </div>
 
-<div class="mdl-card__actions mdl-card--border">
-
-{{.UpdatedAt}}
-
-<button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
-<i class="material-icons right-section">delete</i>
-</button>
-
-</div>
+    <div class="mdl-card__actions mdl-card--border">
+    {{.UpdatedAt}}
+    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
+        <i class="material-icons right-section">delete</i>
+    </button>
+    </div>
 
 
-<div class="mdl-card__menu">
+    <div class="mdl-card__menu">
 
-<button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.StringID}}">
-<i class="material-icons">mode_edit</i>
-</button>
+    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.StringID}}">
+        <i class="material-icons">mode_edit</i>
+    </button>
 
-</div>
+    </div>
 
 </div>
 {{end}}
@@ -98,6 +95,20 @@ It is not possible to return again.
 </dialog>
 
 <script>
+
+Array.prototype.forEach.call(document.querySelectorAll('.mdl-card__title'), function(el) {
+  var link = el.querySelector('div');
+  if(!link) {
+    return;
+  }
+  var target = link.getAttribute('href');
+  if(!target) {
+    return;
+  }
+  el.addEventListener('click', function() {
+    location.href = target;
+  });
+});
 
 $("#addBtn").click(function() {
     $("#file").click();
