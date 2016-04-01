@@ -29,10 +29,10 @@
     <link rel="stylesheet" href="/static/css/styles.css">
   </head>
 
-  <body>
+  <body id="start">
 
     <div class="demo-blog mdl-layout mdl-js-layout has-drawer is-upgraded">
-      <main class="mdl-layout__content" id="start">
+      <main class="mdl-layout__content">
         <div class="demo-blog__posts mdl-grid">
 
 {{ range .HTMLs }}
@@ -47,7 +47,7 @@
         </div>
 
         <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-          <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
+          <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
           <div>
             <strong>{{ .Author }}</strong>
             <span>{{ convert .CreatedAt }}</span>
@@ -113,9 +113,6 @@
       });
     });
 
-    $("img.avatar").error(function() {
-        $(this).attr("src","/static/images/somebody.jpg");
-    });
   </script>
 </html>
 {{end}}
