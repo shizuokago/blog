@@ -47,7 +47,7 @@
         </div>
 
         <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-          <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
+          <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
           <div>
             <strong>{{ .Author }}</strong>
             <span>{{ convert .CreatedAt }}</span>
@@ -111,6 +111,10 @@
       el.addEventListener('click', function() {
         location.href = target;
       });
+    });
+
+    $("img.avatar").error(function() {
+        $(this).attr("src","/static/images/somebody.jpg");
     });
   </script>
 </html>

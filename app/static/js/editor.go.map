@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
+
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
 
@@ -35,7 +37,7 @@ func init() {
 func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
-		redraw()
+		draw()
 		resize()
 	})
 
@@ -110,13 +112,33 @@ type Html struct {
 	CreatedAt time.Time
 }
 
+func draw() {
+	h := getHtml()
+
+	doc := js.Global.Get("document")
+	iframe := doc.Call("getElementById", "result")
+	idoc := iframe.Get("contentDocument")
+
+	idoc.Call("open")
+	idoc.Call("write", h)
+	idoc.Call("close")
+}
+
 func redraw() {
 
-	title := jQuery(TITLE).Val()
+	h := getHtml()
+	r := strings.NewReader(h)
 
-	//sub
-	//date
-	//tags
+	doc, _ := goquery.NewDocumentFromReader(r)
+	body := doc.Find("body")
+
+	bh, _ := body.Html()
+	jQuery(OUTPUT).Contents().Find("body").SetHtml(bh)
+}
+
+func getHtml() string {
+
+	title := jQuery(TITLE).Val()
 
 	author := jQuery(AUTHOR).Val()
 	job := jQuery(JOB).Val()
@@ -139,10 +161,10 @@ func redraw() {
 	reader := strings.NewReader(art)
 	doc, err := ctx.Parse(reader, "blog.article", 0)
 	if err != nil {
-		return
+		return err.Error()
 	}
 
-	html := Html{
+	h := Html{
 		Author:    author,
 		CreatedAt: time.Now(),
 	}
@@ -155,7 +177,7 @@ func redraw() {
 		StringID    string
 		BlogName    string
 		HTML        Html
-	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
+	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), h}
 
 	//Render
 	var b bytes.Buffer
@@ -163,11 +185,12 @@ func redraw() {
 
 	err = gblTmpl.ExecuteTemplate(writer, "root", rtn)
 	if err != nil {
-		return
+		return err.Error()
 	}
 	writer.Flush()
 
-	jQuery(OUTPUT).Contents().Find("html").SetHtml(string(b.Bytes()))
+	return string(b.Bytes())
+
 }
 
 func playable(c present.Code) bool {
@@ -253,6 +276,7 @@ const (
     <link rel="stylesheet" href="/static/css/styles.css">
 
   </head>
+
   <body>
     <div class="demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
       <main class="mdl-layout__content" id="start">
@@ -280,44 +304,16 @@ const (
 
             <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
 
-              <img src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
+              <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48"/>
 
-              <div>
+            <div>
                 <strong style="width:100%;"> {{ .HTML.Author }} </strong>
                 <span> {{ convert  .HTML.CreatedAt }} </span>
               </div>
 
               <div class="section-spacer"></div>
 
-<!--
-
-                <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
-                  <span class="visuallyhidden">Twitter</span>
-                </button>
-                <button class="mdl-mini-footer--social-btn social-btn social-btn__blogger">
-                  <span class="visuallyhidden">Facebook</span>
-                </button>
-                <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus">
-                  <span class="visuallyhidden">Google Plus</span>
-                </button>
-              <div class="meta__favorites">
-                <i class="material-icons" role="presentation">favorite</i>
-                <span class="visuallyhidden">favorites</span>
-              </div>
-
-              <div>
-                <i class="material-icons" role="presentation">bookmark</i>
-                <span class="visuallyhidden">bookmark</span>
-              </div>
-
-              <div>
-                <i class="material-icons" role="presentation">share</i>
-                <span class="visuallyhidden">share</span>
-              </div>
--->
             </div>
-
-
 
             <div class="mdl-color-text--grey-700 mdl-card" style="padding-left:20px;padding-right:20px;padding:bottom:50px;width:100%;">
 
@@ -337,23 +333,6 @@ const (
 
           </div>
 
-<!--
-          <nav class="demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
-            <a href="" class="demo-nav__button">
-              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
-                <i class="material-icons">arrow_back</i>
-              </button>
-              Newer
-            </a>
-            <div class="section-spacer"></div>
-            <a href="" class="demo-nav__button">
-              Older
-              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
-                <i class="material-icons">arrow_forward</i>
-              </button>
-            </a>
-          </nav>
--->
         </div>
 
         <footer class="mdl-mini-footer">
@@ -368,14 +347,11 @@ const (
               <span class="visuallyhidden">Google Plus</span>
             </button>
           </div>
+
 <!--
-          <div class="mdl-mini-footer--right-section">
-            <button class="mdl-mini-footer--social-btn social-btn__share">
-              <i class="material-icons" role="presentation">share</i>
-              <span class="visuallyhidden">share</span>
-            </button>
-          </div>
+          <div class="mdl-mini-footer--right-section"> </div>
 -->
+
         </footer>
       </main>
       <div class="mdl-layout__obfuscator"></div>

@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
+
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
 
@@ -35,7 +37,7 @@ func init() {
 func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
-		redraw()
+		draw()
 		resize()
 	})
 
@@ -110,13 +112,33 @@ type Html struct {
 	CreatedAt time.Time
 }
 
+func draw() {
+	h := getHtml()
+
+	doc := js.Global.Get("document")
+	iframe := doc.Call("getElementById", "result")
+	idoc := iframe.Get("contentDocument")
+
+	idoc.Call("open")
+	idoc.Call("write", h)
+	idoc.Call("close")
+}
+
 func redraw() {
 
-	title := jQuery(TITLE).Val()
+	h := getHtml()
+	r := strings.NewReader(h)
 
-	//sub
-	//date
-	//tags
+	doc, _ := goquery.NewDocumentFromReader(r)
+	body := doc.Find("body")
+
+	bh, _ := body.Html()
+	jQuery(OUTPUT).Contents().Find("body").SetHtml(bh)
+}
+
+func getHtml() string {
+
+	title := jQuery(TITLE).Val()
 
 	author := jQuery(AUTHOR).Val()
 	job := jQuery(JOB).Val()
@@ -139,10 +161,10 @@ func redraw() {
 	reader := strings.NewReader(art)
 	doc, err := ctx.Parse(reader, "blog.article", 0)
 	if err != nil {
-		return
+		return err.Error()
 	}
 
-	html := Html{
+	h := Html{
 		Author:    author,
 		CreatedAt: time.Now(),
 	}
@@ -155,7 +177,7 @@ func redraw() {
 		StringID    string
 		BlogName    string
 		HTML        Html
-	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), html}
+	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), h}
 
 	//Render
 	var b bytes.Buffer
@@ -163,11 +185,12 @@ func redraw() {
 
 	err = gblTmpl.ExecuteTemplate(writer, "root", rtn)
 	if err != nil {
-		return
+		return err.Error()
 	}
 	writer.Flush()
 
-	jQuery(OUTPUT).Contents().Find("html").SetHtml(string(b.Bytes()))
+	return string(b.Bytes())
+
 }
 
 func playable(c present.Code) bool {
