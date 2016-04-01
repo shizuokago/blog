@@ -18,8 +18,10 @@ import (
 )
 
 type Blog struct {
-	Name   string
-	Author string
+	Name        string
+	Author      string
+	Tags        string
+	Description string
 }
 
 var tmpl *template.Template
@@ -136,15 +138,22 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 		return nil, err
 	}
 
+	bd := Blog{
+		Name:        blog.Name,
+		Author:      html.Author,
+		Tags:        art.Tags,
+		Description: art.SubTitle,
+	}
+
 	rtn := struct {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
 		AuthorID    string
 		StringID    string
-		BlogName    string
+		Blog        Blog
 		HTML        *Html
-	}{doc, tmpl, true, u.Key.StringID(), art.Key.StringID(), blog.Name, html}
+	}{doc, tmpl, true, u.Key.StringID(), art.Key.StringID(), bd, html}
 
 	//Render
 	var b bytes.Buffer

@@ -176,15 +176,22 @@ func getHtml() string {
 		CreatedAt: time.Now(),
 	}
 
+	blog := struct {
+		Name        string
+		Author      string
+		Tags        string
+		Description string
+	}{"Empty", "Empty", "Empty", "Empty"}
+
 	rtn := struct {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
 		AuthorID    string
 		StringID    string
-		BlogName    string
+		Blog        interface{}
 		HTML        Html
-	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), jQuery(BLOGNAME).Val(), h}
+	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), blog, h}
 
 	//Render
 	var b bytes.Buffer

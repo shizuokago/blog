@@ -4,28 +4,17 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+    <meta name="description" content="{{ .Blog.Description }}">
+    <meta name="author" content="{{ .Blog.Author }}">
+    <meta name="keywords" content="{{ .Blog.Tags }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{.BlogName}}</title>
-
-    <!-- Add to homescreen for Chrome on Android -->
-    <meta name="mobile-web-app-capable" content="yes">
-
-    <!-- Add to homescreen for Safari on iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Material Design Lite">
-    <link rel="apple-touch-icon-precomposed" href="images/ios-desktop.png">
-
-    <!-- Tile icon for Win8 (144x144 + tile color) -->
-    <meta name="msapplication-TileColor" content="#3372DF">
+    <title>{{.Blog.Name}}</title>
 
     <link rel="shortcut icon" href="/static/images/favicon.png">
-
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
     <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
-
     <link rel="stylesheet" href="/static/css/styles.css">
   </head>
 
@@ -36,35 +25,38 @@
         <div class="demo-blog__posts mdl-grid">
 
         <div id="start"></div>
+
 {{ range .HTMLs }}
+<div class="mdl-card mdl-cell mdl-cell--12-col">
+  <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{  .Key.StringID  }}');cursor:pointer;">
+    <h3><a class="title" href="/entry/{{  .Key.StringID  }}">{{.Title}}</a></h3>
+  </div>
 
-      <div class="mdl-card mdl-cell mdl-cell--12-col">
-        <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{  .Key.StringID  }}');cursor:pointer;">
-          <h3><a class="title" href="/entry/{{  .Key.StringID  }}">{{.Title}}</a></h3>
-        </div>
+  <div class="mdl-color-text--grey-600 mdl-card__supporting-text" style="display:inline;">
+     {{.SubTitle}}
+  </div>
 
-        <div class="mdl-color-text--grey-600 mdl-card__supporting-text" style="display:inline;">
-           {{.SubTitle}}
-        </div>
-
-        <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-          <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
-          <div>
-            <strong>{{ .Author }}</strong>
-            <span>{{ convert .CreatedAt }}</span>
-          </div>
-        </div>
-      </div>
+  <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+    <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
+    <div>
+      <strong>{{ .Author }}</strong>
+      <span>{{ convert .CreatedAt }}</span>
+    </div>
+  </div>
+</div>
 {{ end  }}
 
           <nav class="demo-nav mdl-cell mdl-cell--12-col">
-            <a href="/?cursor={{.Prev}}&prev={{.Cursor}}" class="demo-nav__button" title="Newer">
+
+{{ if .PFlag }}
+            <a href="/?p={{.Prev}}" class="demo-nav__button" title="Newer">
               <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
                  <i class="material-icons">arrow_back</i>
               </button>
             </a>
+{{end}}
             <div class="section-spacer"></div>
-            <a href="/?cursor={{.Next}}&prev={{.Cursor}}" class="demo-nav__button" title="Older">
+            <a href="/?p={{.Next}}" class="demo-nav__button" title="Older">
               <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
                 <i class="material-icons" role="presentation">arrow_forward</i>
               </button>
@@ -90,6 +82,7 @@
           </div>
 
         </footer>
+
       </main>
 
       <div class="mdl-layout__obfuscator"></div>

@@ -162,6 +162,7 @@ func createArticle(r *http.Request) (string, error) {
 	base := "* Seciton1"
 	article := &Article{
 		Title:    "New Title",
+		Tags:     blog.Tags,
 		Markdown: []byte(base),
 	}
 

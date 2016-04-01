@@ -1,4 +1,6 @@
 {
     "Name" : "Shizuoka.go",
-    "Author" : "{{.Author}}"
+    "Author" : "Shizuoka.go",
+    "Tags" : "golang,shizuoka.go",
+    "Description" : "静岡でGo言語の勉強会をやっています。"
 }
