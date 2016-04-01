@@ -403,6 +403,10 @@ func saveFile(r *http.Request, id string, t int64) error {
 		dir = "bg"
 	} else if t == FILE_TYPE_AVATAR {
 		dir = "avatar"
+	} else {
+		if id == "" {
+			id = header.Filename
+		}
 	}
 
 	fid := dir + "/" + id

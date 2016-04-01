@@ -29,9 +29,7 @@ func fileViewHandler(w http.ResponseWriter, r *http.Request) {
 
 func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 
-	name := "test.go"
-
-	err := saveFile(r, name, FILE_TYPE_DATA)
+	err := saveFile(r, "", FILE_TYPE_DATA)
 	if err != nil {
 		panic(err)
 	}
