@@ -95,7 +95,6 @@ body .demo-blog {
   -webkit-align-items: flex-end;
       -ms-flex-align: end;
           align-items: flex-end;
-  cursor: pointer;
 }
 .demo-blog .mdl-card__media a,
 .demo-blog .mdl-card__title a {
