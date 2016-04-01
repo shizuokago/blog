@@ -61,6 +61,9 @@ func main() {
 	jQuery(SAVE).On(jquery.CLICK, func(e jquery.Event) {
 		ajax("save")
 	})
+	jQuery("img.avatar").On(jquery.ERROR, func(e jquery.Event) {
+		jQuery("img.avatar").SetAttr("src", "/static/images/somebody.jpg")
+	})
 }
 
 func ajax(url string) {
@@ -190,7 +193,6 @@ func getHtml() string {
 	writer.Flush()
 
 	return string(b.Bytes())
-
 }
 
 func playable(c present.Code) bool {
