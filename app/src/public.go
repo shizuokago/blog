@@ -6,12 +6,12 @@ import (
 	"google.golang.org/appengine/memcache"
 
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 var indexTmpl *template.Template
+var errorTmpl *template.Template
 
 func init() {
 
@@ -20,6 +20,11 @@ func init() {
 	var err error
 	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./templates/index.tmpl")
 	//indexTmpl, err = template.ParseFiles("./templates/index.tmpl")
+	if err != nil {
+		panic(err)
+	}
+
+	errorTmpl, err = template.New("root").ParseFiles("./templates/error.tmpl")
 	if err != nil {
 		panic(err)
 	}
@@ -44,10 +49,16 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 
 	htmls, nextC, err := selectHtml(r, cursor)
 	if err != nil {
-		panic(err)
+		errorPage(w, "Not Found", err.Error(), 404)
+		return
 	}
 
-	t, _ := strconv.Atoi(p)
+	t, err := strconv.Atoi(p)
+	if err != nil {
+		errorPage(w, "Page Error", err.Error(), 400)
+		return
+	}
+
 	next := t + 1
 	prev := t - 1
 	flag := true
@@ -55,10 +66,14 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		flag = false
 	}
 
-	memcache.Set(c, &memcache.Item{
+	err = memcache.Set(c, &memcache.Item{
 		Key:   "paging_" + strconv.Itoa(next) + "_cursor",
 		Value: []byte(nextC),
 	})
+	if err != nil {
+		errorPage(w, "Internal Server Error", err.Error(), 500)
+		return
+	}
 
 	data := struct {
 		Blog  Blog
@@ -70,7 +85,8 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = indexTmpl.Execute(w, data)
 	if err != nil {
-		panic(err)
+		errorPage(w, "Internal Server Error", err.Error(), 500)
+		return
 	}
 }
 
@@ -78,11 +94,18 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 	//Get Key
 	vars := mux.Vars(r)
 	id := vars["key"]
-
 	data, err := getHtmlData(r, id)
 	if err != nil {
-		log.Println(err)
+		errorPage(w, "Not Found", err.Error(), 404)
+		return
 	}
 
 	w.Write(data.Content)
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	t := "Not Found"
+	m := "Page is Not Found"
+	code := http.StatusNotFound
+	errorPage(w, t, m, code)
 }

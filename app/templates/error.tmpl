@@ -1,0 +1,60 @@
+{{define "root"}}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="{{ .Blog.Description }}">
+    <meta name="author" content="{{ .Blog.Author }}">
+    <meta name="keywords" content="{{ .Blog.Tags }}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ .Title }} [{{.Blog.Name}}]</title>
+
+    <link rel="shortcut icon" href="/static/images/favicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
+    <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+.mdl-card {
+  margin: -200px 0 0 -300px; 
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width :400px;
+}
+</style>
+  </head>
+
+  <body>
+
+    <div class="mdl-layout mdl-js-layout has-drawer is-upgraded">
+
+<div class="mdl-card mdl-shadow--2dp">
+
+<div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">{{ .Title }}</h2>
+</div>
+
+<div class="mdl-card__supporting-text">
+{{ .Message }}
+</div>
+
+<div class="mdl-card__actions mdl-card--border">
+<a href="/" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+Go Back
+</a>
+</div>
+
+<div class="mdl-card__menu">
+</div>
+
+</div>
+
+    </div>
+
+  </body>
+
+</html>
+{{end}}

@@ -41,6 +41,8 @@ func init() {
 
 	r := mux.NewRouter()
 
+	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+
 	r.HandleFunc("/", topHandler).Methods("GET")
 	r.HandleFunc("/entry/{key}", entryHandler).Methods("GET")
 
@@ -59,7 +61,6 @@ func init() {
 	r.HandleFunc("/admin/file/view", fileViewHandler).Methods("GET")
 	r.HandleFunc("/admin/file/upload", fileUploadHandler).Methods("POST")
 
-	//r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 	http.HandleFunc("/file/", fileHandler)
 	http.Handle("/", r)
 
@@ -166,4 +167,19 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 	writer.Flush()
 
 	return b.Bytes(), nil
+}
+
+func errorPage(w http.ResponseWriter, t, m string, code int) {
+	data := struct {
+		Blog    Blog
+		Code    int
+		Title   string
+		Message string
+	}{blog, code, t, m}
+
+	w.WriteHeader(data.Code)
+	err := errorTmpl.Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
 }

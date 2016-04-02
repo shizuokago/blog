@@ -1,0 +1,55 @@
+{{define "body"}}
+
+<form id="fileForm" action="/admin/file/upload" method="post" enctype="multipart/form-data">
+  <button id="upload" class="mdl-button mdl-js-button mdl-button--raised"> Upload </button>
+  <input type="file" name="file" id="file" value="" style="display:none;"/>
+</form>
+
+<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+<thead>
+<tr>
+<th class="mdl-data-table__cell--non-numeric">FileName</th>
+<th>Size</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td class="mdl-data-table__cell--non-numeric">Acrylic (Transparent)</td>
+<td>25</td>
+<td>$2.90</td>
+</tr>
+
+</tbody>
+</table>
+
+<script>
+
+$("#upload").click(function() {
+    $("#file").click();
+    return false;
+});
+
+$("#file").change(function() {
+    var dialog = document.querySelector('dialog.waitDialog');
+    dialog.showModal();
+    $(this).closest("form").submit();
+    return false;
+});
+
+</script>
+
+{{end}}
+
+{{define "header_menu"}}
+{{end}}
+
+{{define "footer_menu"}}
+<dialog class="mdl-dialog waitDialog">
+  <h3 class="mdl-dialog__title">Wait...</h3>
+  <div class="mdl-dialog__content">
+      <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+  </div>
+</dialog>
+{{end}}
