@@ -541,5 +541,22 @@ h3 {
   min-width:10px;
 }
 
-img.avatar {
+div.code {
+    background : rgb(240,240,240);
+    padding:5px 10px;
+    margin-top:20px;
+    margin-bottom:20px;
+    overflow:hidden;
+
+    border:1px solid rgb(224,224,224);
+    outline:0px solid transparent;
 }
+
+code {
+    font-size:95%;
+    font-family:'Deoid Sans Mono','Courier New',monospace;
+
+    color:black;
+}
+
+
