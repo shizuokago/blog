@@ -2,7 +2,6 @@ package blog
 
 import (
 	"google.golang.org/appengine"
-	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/user"
 	"html/template"
 	"net/http"
@@ -12,13 +11,13 @@ func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
 	tmpl, err := template.ParseFiles("./templates/admin/layout.tmpl", tName)
 	if err != nil {
-		//error page
+		errorPage(w, "Template Parse Error", err.Error(), 500)
 		return
 	}
 
 	err = tmpl.Execute(w, obj)
 	if err != nil {
-		//error page
+		errorPage(w, "Template Execute Error", err.Error(), 500)
 		return
 	}
 }
@@ -33,10 +32,9 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		u, err = getUser(r)
 	}
 
-	// add error handling
-	c := appengine.NewContext(r)
 	if err != nil {
-		log.Infof(c, "%T,%s", err, err.Error())
+		errorPage(w, "InternalServerError", err.Error(), 500)
+		return
 	}
 
 	adminRender(w, "./templates/admin/profile.tmpl", u)
@@ -45,6 +43,8 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 	err := saveAvatar(r)
 	if err != nil {
+		errorPage(w, "InternalServerError", err.Error(), 500)
+		return
 	}
 	http.Redirect(w, r, "/admin/profile", 301)
 }
@@ -53,24 +53,21 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)
 
-	log.Infof(c, "Test")
 	u := user.Current(c)
-
 	if u == nil {
 		url, err := user.LoginURL(c, "/admin/")
 		if err != nil {
+			errorPage(w, "InternalServerError", err.Error(), 500)
+			return
 		}
-
 		http.Redirect(w, r, url, 301)
 		return
 	}
 
-	//exists user
-
-	//find article
 	articles, err := selectArticle(r, 0)
 	if err != nil {
+		errorPage(w, "InternalServerError", err.Error(), 500)
+		return
 	}
-
 	adminRender(w, "./templates/admin/top.tmpl", articles)
 }

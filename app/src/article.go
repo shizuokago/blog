@@ -2,16 +2,13 @@ package blog
 
 import (
 	"github.com/gorilla/mux"
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/log"
-
 	"net/http"
 )
 
 func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := createArticle(r)
 	if err != nil {
-		panic(err)
+		errorPage(w, "InternalServerError", err.Error(), 500)
 	}
 	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
 }
@@ -21,19 +18,15 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["key"]
 
-	c := appengine.NewContext(r)
-
 	art, err := getArticle(r, name)
 	if err != nil {
-		log.Infof(c, err.Error())
-		//NOT FOUND
+		errorPage(w, "Key Error", err.Error(), 400)
 		return
 	}
 
 	u, err := getUser(r)
 	if err != nil {
-		log.Infof(c, err.Error())
-		//NOT FOUND
+		errorPage(w, "User Error", err.Error(), 401)
 		return
 	}
 
@@ -51,13 +44,9 @@ func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["key"]
-
-	c := appengine.NewContext(r)
-
-	//http.Redirect(w, r, "/admin/article/edit/"+id, 301)
 	_, err := updateArticle(r, id)
 	if err != nil {
-		log.Infof(c, err.Error())
+		errorPage(w, "Internal Server Error", err.Error(), 500)
 		return
 	}
 	return
@@ -68,11 +57,9 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["key"]
 
-	//http.Redirect(w, r, "/admin/article/edit/"+id, 301)
 	err := updateHtml(r, id)
 	if err != nil {
-		c := appengine.NewContext(r)
-		log.Infof(c, err.Error())
+		errorPage(w, "Internal Server Error", err.Error(), 500)
 		return
 	}
 
@@ -84,6 +71,7 @@ func deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["key"]
 	err := deleteArticle(r, id)
 	if err != nil {
+		errorPage(w, "Internal Server Error", err.Error(), 500)
 	}
 	http.Redirect(w, r, "/admin/", 301)
 }
