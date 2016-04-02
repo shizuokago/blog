@@ -107,11 +107,19 @@ func resize() {
 
 	margin := 215
 
+	out := jQuery(OUTPUT)
+	empty := jQuery("img#empty")
+
 	jQuery(LEFT).SetHeight(strconv.Itoa(height - margin))
 	jQuery(RIGHT).SetHeight(strconv.Itoa(height - margin))
 
 	jQuery(INPUT).SetHeight(strconv.Itoa(height - margin))
-	jQuery(OUTPUT).SetHeight(strconv.Itoa(height - margin))
+	out.SetHeight(strconv.Itoa(height - margin))
+
+	empty.SetCss("top", out.Css("top"))
+	empty.SetCss("left", out.Css("left"))
+	empty.SetCss("width", out.Width()-25)
+	empty.SetCss("height", out.Height())
 }
 
 type Html struct {
