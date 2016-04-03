@@ -9,7 +9,8 @@ import (
 
 func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
-	tmpl, err := template.ParseFiles("./templates/admin/layout.tmpl", tName)
+	funcMap := template.FuncMap{"convert": convert}
+	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./templates/admin/layout.tmpl", tName)
 	if err != nil {
 		errorPage(w, "Template Parse Error", err.Error(), 500)
 		return

@@ -47,10 +47,20 @@
     </div>
 
     <div class="mdl-card__actions mdl-card--border">
-    {{.UpdatedAt}}
+
+    Last updated : {{ convert .UpdatedAt }}
+    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.StringID}}">
+        <i class="material-icons right-section">screen_share</i>
+    </button>
+
+    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.StringID}}">
+        <i class="material-icons right-section">cloud_off</i>
+    </button>
+
     <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
         <i class="material-icons right-section">delete</i>
     </button>
+
     </div>
 
 
