@@ -41,7 +41,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := appengine.NewContext(r)
-	item, err := memcache.Get(c, "paging_"+p+"_cursor")
+	item, err := memcache.Get(c, "html_"+p+"_cursor")
 	cursor := ""
 	if err == nil {
 		cursor = string(item.Value)
@@ -67,9 +67,10 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = memcache.Set(c, &memcache.Item{
-		Key:   "paging_" + strconv.Itoa(next) + "_cursor",
+		Key:   "html_" + strconv.Itoa(next) + "_cursor",
 		Value: []byte(nextC),
 	})
+
 	if err != nil {
 		errorPage(w, "Internal Server Error", err.Error(), 500)
 		return

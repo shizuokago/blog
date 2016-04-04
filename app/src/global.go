@@ -58,8 +58,9 @@ func init() {
 
 	r.HandleFunc("/admin/article/delete/{key}", deleteArticleHandler).Methods("GET")
 
-	r.HandleFunc("/admin/file/view", fileViewHandler).Methods("GET")
-	r.HandleFunc("/admin/file/upload", fileUploadHandler).Methods("POST")
+	r.HandleFunc("/admin/file/view", viewFileHandler).Methods("GET")
+	r.HandleFunc("/admin/file/upload", uploadFileHandler).Methods("POST")
+	r.HandleFunc("/admin/file/delete", deleteFileHandler).Methods("POST")
 
 	http.HandleFunc("/file/", fileHandler)
 	http.Handle("/", r)

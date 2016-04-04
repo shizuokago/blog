@@ -1,42 +1,120 @@
 {{define "body"}}
 
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet"></div>
+
+  <div class="mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet">
+
 <form id="fileForm" action="/admin/file/upload" method="post" enctype="multipart/form-data">
-  <button id="upload" class="mdl-button mdl-js-button mdl-button--raised"> Upload </button>
-  <input type="file" name="file" id="file" value="" style="display:none;"/>
+
+  <input class="mdl-textfield__input" type="text" name="FileName" id="fileName"/>
+  <input type="file" name="file" id="file" style="display:none;"/>
+
+<button id="selectFile" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+<i class="material-icons">attachment</i>
+</button>
+
+<button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+<i class="material-icons">file_upload</i>
+</button>
+
 </form>
 
-<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
 <thead>
 <tr>
+<th></th>
 <th class="mdl-data-table__cell--non-numeric">FileName</th>
-<th>Size</th>
+<th>Size(byte)</th>
+<th></th>
 </tr>
 </thead>
 
 <tbody>
 
+{{ range .Files }}
 <tr>
-<td class="mdl-data-table__cell--non-numeric">Acrylic (Transparent)</td>
-<td>25</td>
-<td>$2.90</td>
+    <td>
+      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect updateBtn" data-id="{{.Key.StringID}}">
+        <i class="material-icons right-section">file_upload</i>
+      </button>
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+        <a href="/file/{{ .Key.StringID }}" target="_blank">
+        {{ .Key.StringID }}
+        </a>
+    </td>
+    <td>{{ .Size }}</td>
+    <td>
+      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
+        <i class="material-icons right-section">delete</i>
+      </button>
+    </td>
 </tr>
+{{end}}
 
 </tbody>
 </table>
 
+  </div>
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet"></div>
+</div>
+
+
+
 <script>
-
+var selectId = "";
 $("#upload").click(function() {
-    $("#file").click();
-    return false;
-});
-
-$("#file").change(function() {
     var dialog = document.querySelector('dialog.waitDialog');
     dialog.showModal();
     $(this).closest("form").submit();
     return false;
 });
+
+$("#selectFile").click(function() {
+    $("#file").trigger("click");
+    return false;
+});
+
+$("button.updateBtn").click(function(e) {
+    selectId = $(e.currentTarget).data("id");
+    $("#file").trigger("click");
+    return false;
+});
+
+$("#file").change(function() {
+
+    if ( selectId == "" ) {
+        var obj = $('#file').prop('files')[0];
+        $('#fileName').val(obj.name);
+    } else {
+        $('#fileName').val(selectId.substr(5));
+        $('#upload').trigger("click");
+    }
+
+    return false;
+});
+
+$("button.deleteBtn").click(function(e) {
+
+    var dataId = $(e.currentTarget).data("id");
+    var dialog = document.querySelector('dialog.deleteDialog');
+    dialog.showModal();
+
+    dialog.querySelector('.delete').addEventListener('click', function() {
+        $('#fileName').val(dataId.substr(5));
+        $('#fileForm').attr('action','/admin/file/delete');
+        $('#upload').trigger("click");
+    });
+
+    dialog.querySelector('.close').addEventListener('click', function() {
+        dialog.close();
+    });
+
+    return false;
+});
+
+
 
 </script>
 
@@ -51,5 +129,18 @@ $("#file").change(function() {
   <div class="mdl-dialog__content">
       <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
   </div>
+</dialog>
+
+<dialog class="mdl-dialog deleteDialog">
+<h4 class="mdl-dialog__title">this article delete?</h4>
+<div class="mdl-dialog__content">
+<p>
+It is not possible to return again.
+</p>
+</div>
+<div class="mdl-dialog__actions">
+<button type="button" class="mdl-button delete">DELETE</button>
+<button type="button" class="mdl-button close">CLOSE</button>
+</div>
 </dialog>
 {{end}}

@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/user"
 )
 
@@ -94,12 +95,9 @@ func selectArticle(r *http.Request, page int) ([]Article, error) {
 
 	var s []Article
 	err := ds.ExecuteQuery(c, q, &s)
-
-	//TODO 違う
 	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
 		return nil, verr.Root(err)
 	}
-
 	return s, nil
 }
 
@@ -180,23 +178,13 @@ func createArticle(r *http.Request) (string, error) {
 func deleteArticle(r *http.Request, id string) error {
 
 	c := appengine.NewContext(r)
-	//File(background)
-	fkey := getFileKey(r, id)
-	err := ds.Delete(c, fkey)
-	if err != nil {
-		return err
-	}
-	fdkey := getFileDataKey(r, id)
-	err = ds.Delete(c, fdkey)
+
+	err := deleteFile(r, "bg/"+id)
 	if err != nil {
 		return err
 	}
 
-	//Html
-	hkey := getHtmlKey(r, id)
-	err = ds.Delete(c, hkey)
-	hdkey := getHtmlDataKey(r, id)
-	err = ds.Delete(c, hdkey)
+	err = deleteHtml(r, id)
 	if err != nil {
 		return err
 	}
@@ -204,11 +192,8 @@ func deleteArticle(r *http.Request, id string) error {
 	//Article
 	akey := getArticleKey(r, id)
 	err = ds.Delete(c, akey)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 const KIND_HTML = "Html"
@@ -335,6 +320,20 @@ func selectHtml(r *http.Request, cursor string) ([]Html, string, error) {
 	return s, cur.String(), nil
 }
 
+func deleteHtml(r *http.Request, id string) error {
+
+	c := appengine.NewContext(r)
+
+	hkey := getHtmlKey(r, id)
+	err := ds.Delete(c, hkey)
+	if err != nil {
+		return err
+	}
+	hdkey := getHtmlDataKey(r, id)
+	err = ds.Delete(c, hdkey)
+	return err
+}
+
 const KIND_HTMLDATA = "HtmlData"
 
 type HtmlData struct {
@@ -382,6 +381,61 @@ const (
 func getFileKey(r *http.Request, name string) *datastore.Key {
 	c := appengine.NewContext(r)
 	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
+}
+
+func selectFile(r *http.Request, cursor string) ([]File, string, error) {
+
+	q := datastore.NewQuery(KIND_FILE).
+		Filter("Type =", 3).
+		Order("- UpdatedAt").
+		Limit(10)
+
+	if cursor != "" {
+		cur, err := datastore.DecodeCursor(cursor)
+		if err == nil {
+			q = q.Start(cur)
+		}
+	}
+
+	var s []File
+
+	c := appengine.NewContext(r)
+	t := q.Run(c)
+	for {
+		var f File
+		key, err := t.Next(&f)
+
+		if err == datastore.Done {
+			break
+		}
+		if err != nil {
+			return nil, "", err
+		}
+		f.SetKey(key)
+		s = append(s, f)
+	}
+
+	cur, err := t.Cursor()
+	if err != nil {
+		return nil, "", err
+	}
+
+	return s, cur.String(), nil
+}
+
+func deleteFile(r *http.Request, id string) error {
+
+	c := appengine.NewContext(r)
+	log.Infof(c, id)
+
+	fkey := getFileKey(r, id)
+	err := ds.Delete(c, fkey)
+	if err != nil {
+		return err
+	}
+	fdkey := getFileDataKey(r, id)
+	err = ds.Delete(c, fdkey)
+	return err
 }
 
 func saveFile(r *http.Request, id string, t int64) error {
