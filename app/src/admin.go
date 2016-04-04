@@ -65,6 +65,8 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//exist user
+
 	articles, err := selectArticle(r, 0)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)

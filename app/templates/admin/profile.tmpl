@@ -4,6 +4,9 @@
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--3-col"></div>
     <div class="mdl-cell mdl-cell--6-col">
+{{ if .Key }}
+      <img id="upload" class="avatar" src="/file/avatar/{{ .Key.StringID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'" style="cursor:pointer;"/>
+{{ end }}
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <input class="mdl-textfield__input" type="text" name="Name" id="name" value="{{.Name}}"/>
         <label class="mdl-textfield__label" for="name">Name...</label>
@@ -26,13 +29,16 @@
       </div>
 
       <button id="save" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
+
     </div>
     <div class="mdl-cell mdl-cell--3-col"></div>
   </div>
 </form>
 
 <form method="post" action="/admin/profile/upload" enctype="multipart/form-data">
-  <button id="upload" class="mdl-button mdl-js-button mdl-button--raised"> Upload </button>
+
+
+
   <input type="file" name="file" id="file" value="" style="display:none;"/>
 </form>
 
