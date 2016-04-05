@@ -1,26 +1,28 @@
 {{define "body"}}
 
-<div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet"></div>
+<div class="mdl-grid" style="max-width:900px">
 
-  <div class="mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet">
+  <div class="mdl-cell mdl-cell--12-col">
 
 <form id="fileForm" action="/admin/file/upload" method="post" enctype="multipart/form-data">
 
-  <input class="mdl-textfield__input" type="text" name="FileName" id="fileName"/>
-  <input type="file" name="file" id="file" style="display:none;"/>
+    <button class="mdl-button mdl-js-button mdl-button--icon" for="fileName" id="selectFile">
+        <i class="material-icons">attachment</i>
+    </button>
+    <button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <i class="material-icons">file_upload</i>
+    </button>
+    <input class="mdl-textfield mdl-js-textfield mdl-textfield__input" type="text" id="fileName" name="FileName">
 
-<button id="selectFile" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-<i class="material-icons">attachment</i>
-</button>
 
-<button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-<i class="material-icons">file_upload</i>
-</button>
+
+<input type="file" name="file" id="file" style="display:none;"/>
+
 
 </form>
 
-<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width:100%;">
+
 <thead>
 <tr>
 <th></th>
@@ -57,7 +59,7 @@
 </table>
 
   </div>
-    <div class="mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet"></div>
+
 </div>
 
 
