@@ -1,8 +1,5 @@
 {{define "body"}}
 
-<div class="mdl-grid">
-
-<div class="mdl-cell mdl-cell--12-col">
 
     <!-- Wide card with share menu button -->
     <style>
@@ -33,9 +30,12 @@
       -ms-flex-positive: 1;
           flex-grow: 1;
 }
-
     </style>
-{{range .}}
+
+    <div class="mdl-grid" style="width:100%">
+      <div class="mdl-cell mdl-cell--12-col">
+
+{{ range .Articles }}
 
 <div class="card-wide mdl-card mdl-shadow--2dp">
     <div class="mdl-card__title" style="background: url('/file/bg/{{ .Key.StringID }}') center / cover;cursor:pointer;">
@@ -48,41 +48,61 @@
 
     <div class="mdl-card__actions mdl-card--border">
 
-    Last updated : {{ convert .UpdatedAt }}
-    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.StringID}}">
-        <i class="material-icons right-section">screen_share</i>
-    </button>
+        Last updated : {{ convert .UpdatedAt }}
+        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.StringID}}">
+            <i class="material-icons right-section">screen_share</i>
+        </button>
+    
+        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.StringID}}">
+            <i class="material-icons right-section">cloud_off</i>
+        </button>
 
-    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.StringID}}">
-        <i class="material-icons right-section">cloud_off</i>
-    </button>
-
-    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
-        <i class="material-icons right-section">delete</i>
-    </button>
+        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
+            <i class="material-icons right-section">delete</i>
+        </button>
 
     </div>
 
-
     <div class="mdl-card__menu">
 
-    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.StringID}}">
-        <i class="material-icons">mode_edit</i>
-    </button>
+        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.StringID}}">
+            <i class="material-icons">mode_edit</i>
+        </button>
 
     </div>
 
 </div>
 {{end}}
 
+        </div>
 
-</div>
+          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">
+{{ if .PFlag}}
+            <a href="/admin/?p={{.Prev}}" class="" title="Newer">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                 <i class="material-icons">arrow_back</i>
+              </button>
+            </a>
+{{ end }}
+            <div class="section-spacer" style="flex-grow:1;"></div>
+
+            <a href="/admin/?p={{.Next}}" class="" title="Older">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                <i class="material-icons" role="presentation">arrow_forward</i>
+              </button>
+            </a>
+
+          </nav>
+
 
 <form method="post" action="/admin/article/create" enctype="multipart/form-data" style="display:none;">
 <input type="file" name="file" id="file" value="" />
 </form>
 
 </div>
+
+
+
 
 <dialog class="mdl-dialog deleteDialog">
 <h4 class="mdl-dialog__title">this article delete?</h4>

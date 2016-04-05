@@ -85,20 +85,50 @@ func getArticleKey(r *http.Request, id string) *datastore.Key {
 	return datastore.NewKey(c, KIND_ARTICLE, id, 0, nil)
 }
 
-func selectArticle(r *http.Request, page int) ([]Article, error) {
-
-	c := appengine.NewContext(r)
+func selectArticle(r *http.Request, cursor string) ([]Article, string, error) {
 
 	q := datastore.NewQuery("Article").
 		Order("- UpdatedAt").
 		Limit(10)
 
-	var s []Article
-	err := ds.ExecuteQuery(c, q, &s)
-	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-		return nil, verr.Root(err)
+	c := appengine.NewContext(r)
+	if cursor != "" {
+		cur, err := datastore.DecodeCursor(cursor)
+		if err == nil {
+			q = q.Start(cur)
+		}
 	}
-	return s, nil
+
+	var s []Article
+
+	t := q.Run(c)
+	for {
+		var a Article
+		key, err := t.Next(&a)
+
+		if err == datastore.Done {
+			break
+		}
+		if err != nil {
+			return nil, "", err
+		}
+		a.SetKey(key)
+		s = append(s, a)
+	}
+
+	cur, err := t.Cursor()
+	if err != nil {
+		return nil, "", err
+	}
+
+	return s, cur.String(), nil
+
+	//var s []Article
+	//err := ds.ExecuteQuery(c, q, &s)
+	//if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
+	//return nil, verr.Root(err)
+	//}
+	//return s, cursor, nil
 }
 
 func getArticle(r *http.Request, id string) (*Article, error) {

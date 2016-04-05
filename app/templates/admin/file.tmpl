@@ -6,15 +6,16 @@
 
 <form id="fileForm" action="/admin/file/upload" method="post" enctype="multipart/form-data">
 
+    <div style="width:900px">
     <button class="mdl-button mdl-js-button mdl-button--icon" for="fileName" id="selectFile">
         <i class="material-icons">attachment</i>
     </button>
-    <button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+    <button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="margin-left:auto;">
         <i class="material-icons">file_upload</i>
     </button>
+    </div>
+
     <input class="mdl-textfield mdl-js-textfield mdl-textfield__input" type="text" id="fileName" name="FileName">
-
-
 
 <input type="file" name="file" id="file" style="display:none;"/>
 
@@ -43,7 +44,7 @@
     </td>
     <td class="mdl-data-table__cell--non-numeric">
         <a href="/file/{{ .Key.StringID }}" target="_blank">
-        {{ .Key.StringID }}
+        {{ deleteDir .Key.StringID }}
         </a>
     </td>
     <td>{{ .Size }}</td>
@@ -60,9 +61,28 @@
 
   </div>
 
+          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">
+
+{{ if .PFlag}}
+            <a href="/admin/file/view?p={{.Prev}}" class="" title="Newer">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                 <i class="material-icons">arrow_back</i>
+              </button>
+            </a>
+{{end }}
+
+            <div class="section-spacer" style="flex-grow:1;"></div>
+
+            <a href="/admin/file/view?p={{.Next}}" class="" title="Older">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                <i class="material-icons" role="presentation">arrow_forward</i>
+              </button>
+            </a>
+          </nav>
+
+
+
 </div>
-
-
 
 <script>
 var selectId = "";

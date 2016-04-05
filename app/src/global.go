@@ -86,6 +86,11 @@ func convert(t time.Time) string {
 	return jt.Format("2006/01/02 15:04")
 }
 
+func deleteDir(s string) string {
+	ds := []byte(s)
+	return string(ds[5:])
+}
+
 func createTemplate() (*template.Template, error) {
 
 	action := "templates/entry/action.tmpl"
