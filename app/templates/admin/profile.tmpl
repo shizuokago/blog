@@ -1,12 +1,15 @@
 {{define "body"}}
 
 <form id="profileForm" action="/admin/profile" method="post">
-  <div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--3-col"></div>
-    <div class="mdl-cell mdl-cell--6-col">
+
+  <div class="mdl-grid" style="max-width:400px;">
+    <div class="mdl-cell mdl-cell--12-col">
 {{ if .Key }}
-      <img id="upload" class="avatar" src="/file/avatar/{{ .Key.StringID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'" style="cursor:pointer;"/>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <img id="upload" class="avatar" src="/file/avatar/{{ .Key.StringID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'" style="cursor:pointer;"/>
+      </div>
 {{ end }}
+
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <input class="mdl-textfield__input" type="text" name="Name" id="name" value="{{.Name}}"/>
         <label class="mdl-textfield__label" for="name">Name...</label>
@@ -28,17 +31,15 @@
         <label class="mdl-textfield__label" for="twitterid">TwitterId...</label>
       </div>
 
-      <button id="save" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <button id="save" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
+      </div>
 
     </div>
-    <div class="mdl-cell mdl-cell--3-col"></div>
   </div>
 </form>
 
 <form method="post" action="/admin/profile/upload" enctype="multipart/form-data">
-
-
-
   <input type="file" name="file" id="file" value="" style="display:none;"/>
 </form>
 
