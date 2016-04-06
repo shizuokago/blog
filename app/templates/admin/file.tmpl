@@ -89,7 +89,31 @@ var selectId = "";
 $("#upload").click(function() {
     var dialog = document.querySelector('dialog.waitDialog');
     dialog.showModal();
-    $(this).closest("form").submit();
+
+    if ( selectId == "" ) {
+
+        var name = $('#fileName').val();
+        $.ajax({
+           type: "POST",
+           url: "/admin/file/exists",
+           data: {
+               "fileName" : name
+           }
+           success: function(msg){
+             if ( msg == false ) {
+                 $(this).closest("form").submit();
+                 //selectId = $('#fileName').val();
+                 //$("#upload").trigger("click");
+             } else {
+                 // ?
+             }
+           }
+        });
+
+
+    } else {
+        $(this).closest("form").submit();
+    }
     return false;
 });
 

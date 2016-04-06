@@ -61,6 +61,7 @@ func init() {
 	r.HandleFunc("/admin/file/view", viewFileHandler).Methods("GET")
 	r.HandleFunc("/admin/file/upload", uploadFileHandler).Methods("POST")
 	r.HandleFunc("/admin/file/delete", deleteFileHandler).Methods("POST")
+	r.HandleFunc("/admin/file/exists", existsFileHandler).Methods("POST")
 
 	http.HandleFunc("/file/", fileHandler)
 	http.Handle("/", r)

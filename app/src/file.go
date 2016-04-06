@@ -4,6 +4,7 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/memcache"
 
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -26,6 +27,24 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		errorPage(w, "Not Found", err.Error(), 500)
 		return
 	}
+}
+
+func existsFileHandler(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+
+	id := r.FormValue("fileName")
+	flag, err := existsFile(r, id, FILE_TYPE_DATA)
+	if err != nil {
+		errorJson(w, "InternalServerError", err.Error(), 500)
+		return
+	}
+
+	enc := json.NewEncoder(w.Body)
+	d := map[string]bool{"exists": flag}
+	enc.Encode(d)
+
+	return
 }
 
 func viewFileHandler(w http.ResponseWriter, r *http.Request) {

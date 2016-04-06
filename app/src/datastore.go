@@ -468,6 +468,31 @@ func deleteFile(r *http.Request, id string) error {
 	return err
 }
 
+func existsFile(r *http.Request, id string, t int64) (bool, error) {
+
+	dir := "data"
+	if t == FILE_TYPE_BG {
+		dir = "bg"
+	} else if t == FILE_TYPE_AVATAR {
+		dir = "avatar"
+	}
+
+	key := getFileKey(r, dir+"/"+id)
+
+	rtn := File{}
+	err := ds.Get(c, key, &rtn)
+	if err != nil {
+		if verr.Root(err) != datastore.ErrNoSuchEntity {
+			return nil, verr.Root(err)
+		} else {
+			return false, nil
+		}
+	}
+
+	return true, nil
+
+}
+
 func saveFile(r *http.Request, id string, t int64) error {
 
 	upload, header, err := r.FormFile("file")
