@@ -3,6 +3,7 @@ package blog
 import (
 	"github.com/gorilla/mux"
 	"net/http"
+	"time"
 )
 
 func createArticleHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +45,7 @@ func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["key"]
-	_, err := updateArticle(r, id)
+	_, err := updateArticle(r, id, time.Time{})
 	if err != nil {
 		errorPage(w, "Internal Server Error", err.Error(), 500)
 		return

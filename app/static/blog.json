@@ -2,5 +2,6 @@
     "Name" : "Shizuoka.go",
     "Author" : "secondarykey",
     "Tags" : "shizuoka,golang,study",
-    "Description" : "静岡でGo言語の勉強会をやっています。"
+    "Description" : "静岡でGo言語の勉強会をやっています。",
+    "Template" : "* Section ? "
 }

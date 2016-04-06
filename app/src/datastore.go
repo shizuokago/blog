@@ -3,6 +3,7 @@ package blog
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	verr "github.com/knightso/base/errors"
 	"github.com/knightso/base/gae/ds"
@@ -73,10 +74,11 @@ func putUser(r *http.Request) (*User, error) {
 const KIND_ARTICLE = "Article"
 
 type Article struct {
-	Title    string
-	SubTitle string
-	Tags     string
-	Markdown datastore.ByteString `datastore:",noindex"`
+	Title       string
+	SubTitle    string
+	Tags        string
+	PublishDate time.Time
+	Markdown    datastore.ByteString `datastore:",noindex"`
 	ds.Meta
 }
 
@@ -144,7 +146,7 @@ func getArticle(r *http.Request, id string) (*Article, error) {
 	return &rtn, nil
 }
 
-func updateArticle(r *http.Request, id string) (*Article, error) {
+func updateArticle(r *http.Request, id string, pub time.Time) (*Article, error) {
 
 	r.ParseForm()
 	title := r.FormValue("Title")
@@ -162,6 +164,9 @@ func updateArticle(r *http.Request, id string) (*Article, error) {
 	art.SubTitle = createSubTitle(r.FormValue("Markdown"))
 	art.Tags = tags
 	art.Markdown = mark
+	if !pub.IsZero() {
+		art.PublishDate = pub
+	}
 
 	err = ds.Put(c, art)
 	if err != nil {
@@ -187,7 +192,7 @@ func createArticle(r *http.Request) (string, error) {
 	c := appengine.NewContext(r)
 	id := uuid.New()
 
-	base := "* Seciton1"
+	base := blog.Template
 	article := &Article{
 		Title:    "New Title",
 		Tags:     blog.Tags,
@@ -261,7 +266,7 @@ func updateHtml(r *http.Request, key string) error {
 		return err
 	}
 
-	art, err := updateArticle(r, key)
+	art, err := updateArticle(r, key, time.Now())
 	if err != nil {
 		return err
 	}
@@ -283,7 +288,6 @@ func updateHtml(r *http.Request, key string) error {
 		html.SetKey(k)
 		data.SetKey(dk)
 	} else {
-
 		err = ds.Get(c, dk, data)
 		if err != nil {
 			return err
