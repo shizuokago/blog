@@ -55,6 +55,7 @@ func init() {
 
 	r.HandleFunc("/admin/article/save/{key}", saveArticleHandler).Methods("POST")
 	r.HandleFunc("/admin/article/publish/{key}", publishArticleHandler).Methods("POST")
+	r.HandleFunc("/admin/article/private/{key}", privateArticleHandler).Methods("GET")
 
 	r.HandleFunc("/admin/article/delete/{key}", deleteArticleHandler).Methods("GET")
 

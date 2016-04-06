@@ -75,3 +75,14 @@ func deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/admin/", 301)
 }
+
+func privateArticleHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["key"]
+	err := deleteHtml(r, id)
+	if err != nil {
+		errorPage(w, "InternalServerError", err.Error(), 500)
+	}
+	http.Redirect(w, r, "/admin/", 301)
+}

@@ -34,7 +34,7 @@
 
     <div class="mdl-grid" style="width:100%">
 
-      {{template "paging" .}}
+      {{ template "paging" . }}
 
       <div class="mdl-cell mdl-cell--12-col">
 
@@ -104,6 +104,19 @@ It is not possible to return again.
 </div>
 </dialog>
 
+<dialog class="mdl-dialog privateDialog">
+<h4 class="mdl-dialog__title">this article private?</h4>
+<div class="mdl-dialog__content">
+<p>
+It is not possible to return again.
+</p>
+</div>
+<div class="mdl-dialog__actions">
+<button type="button" class="mdl-button private">Private</button>
+<button type="button" class="mdl-button close">CLOSE</button>
+</div>
+</dialog>
+
 <dialog class="mdl-dialog waitDialog">
   <h3 class="mdl-dialog__title">Wait...</h3>
   <div class="mdl-dialog__content">
@@ -132,6 +145,12 @@ $("#addBtn").click(function() {
     return false;
 });
 
+$("button.pageBtn").click(function(e) {
+    var id = $(e.currentTarget).data("id");
+    window.open("/entry/" + id,"_blank");
+    return false;
+});
+
 $("button.editBtn").click(function(e) {
     location.href = "/admin/article/edit/" + $(e.currentTarget).data("id");
     return false;
@@ -149,6 +168,20 @@ $("button.deleteBtn").click(function(e) {
         dialog.close();
     });
 
+    return false;
+});
+
+$("button.privateBtn").click(function(e) {
+    var dialog = document.querySelector('dialog.privateDialog');
+    dialog.showModal();
+
+    dialog.querySelector('.private').addEventListener('click', function() {
+        location.href = "/admin/article/private/" + $(e.currentTarget).data("id");
+    });
+
+    dialog.querySelector('.close').addEventListener('click', function() {
+        dialog.close();
+    });
     return false;
 });
 
