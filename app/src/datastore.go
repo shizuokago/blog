@@ -470,6 +470,7 @@ func deleteFile(r *http.Request, id string) error {
 
 func existsFile(r *http.Request, id string, t int64) (bool, error) {
 
+	c := appengine.NewContext(r)
 	dir := "data"
 	if t == FILE_TYPE_BG {
 		dir = "bg"
@@ -483,7 +484,7 @@ func existsFile(r *http.Request, id string, t int64) (bool, error) {
 	err := ds.Get(c, key, &rtn)
 	if err != nil {
 		if verr.Root(err) != datastore.ErrNoSuchEntity {
-			return nil, verr.Root(err)
+			return true, verr.Root(err)
 		} else {
 			return false, nil
 		}

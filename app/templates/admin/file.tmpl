@@ -91,28 +91,32 @@ $("#upload").click(function() {
     dialog.showModal();
 
     if ( selectId == "" ) {
-
         var name = $('#fileName').val();
         $.ajax({
            type: "POST",
            url: "/admin/file/exists",
+           dataType:"json",
            data: {
                "fileName" : name
-           }
+           },
            success: function(msg){
-             if ( msg == false ) {
-                 $(this).closest("form").submit();
-                 //selectId = $('#fileName').val();
-                 //$("#upload").trigger("click");
+             if ( msg.exists == false ) {
+               $("#fileForm").submit();
              } else {
-                 // ?
+                 dialog.close();
+                 if ( confirm("同盟のファイルが存在する為、更新処理になりますが、よろしいですか？") ) {
+                     selectId = $('#fileName').val();
+                     $("#fileForm").submit();
+                 }
              }
-           }
+           },
+           error: function(msg){
+             console.log(msg);
+             dialog.close();
+           } 
         });
-
-
     } else {
-        $(this).closest("form").submit();
+       $("#fileForm").submit();
     }
     return false;
 });

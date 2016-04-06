@@ -190,3 +190,15 @@ func errorPage(w http.ResponseWriter, t, m string, code int) {
 		panic(err)
 	}
 }
+
+func errorJson(w http.ResponseWriter, t, m string, code int) {
+
+	w.WriteHeader(code)
+	enc := json.NewEncoder(w)
+	d := map[string]interface{}{
+		"success": false,
+		"title":   t,
+		"message": m,
+	}
+	enc.Encode(d)
+}

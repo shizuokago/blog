@@ -2,6 +2,7 @@ package blog
 
 import (
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 
 	"encoding/json"
@@ -32,15 +33,18 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 func existsFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
-
 	id := r.FormValue("fileName")
+
+	c := appengine.NewContext(r)
+	log.Infof(c, id)
+
 	flag, err := existsFile(r, id, FILE_TYPE_DATA)
 	if err != nil {
 		errorJson(w, "InternalServerError", err.Error(), 500)
 		return
 	}
 
-	enc := json.NewEncoder(w.Body)
+	enc := json.NewEncoder(w)
 	d := map[string]bool{"exists": flag}
 	enc.Encode(d)
 
