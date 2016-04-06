@@ -33,7 +33,11 @@
     </style>
 
     <div class="mdl-grid" style="width:100%">
+
+      {{template "paging" .}}
+
       <div class="mdl-cell mdl-cell--12-col">
+
 
 {{ range .Articles }}
 
@@ -74,25 +78,10 @@
 </div>
 {{end}}
 
+
         </div>
 
-          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">
-{{ if .PFlag}}
-            <a href="/admin/?p={{.Prev}}" class="" title="Newer">
-              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                 <i class="material-icons">arrow_back</i>
-              </button>
-            </a>
-{{ end }}
-            <div class="section-spacer" style="flex-grow:1;"></div>
-
-            <a href="/admin/?p={{.Next}}" class="" title="Older">
-              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                <i class="material-icons" role="presentation">arrow_forward</i>
-              </button>
-            </a>
-
-          </nav>
+            {{template "paging" .}}
 
 
 <form method="post" action="/admin/article/create" enctype="multipart/form-data" style="display:none;">
@@ -100,8 +89,6 @@
 </form>
 
 </div>
-
-
 
 
 <dialog class="mdl-dialog deleteDialog">
@@ -179,6 +166,7 @@ $("#file").change(function() {
 {{end}}
 
 {{define "header_menu"}}
+
 <button id="addBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="top:30px;">
 <i class="material-icons">add</i>
 </button>
@@ -186,4 +174,24 @@ $("#file").change(function() {
 
 {{define "footer_menu"}}
 
+{{end}}
+
+{{define "paging"}}
+          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;margin:0px 30px 0px 30px;">
+{{ if .PFlag}}
+            <a href="/admin/?p={{.Prev}}" class="" title="Newer">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                 <i class="material-icons">arrow_back</i>
+              </button>
+            </a>
+{{ end }}
+            <div class="section-spacer" style="flex-grow:1;"></div>
+
+            <a href="/admin/?p={{.Next}}" class="" title="Older">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                <i class="material-icons" role="presentation">arrow_forward</i>
+              </button>
+            </a>
+
+          </nav>
 {{end}}

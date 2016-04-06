@@ -19,8 +19,9 @@
 
 <input type="file" name="file" id="file" style="display:none;"/>
 
-
 </form>
+
+  {{ template "paging" }}
 
 <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width:100%;">
 
@@ -29,6 +30,7 @@
 <th></th>
 <th class="mdl-data-table__cell--non-numeric">FileName</th>
 <th>Size(byte)</th>
+<th>Lastupdate</th>
 <th></th>
 </tr>
 </thead>
@@ -48,6 +50,7 @@
         </a>
     </td>
     <td>{{ .Size }}</td>
+    <td>{{ convert .UpdatedAt }}</td>
     <td>
       <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
         <i class="material-icons right-section">delete</i>
@@ -61,25 +64,7 @@
 
   </div>
 
-          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">
-
-{{ if .PFlag}}
-            <a href="/admin/file/view?p={{.Prev}}" class="" title="Newer">
-              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                 <i class="material-icons">arrow_back</i>
-              </button>
-            </a>
-{{end }}
-
-            <div class="section-spacer" style="flex-grow:1;"></div>
-
-            <a href="/admin/file/view?p={{.Next}}" class="" title="Older">
-              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                <i class="material-icons" role="presentation">arrow_forward</i>
-              </button>
-            </a>
-          </nav>
-
+  {{ template "paging" }}
 
 
 </div>
@@ -194,3 +179,24 @@ It is not possible to return again.
 </div>
 </dialog>
 {{end}}
+
+{{ define "paging" }}
+          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">
+
+{{ if .PFlag}}
+            <a href="/admin/file/view?p={{.Prev}}" class="" title="Newer">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                 <i class="material-icons">arrow_back</i>
+              </button>
+            </a>
+{{end }}
+
+            <div class="section-spacer" style="flex-grow:1;"></div>
+
+            <a href="/admin/file/view?p={{.Next}}" class="" title="Older">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                <i class="material-icons" role="presentation">arrow_forward</i>
+              </button>
+            </a>
+          </nav>
+{{ end }}
