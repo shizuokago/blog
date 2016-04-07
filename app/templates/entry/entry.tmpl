@@ -81,13 +81,13 @@
 
         <footer class="mdl-mini-footer">
           <div class="mdl-mini-footer--left-section">
-            <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
+            <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter" onclick="tweet();">
               <span class="visuallyhidden">Twitter</span>
             </button>
-            <button class="mdl-mini-footer--social-btn social-btn social-btn__blogger">
+            <button class="mdl-mini-footer--social-btn social-btn social-btn__blogger" onclick="facebook();">
               <span class="visuallyhidden">Facebook</span>
             </button>
-            <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus">
+            <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus" onclick="gplus();">
               <span class="visuallyhidden">Google Plus</span>
             </button>
           </div>
@@ -104,6 +104,28 @@
     </div>
 
     <a href="#start" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"><i class="material-icons">vertical_align_top</i></a>
+
+<script>
+    function tweet() {
+        var address = location.href;
+        var title = document.title;
+        var href = "http://twitter.com/share?count=horizontal&amp;original_referer=" + address + "&amp;text=" + title + "&amp;url=" + address;
+        window.open(href,'tweetwindow','width=550, height=450,personalbar=0,toolbar=0,scrollbars=1,resizable=1');
+        return false;
+    }
+
+    function facebook() {
+        var address = location.href;
+        window.open("http://www.facebook.com/share.php?u=" + address,"facebookwindow","idth=550, height=450,personalbar=0,toolbar=0,scrollbars=1,resizable=1");
+        return false;
+    }
+
+    function gplus() {
+        var address = location.href;
+        window.open("https://plus.google.com/share?url=" + address,"gpluswindow","idth=550, height=450,personalbar=0,toolbar=0,scrollbars=1,resizable=1");
+        return false;
+    }
+</script>
 
   </body>
 </html>
