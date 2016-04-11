@@ -19,7 +19,6 @@ func init() {
 
 	var err error
 	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./templates/index.tmpl")
-	//indexTmpl, err = template.ParseFiles("./templates/index.tmpl")
 	if err != nil {
 		panic(err)
 	}
@@ -35,45 +34,27 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	vals := r.URL.Query()
 
 	ps := vals["p"]
-	p := "1"
+	p := 1
 	if len(ps) > 0 {
-		p = ps[0]
+		pbuf = ps[0]
+		p, err := strconv.Atoi(p)
+		if err != nil {
+			errorPage(w, "Bad Request", err.Error(), 400)
+			return
+		}
 	}
 
-	c := appengine.NewContext(r)
-	item, err := memcache.Get(c, "html_"+p+"_cursor")
-	cursor := ""
-	if err == nil {
-		cursor = string(item.Value)
-	}
-
-	htmls, nextC, err := selectHtml(r, cursor)
+	htmls, err := selectHtml(r, p)
 	if err != nil {
 		errorPage(w, "Not Found", err.Error(), 404)
 		return
 	}
 
-	t, err := strconv.Atoi(p)
-	if err != nil {
-		errorPage(w, "Page Error", err.Error(), 400)
-		return
-	}
-
-	next := t + 1
-	prev := t - 1
+	next := p + 1
+	prev := p - 1
 	flag := true
 	if prev <= 0 {
 		flag = false
-	}
-
-	err = memcache.Set(c, &memcache.Item{
-		Key:   "html_" + strconv.Itoa(next) + "_cursor",
-		Value: []byte(nextC),
-	})
-
-	if err != nil {
-		errorPage(w, "Internal Server Error", err.Error(), 500)
-		return
 	}
 
 	data := struct {

@@ -32,16 +32,20 @@
 ## Original
 
   index HTML
+
     ./app/templates/index.tmpl
 
   article HTML
+
     ./app/templates/entry/entry.tmpl
     ./app/templates/entry/action.tmpl
 
   stylesheet
+
     ./app/static/css/style.css
 
   backgroung image
+
     ./app/static/images/bg_1024.jpg
     ./app/static/images/bg_2048.jpg
     ./app/static/images/bg_2880.jpg
@@ -52,3 +56,7 @@
     go run gopherjs/deploy.go
 ```
 
+
+## Sample
+
+http://shizuoka-go.appspot.com/

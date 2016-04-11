@@ -87,13 +87,19 @@ func getArticleKey(r *http.Request, id string) *datastore.Key {
 	return datastore.NewKey(c, KIND_ARTICLE, id, 0, nil)
 }
 
-func selectArticle(r *http.Request, cursor string) ([]Article, string, error) {
+func selectArticle(r *http.Request, p int) ([]Article, error) {
+
+	c := appengine.NewContext(r)
+	item, err := memcache.Get(c, "article_"+strconv.Itoa(p)+"_cursor")
+	cursor := ""
+	if err == nil {
+		cursor = string(item.Value)
+	}
 
 	q := datastore.NewQuery("Article").
 		Order("- UpdatedAt").
 		Limit(10)
 
-	c := appengine.NewContext(r)
 	if cursor != "" {
 		cur, err := datastore.DecodeCursor(cursor)
 		if err == nil {
@@ -102,7 +108,6 @@ func selectArticle(r *http.Request, cursor string) ([]Article, string, error) {
 	}
 
 	var s []Article
-
 	t := q.Run(c)
 	for {
 		var a Article
@@ -112,7 +117,7 @@ func selectArticle(r *http.Request, cursor string) ([]Article, string, error) {
 			break
 		}
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		a.SetKey(key)
 		s = append(s, a)
@@ -120,17 +125,19 @@ func selectArticle(r *http.Request, cursor string) ([]Article, string, error) {
 
 	cur, err := t.Cursor()
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	return s, cur.String(), nil
+	err = memcache.Set(c, &memcache.Item{
+		Key:   "article_" + strconv.Itoa(p+1) + "_cursor",
+		Value: []byte(cur.String()),
+	})
 
-	//var s []Article
-	//err := ds.ExecuteQuery(c, q, &s)
-	//if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-	//return nil, verr.Root(err)
-	//}
-	//return s, cursor, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }
 
 func getArticle(r *http.Request, id string) (*Article, error) {
@@ -315,9 +322,15 @@ func updateHtml(r *http.Request, key string) error {
 	return err
 }
 
-func selectHtml(r *http.Request, cursor string) ([]Html, string, error) {
+func selectHtml(r *http.Request, p int) ([]Html, error) {
 
 	c := appengine.NewContext(r)
+	item, err := memcache.Get(c, "html_"+p+"_cursor")
+	cursor := ""
+	if err == nil {
+		cursor = string(item.Value)
+	}
+
 	q := datastore.NewQuery(KIND_HTML).
 		Order("- CreatedAt").
 		Limit(5)
@@ -340,7 +353,7 @@ func selectHtml(r *http.Request, cursor string) ([]Html, string, error) {
 			break
 		}
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		h.SetKey(key)
 		s = append(s, h)
@@ -348,10 +361,19 @@ func selectHtml(r *http.Request, cursor string) ([]Html, string, error) {
 
 	cur, err := t.Cursor()
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	return s, cur.String(), nil
+	err = memcache.Set(c, &memcache.Item{
+		Key:   "html_" + strconv.Itoa(p+1) + "_cursor",
+		Value: []byte(cur.String()),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }
 
 func deleteHtml(r *http.Request, id string) error {
@@ -417,7 +439,15 @@ func getFileKey(r *http.Request, name string) *datastore.Key {
 	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
 }
 
-func selectFile(r *http.Request, cursor string) ([]File, string, error) {
+func selectFile(r *http.Request, p int) ([]File, error) {
+
+	c := appengine.NewContext(r)
+
+	item, err := memcache.Get(c, "file_"+strconv.Itoa(p)+"_cursor")
+	cursor := ""
+	if err == nil {
+		cursor = string(item.Value)
+	}
 
 	q := datastore.NewQuery(KIND_FILE).
 		Filter("Type =", 3).
@@ -433,7 +463,6 @@ func selectFile(r *http.Request, cursor string) ([]File, string, error) {
 
 	var s []File
 
-	c := appengine.NewContext(r)
 	t := q.Run(c)
 	for {
 		var f File
@@ -443,7 +472,7 @@ func selectFile(r *http.Request, cursor string) ([]File, string, error) {
 			break
 		}
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		f.SetKey(key)
 		s = append(s, f)
@@ -451,10 +480,19 @@ func selectFile(r *http.Request, cursor string) ([]File, string, error) {
 
 	cur, err := t.Cursor()
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	return s, cur.String(), nil
+	err = memcache.Set(c, &memcache.Item{
+		Key:   "file_" + strconv.Itoa(p+1) + "_cursor",
+		Value: []byte(cur.String()),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }
 
 func deleteFile(r *http.Request, id string) error {
@@ -467,6 +505,7 @@ func deleteFile(r *http.Request, id string) error {
 	if err != nil {
 		return err
 	}
+
 	fdkey := getFileDataKey(r, id)
 	err = ds.Delete(c, fdkey)
 	return err

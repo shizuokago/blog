@@ -70,45 +70,28 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	//exist user
 	vals := r.URL.Query()
-
 	ps := vals["p"]
-	p := "1"
+	p := 1
 	if len(ps) > 0 {
-		p = ps[0]
+		pbuf := ps[0]
+		p, err := strconv.Atoi(p)
+		if err != nil {
+			errorPage(w, "Bad Request", err.Error(), 400)
+			return
+		}
 	}
 
-	item, err := memcache.Get(c, "article_"+p+"_cursor")
-	cursor := ""
-	if err == nil {
-		cursor = string(item.Value)
-	}
-	articles, nextC, err := selectArticle(r, cursor)
+	articles, err := selectArticle(r, p)
 	if err != nil {
 		errorPage(w, "Not Found", err.Error(), 404)
 		return
 	}
 
-	t, err := strconv.Atoi(p)
-	if err != nil {
-		errorPage(w, "Page Error", err.Error(), 400)
-		return
-	}
-
-	next := t + 1
-	prev := t - 1
+	next := p + 1
+	prev := p - 1
 	flag := true
 	if prev <= 0 {
 		flag = false
-	}
-
-	err = memcache.Set(c, &memcache.Item{
-		Key:   "article_" + strconv.Itoa(next) + "_cursor",
-		Value: []byte(nextC),
-	})
-
-	if err != nil {
-		errorPage(w, "Internal Server Error", err.Error(), 500)
-		return
 	}
 
 	data := struct {
@@ -117,12 +100,6 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		Prev     string
 		PFlag    bool
 	}{articles, strconv.Itoa(next), strconv.Itoa(prev), flag}
-
-	//articles, err := selectArticle(r, 0)
-	//if err != nil {
-	//errorPage(w, "InternalServerError", err.Error(), 500)
-	//return
-	//}
 
 	adminRender(w, "./templates/admin/top.tmpl", data)
 }

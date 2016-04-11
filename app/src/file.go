@@ -56,46 +56,34 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 	vals := r.URL.Query()
 
 	ps := vals["p"]
-	p := "1"
+	p := 1
 	if len(ps) > 0 {
-		p = ps[0]
+		pbuf := ps[0]
+		p, err := strconv.Atoi(pbuf)
+		if err != nil {
+			errorPage(w, "Bad Request", err.Error(), 400)
+			return
+		}
 	}
 
-	c := appengine.NewContext(r)
-	item, err := memcache.Get(c, "file_"+p+"_cursor")
-	cursor := ""
-	if err == nil {
-		cursor = string(item.Value)
-	}
-
-	files, nextC, err := selectFile(r, cursor)
+	files, err := selectFile(r, p)
 	if err != nil {
 		errorPage(w, "Not Found", err.Error(), 404)
 		return
 	}
 
-	t, err := strconv.Atoi(p)
-	if err != nil {
-		errorPage(w, "Page Error", err.Error(), 400)
-		return
-	}
-
-	next := t + 1
-	prev := t - 1
+	next := p + 1
+	prev := p - 1
 	flag := true
 	if prev <= 0 {
 		flag = false
 	}
 
-	err = memcache.Set(c, &memcache.Item{
-		Key:   "file_" + strconv.Itoa(next) + "_cursor",
-		Value: []byte(nextC),
-	})
-
 	if err != nil {
 		errorPage(w, "Internal Server Error", err.Error(), 500)
 		return
 	}
+
 	data := struct {
 		Files []File
 		Next  string
