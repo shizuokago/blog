@@ -44,8 +44,12 @@ func getUser(r *http.Request) (*User, error) {
 	key := getUserKey(r)
 
 	err := ds.Get(c, key, &rtn)
-	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-		return nil, verr.Root(err)
+	if err != nil {
+		if verr.Root(err) != datastore.ErrNoSuchEntity {
+			return nil, verr.Root(err)
+		} else {
+			return nil, nil
+		}
 	}
 	return &rtn, nil
 }
@@ -147,8 +151,12 @@ func getArticle(r *http.Request, id string) (*Article, error) {
 	key := getArticleKey(r, id)
 
 	err := ds.Get(c, key, &rtn)
-	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-		return nil, verr.Root(err)
+	if err != nil {
+		if verr.Root(err) != datastore.ErrNoSuchEntity {
+			return nil, verr.Root(err)
+		} else if verr.Root(err) == datastore.ErrNoSuchEntity {
+			return nil, nil
+		}
 	}
 	return &rtn, nil
 }
@@ -231,7 +239,6 @@ func deleteArticle(r *http.Request, id string) error {
 		return err
 	}
 
-	//Article
 	akey := getArticleKey(r, id)
 	err = ds.Delete(c, akey)
 
@@ -260,8 +267,14 @@ func getHtml(r *http.Request, k string) (*Html, error) {
 	rtn := Html{}
 	key := getHtmlKey(r, k)
 	err := ds.Get(c, key, &rtn)
-	return &rtn, err
+	if err != nil {
+		if verr.Root(err) != datastore.ErrNoSuchEntity {
+			return nil, verr.Root(err)
+		}
+		return nil, nil
+	}
 
+	return &rtn, err
 }
 
 func updateHtml(r *http.Request, key string) error {
@@ -279,15 +292,15 @@ func updateHtml(r *http.Request, key string) error {
 	}
 
 	html, err := getHtml(r, key)
-	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-		return verr.Root(err)
+	if err != nil {
+		return err
 	}
 
 	data := &HtmlData{}
 	dk := getHtmlDataKey(r, key)
 
 	//get html
-	if err != nil && verr.Root(err) == datastore.ErrNoSuchEntity {
+	if html == nil {
 		// first
 		html = &Html{}
 		k := getHtmlKey(r, key)
@@ -417,7 +430,14 @@ func getHtmlData(r *http.Request, k string) (*HtmlData, error) {
 	key := getHtmlDataKey(r, k)
 	err := ds.Get(c, key, &rtn)
 
-	return &rtn, err
+	if err != nil {
+		if verr.Root(err) == datastore.ErrNoSuchEntity {
+			return nil, err
+		} else if verr.Root(err) == datastore.ErrNoSuchEntity {
+			return nil, nil
+		}
+	}
+	return &rtn, nil
 }
 
 const KIND_FILE = "File"
@@ -498,7 +518,6 @@ func selectFile(r *http.Request, p int) ([]File, error) {
 func deleteFile(r *http.Request, id string) error {
 
 	c := appengine.NewContext(r)
-	log.Infof(c, id)
 
 	fkey := getFileKey(r, id)
 	err := ds.Delete(c, fkey)
@@ -621,8 +640,13 @@ func getFileData(r *http.Request, name string) (*FileData, error) {
 	key := getFileDataKey(r, name)
 
 	err := ds.Get(c, key, &rtn)
-	if err != nil && verr.Root(err) != datastore.ErrNoSuchEntity {
-		return nil, verr.Root(err)
+	if err != nil {
+		if verr.Root(err) != datastore.ErrNoSuchEntity {
+			return nil, verr.Root(err)
+		} else if verr.Root(err) == datastore.ErrNoSuchEntity {
+			return nil, nil
+		}
 	}
+
 	return &rtn, nil
 }

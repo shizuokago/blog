@@ -1,7 +1,6 @@
 # GoogleAppEngine Blog Engine
 
 
-
 ## Using
 
 	"golang.org/x/tools/present"
@@ -18,11 +17,6 @@
 
 ## local serve
 ## AppEngine Deploy
-
-- local
-```bash
-   goapp serve app
-```
 
 - production
 ```bash

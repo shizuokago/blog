@@ -56,19 +56,19 @@ func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)
-
-	u := user.Current(c)
-	if u == nil {
-		url, err := user.LoginURL(c, "/admin/")
-		if err != nil {
-			errorPage(w, "InternalServerError", err.Error(), 500)
+	/*
+		u := user.Current(c)
+		if u == nil {
+			url, err := user.LoginURL(c, "/admin/")
+			if err != nil {
+				errorPage(w, "InternalServerError", err.Error(), 500)
+				return
+			}
+			http.Redirect(w, r, url, 301)
 			return
 		}
-		http.Redirect(w, r, url, 301)
-		return
-	}
+	*/
 
-	//exist user
 	vals := r.URL.Query()
 	ps := vals["p"]
 	p := 1

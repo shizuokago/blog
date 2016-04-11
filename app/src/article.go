@@ -20,6 +20,7 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 	name := vars["key"]
 
 	art, err := getArticle(r, name)
+
 	if err != nil {
 		errorPage(w, "Key Error", err.Error(), 400)
 		return
