@@ -6,18 +6,17 @@
 
 <form id="fileForm" action="/admin/file/upload" method="post" enctype="multipart/form-data">
 
-    <div style="width:900px">
-    <button class="mdl-button mdl-js-button mdl-button--icon" for="fileName" id="selectFile">
-        <i class="material-icons">attachment</i>
-    </button>
-    <button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="margin-left:auto;">
-        <i class="material-icons">file_upload</i>
-    </button>
+    <div style="display:flex;">
+        <button class="mdl-button mdl-js-button mdl-button--icon" for="fileName" id="selectFile">
+            <i class="material-icons">attachment</i>
+        </button>
+        <input class="mdl-textfield mdl-js-textfield mdl-textfield__input" type="text" id="fileName" name="FileName">
+        <button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="margin-left:auto;">
+            <i class="material-icons">file_upload</i>
+        </button>
     </div>
 
-    <input class="mdl-textfield mdl-js-textfield mdl-textfield__input" type="text" id="fileName" name="FileName">
-
-<input type="file" name="file" id="file" style="display:none;"/>
+    <input type="file" name="file" id="file" style="display:none;"/>
 
 </form>
 
@@ -89,7 +88,7 @@ $("#upload").click(function() {
                $("#fileForm").submit();
              } else {
                  dialog.close();
-                 if ( confirm("同盟のファイルが存在する為、更新処理になりますが、よろしいですか？") ) {
+                 if ( confirm("It overrides since the same file name exists.") ) {
                      selectId = $('#fileName').val();
                      $("#fileForm").submit();
                  }
@@ -148,8 +147,6 @@ $("button.deleteBtn").click(function(e) {
 
     return false;
 });
-
-
 
 </script>
 
