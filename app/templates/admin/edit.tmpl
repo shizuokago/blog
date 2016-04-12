@@ -38,40 +38,37 @@
 <input type="hidden" id="TwitterId" value="{{.User.TwitterId}}"/>
 <input type="hidden" id="ID" value="{{.Article.Key.StringID}}"/>
 <input type="hidden" id="BlogName" value="{{.BlogName}}"/>
-
 {{end}}
 
-{{define "footer_menu"}}
-
+{{define "footer_left_menu"}}
 <li>
-
-  auto update
-
-  update photo
-
-  delete photo
-
-  private 
-
-  delete 
-
-  view 
-
-  <button id="save"    class="mdl-button mdl-js-button mdl-button--raised  mdl-js-ripple-effect mdl-button--colored">
-  save
+  <button id="delete"    class="mdl-button mdl-js-button mdl-button--fab  mdl-js-ripple-effect mdl-button--primary">
+    <i class="material-icons">delete</i>
   </button>
-
-  <button id="publish" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-  publish
-  </button>
-
 </li>
 
-<dialog id="dialog" class="mdl-dialog">
-  <h3 class="mdl-dialog__title">Wait...</h3>
-  <div class="mdl-dialog__content">
-    <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
-  </div>
-</dialog>
+<li>
+  <button id="private" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent">
+    <i class="material-icons">cloud_off</i>
+  </button>
+</li>
+{{end}}
+{{define "footer_right_menu"}}
+<li>
+  <button id="viewBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+    <i class="material-icons">screen_share</i>
+  </button>
+</li>
 
+<li>
+  <button id="save"    class="mdl-button mdl-js-button mdl-button--fab  mdl-js-ripple-effect mdl-button--primary">
+    <i class="material-icons">save</i>
+  </button>
+</li>
+
+<li>
+  <button id="publish" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent">
+    <i class="material-icons">publish</i>
+  </button>
+</li>
 {{end}}

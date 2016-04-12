@@ -2,8 +2,6 @@ package blog
 
 import (
 	"github.com/gorilla/mux"
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/memcache"
 
 	"html/template"
 	"net/http"
@@ -31,13 +29,14 @@ func init() {
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
 
+	var err error
 	vals := r.URL.Query()
-
 	ps := vals["p"]
 	p := 1
+
 	if len(ps) > 0 {
-		pbuf = ps[0]
-		p, err := strconv.Atoi(p)
+		pbuf := ps[0]
+		p, err = strconv.Atoi(pbuf)
 		if err != nil {
 			errorPage(w, "Bad Request", err.Error(), 400)
 			return

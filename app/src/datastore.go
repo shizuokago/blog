@@ -2,6 +2,7 @@ package blog
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/memcache"
 	"google.golang.org/appengine/user"
 )
 
@@ -95,6 +96,7 @@ func selectArticle(r *http.Request, p int) ([]Article, error) {
 
 	c := appengine.NewContext(r)
 	item, err := memcache.Get(c, "article_"+strconv.Itoa(p)+"_cursor")
+
 	cursor := ""
 	if err == nil {
 		cursor = string(item.Value)
@@ -338,7 +340,7 @@ func updateHtml(r *http.Request, key string) error {
 func selectHtml(r *http.Request, p int) ([]Html, error) {
 
 	c := appengine.NewContext(r)
-	item, err := memcache.Get(c, "html_"+p+"_cursor")
+	item, err := memcache.Get(c, "html_"+strconv.Itoa(p)+"_cursor")
 	cursor := ""
 	if err == nil {
 		cursor = string(item.Value)

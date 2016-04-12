@@ -38,14 +38,9 @@ func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
 
-		d := js.Global.Get("document")
-		dialog := d.Call("querySelector", "#dialog")
-		dialog.Call("showModal")
-
 		draw()
 		resize()
 
-		dialog.Call("close")
 	})
 
 	jQuery(js.Global).Resize(func(e jquery.Event) {
@@ -68,12 +63,27 @@ func main() {
 	jQuery(SAVE).On(jquery.CLICK, func(e jquery.Event) {
 		ajax("save")
 	})
+
+	jQuery("button#delete").On(jquery.CLICK, func(e jquery.Event) {
+		url := "/admin/article/delete/" + jQuery(ARTICLE_ID).Val()
+		l := js.Global.Get("location")
+		l.Set("href", url)
+	})
+
+	jQuery("button#private").On(jquery.CLICK, func(e jquery.Event) {
+		ajax("private")
+	})
+
+	jQuery("button#viewBtn").On(jquery.CLICK, func(e jquery.Event) {
+		url := "/entry/" + jQuery(ARTICLE_ID).Val()
+		js.Global.Call("open", url, "_blank")
+	})
 }
 
 func ajax(url string) {
 
 	d := js.Global.Get("document")
-	dialog := d.Call("querySelector", "#dialog")
+	dialog := d.Call("querySelector", "#wait_dialog")
 	dialog.Call("showModal")
 
 	id := jQuery(ARTICLE_ID).Val()

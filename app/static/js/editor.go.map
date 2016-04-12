@@ -38,14 +38,9 @@ func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
 
-		d := js.Global.Get("document")
-		dialog := d.Call("querySelector", "#dialog")
-		dialog.Call("showModal")
-
 		draw()
 		resize()
 
-		dialog.Call("close")
 	})
 
 	jQuery(js.Global).Resize(func(e jquery.Event) {
@@ -68,12 +63,27 @@ func main() {
 	jQuery(SAVE).On(jquery.CLICK, func(e jquery.Event) {
 		ajax("save")
 	})
+
+	jQuery("button#delete").On(jquery.CLICK, func(e jquery.Event) {
+		url := "/admin/article/delete/" + jQuery(ARTICLE_ID).Val()
+		l := js.Global.Get("location")
+		l.Set("href", url)
+	})
+
+	jQuery("button#private").On(jquery.CLICK, func(e jquery.Event) {
+		ajax("private")
+	})
+
+	jQuery("button#viewBtn").On(jquery.CLICK, func(e jquery.Event) {
+		url := "/entry/" + jQuery(ARTICLE_ID).Val()
+		js.Global.Call("open", url, "_blank")
+	})
 }
 
 func ajax(url string) {
 
 	d := js.Global.Get("document")
-	dialog := d.Call("querySelector", "#dialog")
+	dialog := d.Call("querySelector", "#wait_dialog")
 	dialog.Call("showModal")
 
 	id := jQuery(ARTICLE_ID).Val()
@@ -292,7 +302,7 @@ const (
     <div class="demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
       <main class="mdl-layout__content">
         <div class="demo-back">
-          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="javascript:histroy.back()" title="index" role="button" id="start">
+          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="javascript:history.back()" title="index" role="button" id="start">
             <i class="material-icons" role="presentation">arrow_back</i>
           </a>
         </div>
@@ -318,12 +328,21 @@ const (
 
               <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
 
-            <div>
-                <strong style="width:100%;"> {{ .HTML.Author }} </strong>
-                <span> {{ convert  .HTML.CreatedAt }} </span>
+              <div>
+                  <strong style="width:100%;"> {{ .HTML.Author }} </strong>
+                  <span> {{ convert  .HTML.CreatedAt }} </span>
               </div>
 
-              <div class="section-spacer"></div>
+<!--
+              <div style="flex-grow:1;"></div>
+
+              <div style="text-align:right;margin-right:10px;">
+                <strong>{{ .HTML.Author }}</strong>
+                <span>{{ convert .HTML.CreatedAt }}</span>
+              </div>
+
+              <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
+-->
 
             </div>
 
@@ -349,13 +368,13 @@ const (
 
         <footer class="mdl-mini-footer">
           <div class="mdl-mini-footer--left-section">
-            <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
+            <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter" onclick="tweet();">
               <span class="visuallyhidden">Twitter</span>
             </button>
-            <button class="mdl-mini-footer--social-btn social-btn social-btn__blogger">
+            <button class="mdl-mini-footer--social-btn social-btn social-btn__blogger" onclick="facebook();">
               <span class="visuallyhidden">Facebook</span>
             </button>
-            <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus">
+            <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus" onclick="gplus();">
               <span class="visuallyhidden">Google Plus</span>
             </button>
           </div>
@@ -371,7 +390,29 @@ const (
 
     </div>
 
-    <a href="#start" id="top" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"><i class="material-icons">vertical_align_top</i></a>
+    <a href="#start" id="top" class="mdl-button mdl-button--fab mdl-js-button mdl-js-ripple-effect mdl-color--accent mdl-color-text--white"><i class="material-icons">vertical_align_top</i></a>
+
+<script>
+    function tweet() {
+        var address = location.href;
+        var title = document.title;
+        var href = "http://twitter.com/share?count=horizontal&amp;original_referer=" + address + "&amp;text=" + title + "&amp;url=" + address;
+        window.open(href,'tweetwindow','width=550, height=450,personalbar=0,toolbar=0,scrollbars=1,resizable=1');
+        return false;
+    }
+
+    function facebook() {
+        var address = location.href;
+        window.open("http://www.facebook.com/share.php?u=" + address,"facebookwindow","idth=550, height=450,personalbar=0,toolbar=0,scrollbars=1,resizable=1");
+        return false;
+    }
+
+    function gplus() {
+        var address = location.href;
+        window.open("https://plus.google.com/share?url=" + address,"gpluswindow","idth=550, height=450,personalbar=0,toolbar=0,scrollbars=1,resizable=1");
+        return false;
+    }
+</script>
 
   </body>
 </html>

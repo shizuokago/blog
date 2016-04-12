@@ -49,13 +49,25 @@
       </main>
 
       <footer class="mdl-mini-footer">
-        <div class="mdl-mini-footer__right-section">
+        <div class="mdl-mini-footer__left-section">
           <ul class="mdl-mini-footer__link-list">
-            {{template "footer_menu" .}}
+            {{template "footer_left_menu" .}}
           </ul>
         </div>
         <div class="mdl-layout__obfuscator"></div>
+        <div class="mdl-mini-footer__right-section">
+          <ul class="mdl-mini-footer__link-list">
+            {{template "footer_right_menu" .}}
+          </ul>
+        </div>
       </footer>
+
+<dialog id="wait_dialog" class="mdl-dialog">
+  <h3 class="mdl-dialog__title">Wait...</h3>
+  <div class="mdl-dialog__content">
+    <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+  </div>
+</dialog>
 
     </div>
   </body>

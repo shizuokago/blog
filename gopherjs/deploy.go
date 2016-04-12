@@ -138,7 +138,7 @@ func deploy() error {
 
 func run(title string) error {
 
-	//create work dir
+	fmt.Println("Create Work directory")
 	err := os.Mkdir(WORK_DIR, 0777)
 	if err != nil {
 		fmt.Println("Create work error")
@@ -146,21 +146,25 @@ func run(title string) error {
 	}
 	defer os.RemoveAll(WORK_DIR)
 
+	fmt.Println("Create Go File")
 	err = createGoFile()
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Generate JS File")
 	err = generateJSFile()
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Rename")
 	err = rename()
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Deploy")
 	err = deploy()
 	if err != nil {
 		return err

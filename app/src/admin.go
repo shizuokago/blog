@@ -1,10 +1,6 @@
 package blog
 
 import (
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/memcache"
-	"google.golang.org/appengine/user"
-
 	"html/template"
 	"net/http"
 	"strconv"
@@ -55,26 +51,15 @@ func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 
-	c := appengine.NewContext(r)
-	/*
-		u := user.Current(c)
-		if u == nil {
-			url, err := user.LoginURL(c, "/admin/")
-			if err != nil {
-				errorPage(w, "InternalServerError", err.Error(), 500)
-				return
-			}
-			http.Redirect(w, r, url, 301)
-			return
-		}
-	*/
+	var err error
 
 	vals := r.URL.Query()
 	ps := vals["p"]
 	p := 1
+
 	if len(ps) > 0 {
 		pbuf := ps[0]
-		p, err := strconv.Atoi(p)
+		p, err = strconv.Atoi(pbuf)
 		if err != nil {
 			errorPage(w, "Bad Request", err.Error(), 400)
 			return

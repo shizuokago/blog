@@ -20,8 +20,6 @@
 
 </form>
 
-{{ template "paging" .}}
-
 <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width:100%;">
 
 <thead>
@@ -71,7 +69,7 @@
 <script>
 var selectId = "";
 $("#upload").click(function() {
-    var dialog = document.querySelector('dialog.waitDialog');
+    var dialog = document.querySelector('#wait_Dialog');
     dialog.showModal();
 
     if ( selectId == "" ) {
@@ -157,13 +155,9 @@ $("button.deleteBtn").click(function(e) {
 {{define "header_menu"}}
 {{end}}
 
-{{define "footer_menu"}}
-<dialog class="mdl-dialog waitDialog">
-  <h3 class="mdl-dialog__title">Wait...</h3>
-  <div class="mdl-dialog__content">
-      <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
-  </div>
-</dialog>
+{{define "footer_left_menu"}}
+{{end}}
+{{define "footer_right_menu"}}
 
 <dialog class="mdl-dialog deleteDialog">
 <h4 class="mdl-dialog__title">this article delete?</h4>
@@ -177,11 +171,11 @@ It is not possible to return again.
 <button type="button" class="mdl-button close">CLOSE</button>
 </div>
 </dialog>
+
 {{end}}
 
 {{ define "paging" }}
           <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">
-
 {{ if .PFlag}}
             <a href="/admin/file/view?p={{.Prev}}" class="" title="Newer">
               <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">

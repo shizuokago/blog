@@ -117,15 +117,7 @@ It is not possible to return again.
 </div>
 </dialog>
 
-<dialog class="mdl-dialog waitDialog">
-  <h3 class="mdl-dialog__title">Wait...</h3>
-  <div class="mdl-dialog__content">
-      <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
-  </div>
-</dialog>
-
 <script>
-
 Array.prototype.forEach.call(document.querySelectorAll('.mdl-card__title'), function(el) {
   var link = el.querySelector('div');
   if(!link) {
@@ -186,13 +178,11 @@ $("button.privateBtn").click(function(e) {
 });
 
 $("#file").change(function() {
-    var dialog = document.querySelector('dialog.waitDialog');
+    var dialog = document.querySelector('#wait_Dialog');
     dialog.showModal();
     $(this).closest("form").submit();
     return false;
 });
-
-
 
 </script>
 
@@ -205,8 +195,9 @@ $("#file").change(function() {
 </button>
 {{end}}
 
-{{define "footer_menu"}}
-
+{{define "footer_left_menu"}}
+{{end}}
+{{define "footer_right_menu"}}
 {{end}}
 
 {{define "paging"}}
