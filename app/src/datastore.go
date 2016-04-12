@@ -614,6 +614,16 @@ func saveAvatar(r *http.Request) error {
 	return err
 }
 
+func saveBackgroundImage(r *http.Request, id string) error {
+	err := saveFile(r, id, FILE_TYPE_BG)
+	return err
+}
+
+func deleteBackgroundImage(r *http.Request, id string) error {
+	err := deleteFile(r, "bg/"+id)
+	return err
+}
+
 const KIND_FILEDATA = "FileData"
 
 type FileData struct {

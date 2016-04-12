@@ -10,10 +10,39 @@
     </div>
 
     <div class="mdl-cell mdl-cell--6-col" id="right">
+
+      <div style="display:flex;z-index:2;position:absolute;top:80px;margin:10px;width:150px;">
+          <a id="deleteBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}">
+              <i class="material-icons" role="presentation" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}" >delete</i>
+        </a>
+        <div style="flex-grow:1;"></div>
+          <a id="saveBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab">
+          <i class="material-icons" role="presentation">insert_photo</i>
+        </a>
+      </div>
+
       <img id="empty" src="/static/images/empty.png" style="z-index:1;position:absolute;"/>
+
       <iframe id="result" style="z-index:0;"></iframe>
+
+
+      <script>
+$("#saveBGBtn").click(function() {
+    $("#file").click();
+    return false;
+});
+
+$("#file").change(function() {
+    $("#bgForm").submit();
+    return false;
+});
+      </script>
     </div>
   </div>
+</form>
+
+<form id="bgForm" method="post" action="/admin/article/bg/save/{{ .Article.Key.StringID }}" enctype="multipart/form-data">
+<input type="file" name="file" id="file" value="" style="display:none;"/>
 </form>
 
 <script src="/static/js/editor.js"></script>

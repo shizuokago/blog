@@ -4,6 +4,8 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 
+	"github.com/gorilla/mux"
+
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -112,4 +114,28 @@ func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/admin/file/view", 301)
+}
+
+func saveBackgroundHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["key"]
+
+	err := saveBackgroundImage(r, name)
+	if err != nil {
+		errorPage(w, "InternalServerError", err.Error(), 500)
+		return
+	}
+	http.Redirect(w, r, "/admin/article/edit/"+name, 301)
+}
+
+func deleteBackgroundHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["key"]
+
+	err := deleteBackgroundImage(r, name)
+	if err != nil {
+		errorPage(w, "InternalServerError", err.Error(), 500)
+		return
+	}
+	http.Redirect(w, r, "/admin/article/edit/"+name, 301)
 }

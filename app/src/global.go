@@ -60,6 +60,9 @@ func init() {
 
 	r.HandleFunc("/admin/article/delete/{key}", deleteArticleHandler).Methods("GET")
 
+	r.HandleFunc("/admin/article/bg/save/{key}", saveBackgroundHandler)
+	r.HandleFunc("/admin/article/bg/delete/{key}", deleteBackgroundHandler)
+
 	r.HandleFunc("/admin/file/view", viewFileHandler).Methods("GET")
 	r.HandleFunc("/admin/file/upload", uploadFileHandler).Methods("POST")
 	r.HandleFunc("/admin/file/delete", deleteFileHandler).Methods("POST")
