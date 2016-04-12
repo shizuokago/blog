@@ -38,7 +38,7 @@
 
 {{ range .Files }}
 <tr>
-    <td>
+    <td width="48">
       <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect updateBtn" data-id="{{.Key.StringID}}">
         <i class="material-icons right-section">file_upload</i>
       </button>
@@ -50,7 +50,7 @@
     </td>
     <td>{{ .Size }}</td>
     <td>{{ convert .UpdatedAt }}</td>
-    <td>
+    <td width="48">
       <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
         <i class="material-icons right-section">delete</i>
       </button>
@@ -136,12 +136,14 @@ $("button.deleteBtn").click(function(e) {
     dialog.showModal();
 
     dialog.querySelector('.delete').addEventListener('click', function() {
+        selectId = dataId;
         $('#fileName').val(dataId.substr(5));
         $('#fileForm').attr('action','/admin/file/delete');
         $('#upload').trigger("click");
     });
 
     dialog.querySelector('.close').addEventListener('click', function() {
+        selectId = "";
         dialog.close();
     });
 
