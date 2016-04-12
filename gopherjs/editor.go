@@ -115,7 +115,7 @@ func resize() {
 
 	height := jQuery(js.Global).Height()
 
-	margin := 215
+	margin := 230
 
 	out := jQuery(OUTPUT)
 	empty := jQuery("img#empty")

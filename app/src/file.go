@@ -19,6 +19,10 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 
 	file, err := getFileData(r, name)
 	if err != nil {
+		errorPage(w, "InternalServerError", err.Error(), 500)
+		return
+	}
+	if file == nil {
 		errorPage(w, "Not Found", err.Error(), http.StatusNotFound)
 		return
 	}
@@ -26,7 +30,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	//set MIME
 	_, err = w.Write(file.Content)
 	if err != nil {
-		errorPage(w, "Not Found", err.Error(), 500)
+		errorPage(w, "InternalServerError", err.Error(), 500)
 		return
 	}
 }
