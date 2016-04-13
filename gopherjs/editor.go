@@ -37,10 +37,8 @@ func init() {
 func main() {
 
 	jQuery(DOCUMENT).Ready(func() {
-
 		draw()
 		resize()
-
 	})
 
 	jQuery(js.Global).Resize(func(e jquery.Event) {
@@ -77,6 +75,14 @@ func main() {
 	jQuery("button#viewBtn").On(jquery.CLICK, func(e jquery.Event) {
 		url := "/entry/" + jQuery(ARTICLE_ID).Val()
 		js.Global.Call("open", url, "_blank")
+	})
+
+	jQuery("#file").On(jquery.CLICK, func(e jquery.Event) {
+		jQuery("#file").Call("click")
+	})
+
+	jQuery("#file").On(jquery.CHANGE, func(e jquery.Event) {
+		jQuery("#bgForm").Call("submit")
 	})
 }
 

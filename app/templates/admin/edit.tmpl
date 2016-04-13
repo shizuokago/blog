@@ -11,45 +11,34 @@
 
     <div class="mdl-cell mdl-cell--6-col" id="right">
 
-      <div style="display:flex;z-index:2;position:absolute;top:80px;margin:10px;width:150px;">
-          <a id="deleteBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}">
-              <i class="material-icons" role="presentation" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}" >delete</i>
-        </a>
-        <div style="flex-grow:1;"></div>
-          <a id="saveBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab">
-          <i class="material-icons" role="presentation">insert_photo</i>
-        </a>
-      </div>
 
       <img id="empty" src="/static/images/empty.png" style="z-index:1;position:absolute;"/>
 
       <iframe id="result" style="z-index:0;"></iframe>
 
+      <a id="deleteBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}" style="z-index:2;position:absolute;top:40px;">
+         <i class="material-icons" role="presentation" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}" >delete</i>
+      </a>
 
-      <script>
-$("#saveBGBtn").click(function() {
-    $("#file").click();
-    return false;
-});
+      <a id="saveBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab" style="z-index:2;position:absolute;top:40px;right:20px;">
+         <i class="material-icons" role="presentation">insert_photo</i>
+      </a>
 
-$("#file").change(function() {
-    $("#bgForm").submit();
-    return false;
-});
-      </script>
     </div>
   </div>
 </form>
 
-<form id="bgForm" method="post" action="/admin/article/bg/save/{{ .Article.Key.StringID }}" enctype="multipart/form-data">
-<input type="file" name="file" id="file" value="" style="display:none;"/>
-</form>
 
 <script src="/static/js/editor.js"></script>
 
 {{end}}
 
 {{define "header_menu"}}
+
+<form id="bgForm" method="post" action="/admin/article/bg/save/{{ .Article.Key.StringID }}" enctype="multipart/form-data">
+<input type="file" name="file" id="file" value="" style="display:none;"/>
+</form>
+
 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
   <input class="mdl-textfield__input" type="text" name="Title" id="Title" value="{{.Article.Title}}"/>
   <label class="mdl-textfield__label" for="title">Title...</label>
@@ -82,6 +71,7 @@ $("#file").change(function() {
   </button>
 </li>
 {{end}}
+
 {{define "footer_right_menu"}}
 <li>
   <button id="viewBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
