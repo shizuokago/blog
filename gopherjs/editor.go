@@ -77,7 +77,7 @@ func main() {
 		js.Global.Call("open", url, "_blank")
 	})
 
-	jQuery("#file").On(jquery.CLICK, func(e jquery.Event) {
+	jQuery("#saveBGBtn").On(jquery.CLICK, func(e jquery.Event) {
 		jQuery("#file").Call("click")
 	})
 

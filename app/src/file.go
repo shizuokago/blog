@@ -22,8 +22,9 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 		return
 	}
+
 	if file == nil {
-		errorPage(w, "Not Found", err.Error(), http.StatusNotFound)
+		errorPage(w, "Not Found", "File Not Found", http.StatusNotFound)
 		return
 	}
 
