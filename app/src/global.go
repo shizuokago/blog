@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"html/template"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"strings"
@@ -17,16 +16,7 @@ import (
 	"golang.org/x/tools/present"
 )
 
-type Blog struct {
-	Name        string
-	Author      string
-	Tags        string
-	Description string
-	Template    string
-}
-
 var tmpl *template.Template
-var blog = Blog{}
 
 func init() {
 
@@ -70,16 +60,6 @@ func init() {
 
 	http.HandleFunc("/file/", fileHandler)
 	http.Handle("/", r)
-
-	jsonString, err := ioutil.ReadFile("./static/blog.json")
-	if err != nil {
-		panic(err)
-	}
-
-	err = json.Unmarshal(jsonString, &blog)
-	if err != nil {
-		panic(err)
-	}
 }
 
 func playable(c present.Code) bool {
@@ -154,21 +134,15 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 		return nil, err
 	}
 
-	bd := Blog{
-		Name:        blog.Name,
-		Author:      html.Author,
-		Tags:        art.Tags,
-		Description: art.SubTitle,
-	}
-
+	bgd := getBlog(r)
 	rtn := struct {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
 		StringID    string
-		Blog        Blog
+		Blog        *Blog
 		HTML        *Html
-	}{doc, tmpl, true, art.Key.StringID(), bd, html}
+	}{doc, tmpl, true, art.Key.StringID(), bgd, html}
 
 	//Render
 	var b bytes.Buffer
@@ -184,12 +158,12 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 }
 
 func errorPage(w http.ResponseWriter, t, m string, code int) {
+
 	data := struct {
-		Blog    Blog
 		Code    int
 		Title   string
 		Message string
-	}{blog, code, t, m}
+	}{code, t, m}
 
 	w.WriteHeader(data.Code)
 	err := errorTmpl.Execute(w, data)

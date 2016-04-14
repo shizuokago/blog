@@ -27,7 +27,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	var u *User
 	var err error
 	if r.Method == "POST" {
-		u, err = putUser(r)
+		u, err = putInformation(r)
 	} else {
 		u, err = getUser(r)
 	}
@@ -37,7 +37,13 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	adminRender(w, "./templates/admin/profile.tmpl", u)
+	bgd := getBlog(r)
+	data := struct {
+		Blog *Blog
+		User *User
+	}{bgd, u}
+
+	adminRender(w, "./templates/admin/profile.tmpl", data)
 }
 
 func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
@@ -51,8 +57,13 @@ func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 
-	var err error
+	bgd := getBlog(r)
+	if bgd.Name == "" {
+		http.Redirect(w, r, "/admin/profile", 301)
+		return
+	}
 
+	var err error
 	vals := r.URL.Query()
 	ps := vals["p"]
 	p := 1

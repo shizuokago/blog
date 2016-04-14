@@ -2,41 +2,68 @@
 
 <form id="profileForm" action="/admin/profile" method="post">
 
-  <div class="mdl-grid" style="max-width:400px;">
-    <div class="mdl-cell mdl-cell--12-col">
-{{ if .Key }}
+  <div class="mdl-grid" style="max-width:800px;">
+
+    <div class="mdl-cell mdl-cell--6-col">
+      <h2>Blog Information</h2>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <img id="upload" class="avatar" src="/file/avatar/{{ .Key.StringID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'" style="cursor:pointer;"/>
+        <input class="mdl-textfield__input" type="text" name="BlogName" id="BlogName" value="{{.Blog.Name}}"/>
+        <label class="mdl-textfield__label" for="BlogName">Name...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" name="BlogAuthor" id="BlogAuthor" value="{{.Blog.Author}}"/>
+        <label class="mdl-textfield__label" for="BlogAuthor">Author...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="Description" name="Description" value="{{.Blog.Description}}"/>
+        <label class="mdl-textfield__label" for="Description"> Description...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="BlogTags" name="BlogTags" value="{{ .Blog.Tags }}" />
+        <label class="mdl-textfield__label" for="BlogTags">Default Tags...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="BlogTemplate" name="BlogTemplate" value="{{ .Blog.Template }}" />
+        <label class="mdl-textfield__label" for="BlogTags">Default Template...</label>
+      </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--6-col">
+{{ if .User.Key }}
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <img id="upload" class="avatar" src="/file/avatar/{{ .User.Key.StringID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'" style="cursor:pointer;"/>
       </div>
 {{ end }}
 
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" name="Name" id="name" value="{{.Name}}"/>
+        <input class="mdl-textfield__input" type="text" name="Name" id="Name" value="{{.User.Name}}"/>
         <label class="mdl-textfield__label" for="name">Name...</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="job" name="Job" value="{{.Job}}"/>
+        <input class="mdl-textfield__input" type="text" id="job" name="Job" value="{{.User.Job}}"/>
         <label class="mdl-textfield__label" for="job">Job...</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="email" name="Email" value="{{.Email}}"/>
+        <input class="mdl-textfield__input" type="text" id="email" name="Email" value="{{.User.Email}}"/>
         <label class="mdl-textfield__label" for="email">Email...</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="url" name="Url" value="{{.URL}}"/>
+        <input class="mdl-textfield__input" type="text" id="url" name="Url" value="{{.User.URL}}"/>
         <label class="mdl-textfield__label" for="url">Url...</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="twitterid" name="TwitterId" value="{{.TwitterId}}"/>
+        <input class="mdl-textfield__input" type="text" id="twitterid" name="TwitterId" value="{{.User.TwitterId}}"/>
         <label class="mdl-textfield__label" for="twitterid">TwitterId...</label>
       </div>
 
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <button id="save" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
-      </div>
-
     </div>
+
+    <div style="flex-grow:1;">
+        <button id="save" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
+    </div>
+
   </div>
+
 </form>
 
 <form method="post" action="/admin/profile/upload" enctype="multipart/form-data">
@@ -44,6 +71,7 @@
 </form>
 
 <script>
+
 $("#save").click(function() {
     $("#profileForm").submit();
     return false;

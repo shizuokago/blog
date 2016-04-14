@@ -32,12 +32,13 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	bgd := getBlog(r)
 	s := struct {
 		Article  *Article
 		User     *User
 		Markdown string
 		BlogName string
-	}{art, u, string(art.Markdown), blog.Name}
+	}{art, u, string(art.Markdown), bgd.Name}
 
 	adminRender(w, "./templates/admin/edit.tmpl", s)
 }

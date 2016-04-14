@@ -56,13 +56,14 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		flag = false
 	}
 
+	bgd := getBlog(r)
 	data := struct {
-		Blog  Blog
+		Blog  *Blog
 		HTMLs []Html
 		Next  string
 		Prev  string
 		PFlag bool
-	}{blog, htmls, strconv.Itoa(next), strconv.Itoa(prev), flag}
+	}{bgd, htmls, strconv.Itoa(next), strconv.Itoa(prev), flag}
 
 	err = indexTmpl.Execute(w, data)
 	if err != nil {

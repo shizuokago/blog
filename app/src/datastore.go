@@ -20,6 +20,55 @@ func init() {
 	ds.DefaultCache = true
 }
 
+const KIND_BLOG = "Blog"
+
+type Blog struct {
+	Name        string
+	Author      string
+	Tags        string
+	Description string
+	Template    string
+	ds.Meta
+}
+
+var pkgBlog = Blog{}
+
+func getBlog(r *http.Request) *Blog {
+
+	if pkgBlog.Name != "" {
+		return &pkgBlog
+	}
+	c := appengine.NewContext(r)
+	key := datastore.NewKey(c, KIND_BLOG, "Fixing", 0, nil)
+	err := ds.Get(c, key, &pkgBlog)
+	if err != nil {
+		// Error
+	}
+	return &pkgBlog
+}
+
+func putBlog(r *http.Request) error {
+
+	pkgBlog = Blog{
+		Name:        r.FormValue("BlogName"),
+		Author:      r.FormValue("BlogAuthor"),
+		Description: r.FormValue("Description"),
+		Tags:        r.FormValue("BlogTags"),
+		Template:    r.FormValue("BlogTemplate"),
+	}
+
+	c := appengine.NewContext(r)
+	key := datastore.NewKey(c, KIND_BLOG, "Fixing", 0, nil)
+
+	pkgBlog.SetKey(key)
+	err := ds.Put(c, &pkgBlog)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 const KIND_USER = "User"
 
 type User struct {
@@ -55,7 +104,7 @@ func getUser(r *http.Request) (*User, error) {
 	return &rtn, nil
 }
 
-func putUser(r *http.Request) (*User, error) {
+func putInformation(r *http.Request) (*User, error) {
 
 	c := appengine.NewContext(r)
 
@@ -68,8 +117,14 @@ func putUser(r *http.Request) (*User, error) {
 		TwitterId: r.FormValue("TwitterId"),
 	}
 
+	err := putBlog(r)
+	if err != nil {
+		return nil, err
+	}
+
+	//function
 	rtn.Key = getUserKey(r)
-	err := ds.Put(c, &rtn)
+	err = ds.Put(c, &rtn)
 	if err != nil {
 		return nil, err
 	}
@@ -209,10 +264,11 @@ func createArticle(r *http.Request) (string, error) {
 	c := appengine.NewContext(r)
 	id := uuid.New()
 
-	base := blog.Template
+	bgd := getBlog(r)
+	base := bgd.Template
 	article := &Article{
 		Title:    "New Title",
-		Tags:     blog.Tags,
+		Tags:     bgd.Tags,
 		Markdown: []byte(base),
 	}
 
