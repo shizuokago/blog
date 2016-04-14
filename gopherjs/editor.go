@@ -88,9 +88,7 @@ func main() {
 
 func ajax(url string) {
 
-	d := js.Global.Get("document")
-	dialog := d.Call("querySelector", "#wait_dialog")
-	dialog.Call("showModal")
+	d := js.Global.Call("waitDialog")
 
 	id := jQuery(ARTICLE_ID).Val()
 	data := js.M{
@@ -110,7 +108,7 @@ func ajax(url string) {
 		"error": func(status interface{}) {
 		},
 		"complete": func(status interface{}) {
-			dialog.Call("close")
+			d.Call("close")
 		},
 	}
 
@@ -140,7 +138,11 @@ func resize() {
 
 type Html struct {
 	Author    string
+	AuthorID  string
+	Updater   string
+	UpdaterID string
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func draw() {
@@ -197,7 +199,11 @@ func getHtml() string {
 
 	h := Html{
 		Author:    author,
+		AuthorID:  "empty",
+		Updater:   author,
+		UpdaterID: "empty",
 		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	blog := struct {
@@ -211,11 +217,10 @@ func getHtml() string {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
-		AuthorID    string
 		StringID    string
 		Blog        interface{}
 		HTML        Html
-	}{doc, gblTmpl, true, "empty", jQuery(ARTICLE_ID).Val(), blog, h}
+	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), blog, h}
 
 	//Render
 	var b bytes.Buffer

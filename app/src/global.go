@@ -165,11 +165,10 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
-		AuthorID    string
 		StringID    string
 		Blog        Blog
 		HTML        *Html
-	}{doc, tmpl, true, u.Key.StringID(), art.Key.StringID(), bd, html}
+	}{doc, tmpl, true, art.Key.StringID(), bd, html}
 
 	//Render
 	var b bytes.Buffer
