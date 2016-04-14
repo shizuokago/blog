@@ -69,9 +69,8 @@
 <script>
 var selectId = "";
 $("#upload").click(function() {
-    var dialog = document.querySelector('#wait_Dialog');
-    dialog.showModal();
 
+    var dialog = waitDialog();
     if ( selectId == "" ) {
         var name = $('#fileName').val();
         $.ajax({
@@ -128,23 +127,15 @@ $("#file").change(function() {
 });
 
 $("button.deleteBtn").click(function(e) {
-
     var dataId = $(e.currentTarget).data("id");
-    var dialog = document.querySelector('dialog.deleteDialog');
-    dialog.showModal();
-
-    dialog.querySelector('.delete').addEventListener('click', function() {
+    selectId = "";
+    confirmDialog("Delete?","Id is not possible to return again","DELETE",function() {
         selectId = dataId;
         $('#fileName').val(dataId.substr(5));
         $('#fileForm').attr('action','/admin/file/delete');
         $('#upload').trigger("click");
+        return false;
     });
-
-    dialog.querySelector('.close').addEventListener('click', function() {
-        selectId = "";
-        dialog.close();
-    });
-
     return false;
 });
 
@@ -159,18 +150,6 @@ $("button.deleteBtn").click(function(e) {
 {{end}}
 {{define "footer_right_menu"}}
 
-<dialog class="mdl-dialog deleteDialog">
-<h4 class="mdl-dialog__title">this article delete?</h4>
-<div class="mdl-dialog__content">
-<p>
-It is not possible to return again.
-</p>
-</div>
-<div class="mdl-dialog__actions">
-<button type="button" class="mdl-button delete">DELETE</button>
-<button type="button" class="mdl-button close">CLOSE</button>
-</div>
-</dialog>
 
 {{end}}
 
