@@ -69,6 +69,50 @@
   </div>
 </dialog>
 
+<dialog class="mdl-dialog" id="confirmDialog">
+<h4 id="confirm_title" class="mdl-dialog__title">TITLE</h4>
+<div class="mdl-dialog__content">
+<p id="confirm_msg">MESSAGE</p>
+</div>
+<div class="mdl-dialog__actions">
+<button type="button" class="mdl-button ok">OK</button>
+<button type="button" class="mdl-button cancel">CANCEL</button>
+</div>
+</dialog>
+
+<script>
+function waitDialog(title) {
+    if(title === undefined) title = "Wait...";
+
+    var dialog = document.querySelector('dialog#waitDialog');
+    dialog.querySelector('#confirm_title').textContent = title;
+
+    dialog.showModal();
+    return dialog;
+}
+
+function confirmDialog(title,msg,btn,func) {
+    var dialog = document.querySelector('dialog#confirmDialog');
+
+    if(title === undefined) title = "Confirm";
+    if(msg === undefined) msg = "OK?";
+    if(btn === undefined) btn = "OK";
+
+    dialog.querySelector('#confirm_title').textContent = title;
+    dialog.querySelector('#confirm_message').textContent = msg;
+    dialog.querySelector('button.ok').textContent = btn;
+
+    dialog.showModal();
+
+    dialog.querySelector('button.ok').addEventListener('click', func);
+    dialog.querySelector('button.cancel').addEventListener('click', function() {
+        dialog.close();
+    });
+    return dialog;
+}
+
+</script>
+
     </div>
   </body>
 </html>

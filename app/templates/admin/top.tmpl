@@ -65,6 +65,10 @@
             <i class="material-icons right-section">delete</i>
         </button>
 
+{{ if .PublishDate }}
+        Publish : {{ convert .PublishDate }}
+{{ end }}
+
     </div>
 
     <div class="mdl-card__menu">
@@ -91,33 +95,8 @@
 </div>
 
 
-<dialog class="mdl-dialog deleteDialog">
-<h4 class="mdl-dialog__title">this article delete?</h4>
-<div class="mdl-dialog__content">
-<p>
-It is not possible to return again.
-</p>
-</div>
-<div class="mdl-dialog__actions">
-<button type="button" class="mdl-button delete">DELETE</button>
-<button type="button" class="mdl-button close">CLOSE</button>
-</div>
-</dialog>
-
-<dialog class="mdl-dialog privateDialog">
-<h4 class="mdl-dialog__title">this article private?</h4>
-<div class="mdl-dialog__content">
-<p>
-It is not possible to return again.
-</p>
-</div>
-<div class="mdl-dialog__actions">
-<button type="button" class="mdl-button private">Private</button>
-<button type="button" class="mdl-button close">CLOSE</button>
-</div>
-</dialog>
-
 <script>
+
 Array.prototype.forEach.call(document.querySelectorAll('.mdl-card__title'), function(el) {
   var link = el.querySelector('div');
   if(!link) {
@@ -149,37 +128,21 @@ $("button.editBtn").click(function(e) {
 });
 
 $("button.deleteBtn").click(function(e) {
-    var dialog = document.querySelector('dialog.deleteDialog');
-    dialog.showModal();
-
-    dialog.querySelector('.delete').addEventListener('click', function() {
+    confirmDialog("Delete?","Id is not possible to return again","DELETE",function() {
         location.href = "/admin/article/delete/" + $(e.currentTarget).data("id");
     });
-
-    dialog.querySelector('.close').addEventListener('click', function() {
-        dialog.close();
-    });
-
     return false;
 });
 
 $("button.privateBtn").click(function(e) {
-    var dialog = document.querySelector('dialog.privateDialog');
-    dialog.showModal();
-
-    dialog.querySelector('.private').addEventListener('click', function() {
+    confirmDialog("This Article private?","Id is not possible to return again","PRIVATE",function() {
         location.href = "/admin/article/private/" + $(e.currentTarget).data("id");
-    });
-
-    dialog.querySelector('.close').addEventListener('click', function() {
-        dialog.close();
     });
     return false;
 });
 
 $("#file").change(function() {
-    var dialog = document.querySelector('#wait_Dialog');
-    dialog.showModal();
+    waitDialog();
     $(this).closest("form").submit();
     return false;
 });
@@ -189,7 +152,6 @@ $("#file").change(function() {
 {{end}}
 
 {{define "header_menu"}}
-
 <button id="addBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="top:30px;">
 <i class="material-icons">add</i>
 </button>
