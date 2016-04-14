@@ -126,6 +126,7 @@ func (ds FileDs) readFile(name string) ([]byte, error) {
 	key := "data/" + name
 	file, err := getFileData(ds.request, key)
 	if err != nil {
+		return []byte(err.Error()), err
 	}
 	return file.Content, nil
 }
@@ -145,7 +146,6 @@ func createHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 	ds := FileDs{
 		request: r,
 	}
-
 	ctx := present.Context{ReadFile: ds.readFile}
 
 	reader := strings.NewReader(txt)

@@ -55,16 +55,16 @@
                   <span> {{ convert  .HTML.CreatedAt }} </span>
               </div>
 
-<!--
+{{ if .HTML.Updated }}
               <div style="flex-grow:1;"></div>
 
               <div style="text-align:right;margin-right:10px;">
-                <strong>{{ .HTML.Author }}</strong>
-                <span>{{ convert .HTML.CreatedAt }}</span>
+                <strong>{{ .HTML.Updater }}</strong>
+                <span>{{ convert .HTML.UpdatedAt }}</span>
               </div>
 
-              <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
--->
+              <img class="avatar" src="/file/avatar/{{ .UpdaterID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
+{{ end }}
 
             </div>
 

@@ -250,10 +250,12 @@ func deleteArticle(r *http.Request, id string) error {
 const KIND_HTML = "Html"
 
 type Html struct {
-	Title    string
-	SubTitle string
-	Author   string
-	AuthorID string
+	Title     string
+	SubTitle  string
+	Author    string
+	AuthorID  string
+	Updater   string
+	UpdaterID string
 	ds.Meta
 }
 
@@ -309,18 +311,20 @@ func updateHtml(r *http.Request, key string) error {
 
 		html.SetKey(k)
 		data.SetKey(dk)
+
+		html.Author = u.Name
+		html.AuthorID = u.Key.StringID()
 	} else {
 		err = ds.Get(c, dk, data)
 		if err != nil {
 			return err
 		}
+		html.Updater = u.Name
+		html.UpdaterID = u.Key.StringID()
 	}
 
 	html.Title = art.Title
 	html.SubTitle = art.SubTitle
-
-	html.Author = u.Name
-	html.AuthorID = u.Key.StringID()
 
 	err = ds.Put(c, html)
 	if err != nil {

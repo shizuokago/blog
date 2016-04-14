@@ -65,6 +65,10 @@
             <i class="material-icons right-section">delete</i>
         </button>
 
+{{ if .PublishDate }}
+        Publish : {{ convert .PublishDate }}
+{{ end }}
+
     </div>
 
     <div class="mdl-card__menu">
