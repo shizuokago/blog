@@ -50,27 +50,40 @@
     {{ .SubTitle }}
     </div>
 
-    <div class="mdl-card__actions mdl-card--border">
+    <table class="mdl-data-table mdl-js-data-table mdl-card__actions mdl-card--border">
+      <tbody>
+        <tr style="height:20px;">
+          <td class="mdl-data-table__cell--non-numeric" rowspan="2">
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.StringID}}">
+              <i class="material-icons right-section">cloud_off</i>
+            </button>
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
+              <i class="material-icons right-section">delete</i>
+            </button>
+          </td>
 
-        Last updated : {{ convert .UpdatedAt }}
-        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.StringID}}">
-            <i class="material-icons right-section">screen_share</i>
-        </button>
-    
-        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.StringID}}">
-            <i class="material-icons right-section">cloud_off</i>
-        </button>
+          <td class="mdl-data-table__cell--non-numeric">Lastupdated</td>
+          <td class="mdl-data-table__cell--non-numeric"> {{ convert .UpdatedAt }} </td>
+          <td class="mdl-data-table__cell--non-numeric" rowspan="2">
+      
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.StringID}}">
+              <i class="material-icons right-section">screen_share</i>
+            </button>
 
-        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
-            <i class="material-icons right-section">delete</i>
-        </button>
+          </td>
+        </tr>
 
+        <tr style="height:20px;">
+          <td class="mdl-data-table__cell--non-numeric">Publish Date</td>
+          <td class="mdl-data-table__cell--non-numeric">
 {{ if .PublishDate }}
-<br>
-        Publish : {{ convert .PublishDate }}
+        {{ convert .PublishDate }}
 {{ end }}
+          </td>
+        </tr>
 
-    </div>
+      </tbody>
+    </table>
 
     <div class="mdl-card__menu">
 
