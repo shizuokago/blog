@@ -9,13 +9,15 @@
 	"github.com/knightso/base"
 	"github.com/pborman/uuid"
 
-	"github.com/gopherjs/gopherjs"
+	"github.com/gopherjs/gopherjs/js"
+	"github.com/gopherjs/jquery"
+
+	"github.com/PuerkitoBio/goquery"
 
 	"github.com/nfnt/resize"
 	"github.com/robfig/graphics-go/graphics"
 
 
-## local serve
 ## AppEngine Deploy
 
 - production

@@ -155,6 +155,8 @@ func draw() {
 	idoc.Call("open")
 	idoc.Call("write", h)
 	idoc.Call("close")
+
+	unbind()
 }
 
 func redraw() {
@@ -167,6 +169,14 @@ func redraw() {
 
 	bh, _ := body.Html()
 	jQuery(OUTPUT).Contents().Find("body").SetHtml(bh)
+
+	unbind()
+}
+
+func unbind() {
+	iframe := jQuery("#result").Contents()
+	iframe.Find("a").RemoveAttr("href")
+	iframe.Find("button").RemoveAttr("onclick")
 }
 
 func getHtml() string {
