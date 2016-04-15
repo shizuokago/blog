@@ -155,6 +155,8 @@ func draw() {
 	idoc.Call("open")
 	idoc.Call("write", h)
 	idoc.Call("close")
+
+	unbind()
 }
 
 func redraw() {
@@ -167,6 +169,14 @@ func redraw() {
 
 	bh, _ := body.Html()
 	jQuery(OUTPUT).Contents().Find("body").SetHtml(bh)
+
+	unbind()
+}
+
+func unbind() {
+	iframe := jQuery("#result").Contents()
+	iframe.Find("a").RemoveAttr("href")
+	iframe.Find("button").RemoveAttr("onclick")
 }
 
 func getHtml() string {
@@ -303,7 +313,6 @@ const (
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
-    <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/styles.css">
 
@@ -313,7 +322,7 @@ const (
     <div class="demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
       <main class="mdl-layout__content">
         <div class="demo-back">
-          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="javascript:history.back()" title="index" role="button" id="start">
+          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="javascript:history.back()" title="index" role="button">
             <i class="material-icons" role="presentation">arrow_back</i>
           </a>
         </div>
@@ -397,7 +406,7 @@ const (
 
     </div>
 
-    <a href="#start" id="top" class="mdl-button mdl-button--fab mdl-js-button mdl-js-ripple-effect mdl-color--accent mdl-color-text--white"><i class="material-icons">vertical_align_top</i></a>
+    <a href="javascript:window.scrollTo(0,0);" id="top" class="mdl-button mdl-button--fab mdl-js-button mdl-js-ripple-effect mdl-color--accent mdl-color-text--white"><i class="material-icons">vertical_align_top</i></a>
 
 <script>
     function tweet() {
