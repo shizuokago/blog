@@ -26,8 +26,6 @@
 
         <div class="demo-blog__posts mdl-grid">
 
-        <div id="start"></div>
-
 {{ range .HTMLs }}
 <div class="mdl-card mdl-cell mdl-cell--12-col">
   <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url('/file/bg/{{  .Key.StringID  }}');cursor:pointer;">
@@ -88,7 +86,7 @@
 
     </div>
 
-    <a href="#start" id="top" class="mdl-button mdl-button--fab mdl-js-button mdl-js-ripple-effect mdl-color--accent mdl-color-text--white"><i class="material-icons">vertical_align_top</i></a>
+    <a href="javascript:window.scrollTo(0,0);" id="top" class="mdl-button mdl-button--fab mdl-js-button mdl-js-ripple-effect mdl-color--accent mdl-color-text--white"><i class="material-icons">vertical_align_top</i></a>
   </body>
 
   <script>
