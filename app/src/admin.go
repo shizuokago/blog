@@ -37,6 +37,10 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if u == nil {
+		u = &User{}
+	}
+
 	bgd := getBlog(r)
 	data := struct {
 		Blog *Blog
