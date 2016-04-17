@@ -291,6 +291,49 @@ func createArticle(r *http.Request) (string, error) {
 	return id, err
 }
 
+func createHtmlFromMail(r *http.Request, d *MailData) error {
+
+	c := appengine.NewContext(r)
+	id := uuid.New()
+
+	bgd := getBlog(r)
+	article := &Article{
+		Title:    d.subject,
+		Tags:     bgd.Tags,
+		Markdown: d.msg.Bytes(),
+	}
+
+	article.Key = getArticleKey(r, id)
+	err := ds.Put(c, article)
+	if err != nil {
+		return err
+	}
+
+	fid := "bg/" + id
+	fb := d.file.Bytes()
+	file := &File{
+		Size: int64(len(fb)),
+		Type: FILE_TYPE_BG,
+	}
+
+	file.Key = getFileKey(r, fid)
+	err = ds.Put(c, file)
+	if err != nil {
+		return err
+	}
+	fileData := &FileData{
+		Content: fb,
+		Mime:    d.mime,
+	}
+	fileData.SetKey(getFileDataKey(r, fid))
+	err = ds.Put(c, fileData)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
 func deleteArticle(r *http.Request, id string) error {
 
 	c := appengine.NewContext(r)

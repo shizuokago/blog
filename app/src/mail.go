@@ -2,10 +2,13 @@ package blog
 
 import (
 	"bufio"
-	"fmt"
+	"bytes"
+	"encoding/base64"
 	"io"
+	"io/ioutil"
 	"mime"
 	"mime/multipart"
+	"mime/quotedprintable"
 	"net/http"
 	"net/mail"
 	"strings"
@@ -19,6 +22,27 @@ import (
 
 func init() {
 }
+
+type MailData struct {
+	subject string
+	msg     bytes.Buffer
+	file    bytes.Buffer
+	mime    string
+}
+
+const (
+	SUBJ_PREFIX_ISO2022JP_B = "=?iso-2022-jp?b?"
+	SUBJ_PREFIX_ISO2022JP_Q = "=?iso-2022-jp?q?"
+	SUBJ_PREFIX_UTF8_B      = "=?utf-8?b?"
+	SUBJ_PREFIX_UTF8_Q      = "=?utf-8?q?"
+	CHARSET_ISO2022JP       = "iso-2022-jp"
+	ENC_QUOTED_PRINTABLE    = "quoted-printable"
+	ENC_BASE64              = "base64"
+	MEDIATYPE_TEXT          = "text/"
+	MEDIATYPE_MULTI         = "multipart/"
+	MEDIATYPE_MULTI_REL     = "multipart/related"
+	MEDIATYPE_MULTI_ALT     = "multipart/alternative"
+)
 
 func incomingMail(w http.ResponseWriter, r *http.Request) {
 
@@ -40,14 +64,21 @@ func incomingMail(w http.ResponseWriter, r *http.Request) {
 
 	contentType := msg.Header.Get("content-type")
 
-	parseBody(r, msg.Body, contentType)
+	data := MailData{
+		subject: decSubject(msg.Header.Get("Subject")),
+	}
+	log.Infof(c, "Subject = [%s]", msg.Header.Get("Subject"))
 
-	// Article
-	// File
-	// Html
+	parseBody(r, msg.Body, contentType, &data)
+
+	err = createHtmlFromMail(r, &data)
+	if err != nil {
+		log.Errorf(c, "ReadMessage Error[%s]", err.Error())
+		return
+	}
 }
 
-func parseBody(r *http.Request, body io.Reader, contentType string) {
+func parseBody(r *http.Request, body io.Reader, contentType string, data *MailData) {
 
 	c := appengine.NewContext(r)
 	log.Infof(c, "Parse ContentType [%s]", contentType)
@@ -62,7 +93,15 @@ func parseBody(r *http.Request, body io.Reader, contentType string) {
 
 	switch strings.Split(mediatype, "/")[0] {
 	case "text", "html":
-		log.Infof(c, "Text")
+		lines, err := encode(body)
+		if err != nil {
+			log.Errorf(c, "Parse Error[%s]", err.Error())
+		}
+
+		for _, line := range lines {
+			data.msg.Write([]byte(line + "\n"))
+		}
+
 	case "message":
 		log.Infof(c, "Message")
 	case "multipart":
@@ -76,31 +115,73 @@ func parseBody(r *http.Request, body io.Reader, contentType string) {
 			}
 
 			contentType := part.Header.Get("content-type")
-			parseBody(r, part, contentType)
+			parseBody(r, part, contentType, data)
 			part.Close()
 		}
 
 	default:
-		log.Infof(c, "%v,name=%v", mediatype, params["name"])
+		data.mime = mediatype
+		io.Copy(&data.file, transform.NewReader(body, japanese.ISO2022JP.NewDecoder()))
 	}
 }
 
-func conversion(inStream io.Reader, outStream io.Writer) error {
+func encode(inStream io.Reader) ([]string, error) {
+
 	//read from stream (Shift-JIS to UTF-8)
 	scanner := bufio.NewScanner(transform.NewReader(inStream, japanese.ISO2022JP.NewDecoder()))
 	list := make([]string, 0)
 	for scanner.Scan() {
 		list = append(list, scanner.Text())
 	}
+
 	if err := scanner.Err(); err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, line := range list {
-		_, err := fmt.Fprintln(outStream, line)
-		if err != nil {
-			return err
+	return list, nil
+}
+
+func decSubject(subject string) string {
+	splitsubj := strings.Fields(subject)
+	var bufSubj bytes.Buffer
+	for seq, parts := range splitsubj {
+		switch {
+		case !strings.HasPrefix(parts, "=?"):
+			// エンコードなし
+			if seq > 0 {
+				// 先頭以外はSpaceで区切りなおし
+				bufSubj.WriteByte(' ')
+			}
+			bufSubj.WriteString(parts)
+
+		case len(parts) > len(SUBJ_PREFIX_ISO2022JP_B) && strings.HasPrefix(strings.ToLower(parts[0:len(SUBJ_PREFIX_ISO2022JP_B)]), SUBJ_PREFIX_ISO2022JP_B):
+			// iso-2022-jp / base64
+			beforeDecode := parts[len(SUBJ_PREFIX_ISO2022JP_B):strings.LastIndex(parts, "?=")]
+			afterDecode := base64.NewDecoder(base64.StdEncoding, bytes.NewBufferString(beforeDecode))
+			subj_bytes, _ := ioutil.ReadAll(transform.NewReader(afterDecode, japanese.ISO2022JP.NewDecoder()))
+			bufSubj.Write(subj_bytes)
+
+		case len(parts) > len(SUBJ_PREFIX_ISO2022JP_Q) && strings.HasPrefix(strings.ToLower(parts[0:len(SUBJ_PREFIX_ISO2022JP_Q)]), SUBJ_PREFIX_ISO2022JP_Q):
+			// iso-2022-jp / quoted-printable
+			beforeDecode := parts[len(SUBJ_PREFIX_ISO2022JP_Q):strings.LastIndex(parts, "?=")]
+			afterDecode := quotedprintable.NewReader(bytes.NewBufferString(beforeDecode))
+			subj_bytes, _ := ioutil.ReadAll(transform.NewReader(afterDecode, japanese.ISO2022JP.NewDecoder()))
+			bufSubj.Write(subj_bytes)
+
+		case len(parts) > len(SUBJ_PREFIX_UTF8_B) && strings.HasPrefix(strings.ToLower(parts[0:len(SUBJ_PREFIX_UTF8_B)]), SUBJ_PREFIX_UTF8_B):
+			// utf-8 / base64
+			beforeDecode := parts[len(SUBJ_PREFIX_UTF8_B):strings.LastIndex(parts, "?=")]
+			subj_bytes, _ := base64.StdEncoding.DecodeString(beforeDecode)
+			bufSubj.Write(subj_bytes)
+
+		case len(parts) > len(SUBJ_PREFIX_UTF8_Q) && strings.HasPrefix(strings.ToLower(parts[0:len(SUBJ_PREFIX_UTF8_Q)]), SUBJ_PREFIX_UTF8_Q):
+			// utf-8 / quoted-printable
+			beforeDecode := parts[len(SUBJ_PREFIX_UTF8_Q):strings.LastIndex(parts, "?=")]
+			afterDecode := quotedprintable.NewReader(bytes.NewBufferString(beforeDecode))
+			subj_bytes, _ := ioutil.ReadAll(afterDecode)
+			bufSubj.Write(subj_bytes)
 		}
 	}
-	return outStream.Flush()
+	return bufSubj.String()
+
 }
