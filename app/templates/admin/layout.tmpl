@@ -37,6 +37,13 @@ function confirmDialog(title,msg,btn,func) {
     });
     return dialog;
 }
+
+function toast(msg) {
+   var snackbarContainer = document.querySelector('#TOAST');
+   var data = {message: msg};
+   snackbarContainer.MaterialSnackbar.showSnackbar(data);
+}
+
 </script>
   <script src="/static/js/jquery.min.js"></script>
 
@@ -111,6 +118,11 @@ function confirmDialog(title,msg,btn,func) {
 <button type="button" class="mdl-button cancel">CANCEL</button>
 </div>
 </dialog>
+
+<div id="TOAST" class="mdl-js-snackbar mdl-snackbar">
+   <div class="mdl-snackbar__text"></div>
+   <button class="mdl-snackbar__action" type="button"></button>
+</div>
 
     </div>
   </body>

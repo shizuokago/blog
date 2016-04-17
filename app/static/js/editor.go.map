@@ -45,15 +45,6 @@ func main() {
 		resize()
 	})
 
-	cnt := 0
-	jQuery(INPUT).On(jquery.KEYDOWN, func(e jquery.Event) {
-		cnt++
-		if cnt == 15 {
-			redraw()
-			cnt = 0
-		}
-	})
-
 	jQuery(PUBLISH).On(jquery.CLICK, func(e jquery.Event) {
 		ajax("publish")
 	})
@@ -88,12 +79,15 @@ func main() {
 	if jQuery("#AutoSave").Val() != "" {
 		println("AutoSave")
 		go func() {
-			t := time.NewTicker(30 * time.Second)
+			t := time.NewTicker(15 * time.Second)
 			for {
 				select {
 				case <-t.C:
-					println("T!!!")
-					ajax("autosave")
+					println("redraw()")
+					if redraw() {
+						println("ajax()")
+						ajax("autosave")
+					}
 				}
 			}
 			t.Stop()
@@ -133,6 +127,8 @@ func ajax(url string) {
 		"complete": func(status interface{}) {
 			if url != "autosave" {
 				d.Call("close")
+			} else {
+				d = js.Global.Call("toast", "Auto Saved")
 			}
 		},
 	}
@@ -184,7 +180,9 @@ func draw() {
 	unbind()
 }
 
-func redraw() {
+var beforeBody = ""
+
+func redraw() bool {
 
 	h := getHtml()
 	r := strings.NewReader(h)
@@ -193,9 +191,14 @@ func redraw() {
 	body := doc.Find("body")
 
 	bh, _ := body.Html()
-	jQuery(OUTPUT).Contents().Find("body").SetHtml(bh)
 
-	unbind()
+	if beforeBody != bh {
+		jQuery(OUTPUT).Contents().Find("body").SetHtml(bh)
+		unbind()
+		beforeBody = bh
+		return true
+	}
+	return false
 }
 
 func unbind() {
@@ -232,13 +235,14 @@ func getHtml() string {
 		return err.Error()
 	}
 
+	zero := time.Time{}
 	h := Html{
 		Author:    author,
 		AuthorID:  "empty",
 		Updater:   author,
 		UpdaterID: "empty",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: zero,
+		UpdatedAt: zero,
 	}
 
 	blog := struct {
