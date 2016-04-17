@@ -84,11 +84,34 @@ func main() {
 	jQuery("#file").On(jquery.CHANGE, func(e jquery.Event) {
 		jQuery("#bgForm").Call("submit")
 	})
+
+	if jQuery("#AutoSave").Val() != "" {
+		println("AutoSave")
+		go func() {
+			t := time.NewTicker(30 * time.Second)
+			for {
+				select {
+				case <-t.C:
+					println("T!!!")
+					ajax("autosave")
+				}
+			}
+			t.Stop()
+		}()
+	}
 }
 
 func ajax(url string) {
 
-	d := js.Global.Call("waitDialog")
+	u := url
+	if url == "autosave" {
+		u = "save"
+	}
+
+	var d *js.Object
+	if url != "autosave" {
+		d = js.Global.Call("waitDialog")
+	}
 
 	id := jQuery(ARTICLE_ID).Val()
 	data := js.M{
@@ -100,7 +123,7 @@ func ajax(url string) {
 	ajaxopt := js.M{
 		"async":    true,
 		"type":     "POST",
-		"url":      "/admin/article/" + url + "/" + id,
+		"url":      "/admin/article/" + u + "/" + id,
 		"dataType": "json",
 		"data":     data,
 		"success": func(data map[string]interface{}) {
@@ -108,7 +131,9 @@ func ajax(url string) {
 		"error": func(status interface{}) {
 		},
 		"complete": func(status interface{}) {
-			d.Call("close")
+			if url != "autosave" {
+				d.Call("close")
+			}
 		},
 	}
 

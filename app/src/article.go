@@ -32,13 +32,20 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	auto := u.AutoSave
+	autosave := ""
+	if auto {
+		autosave = "on"
+	}
+
 	bgd := getBlog(r)
 	s := struct {
 		Article  *Article
 		User     *User
 		Markdown string
 		BlogName string
-	}{art, u, string(art.Markdown), bgd.Name}
+		AutoSave string
+	}{art, u, string(art.Markdown), bgd.Name, autosave}
 
 	adminRender(w, "./templates/admin/edit.tmpl", s)
 }

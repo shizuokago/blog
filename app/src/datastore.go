@@ -77,6 +77,7 @@ type User struct {
 	Email     string
 	URL       string
 	TwitterId string
+	AutoSave  bool
 	ds.Meta
 }
 
@@ -109,12 +110,19 @@ func putInformation(r *http.Request) (*User, error) {
 	c := appengine.NewContext(r)
 
 	r.ParseForm()
+
+	save := false
+	if r.FormValue("AutoSave") != "" {
+		save = true
+	}
+
 	rtn := User{
 		Name:      r.FormValue("Name"),
 		Job:       r.FormValue("Job"),
 		Email:     r.FormValue("Email"),
 		URL:       r.FormValue("Url"),
 		TwitterId: r.FormValue("TwitterId"),
+		AutoSave:  save,
 	}
 
 	err := putBlog(r)
