@@ -23,6 +23,8 @@ func run() error {
 	defer watcher.Close()
 
 	done := make(chan error)
+
+	log.Println("Wait....")
 	go monitor(watcher, done)
 
 	listFiles := make([]string, 2)
@@ -70,6 +72,7 @@ func notify(event fsnotify.Event) {
 		command()
 		log.Println("********************** end")
 	}
+	log.Println("Wait....")
 	return
 }
 

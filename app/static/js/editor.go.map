@@ -488,6 +488,7 @@ It determines how the formatting actions are rendered.
   {{range .Elem}}{{elem $.Template .}}{{end}}
 {{end}}
 
+
 {{define "list"}}
   <ul>
   {{range .Bullet}}
@@ -495,6 +496,7 @@ It determines how the formatting actions are rendered.
   {{end}}
   </ul>
 {{end}}
+
 
 {{define "text"}}
   {{if .Pre}}
@@ -507,15 +509,18 @@ It determines how the formatting actions are rendered.
   {{end}}
 {{end}}
 
+
 {{define "code"}}
   <div class="code{{if playable .}} playground{{end}}" contenteditable="true" spellcheck="false">{{.Text}}</div>
 {{end}}
+
 
 {{define "image"}}
 <div class="image">
   <img src="{{.URL}}"{{with .Height}} height="{{.}}"{{end}}{{with .Width}} width="{{.}}"{{end}}>
 </div>
 {{end}}
+
 
 {{define "iframe"}}
 <iframe src="{{.URL}}"{{with .Height}} height="{{.}}"{{end}}{{with .Width}} width="{{.}}"{{end}}></iframe>
@@ -526,6 +531,7 @@ It determines how the formatting actions are rendered.
 {{define "html"}}{{.HTML}}{{end}}
 
 {{define "caption"}}<figcaption>{{style .Text}}</figcaption>{{end}}
+
 
 `
 )

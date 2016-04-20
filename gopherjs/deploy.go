@@ -24,10 +24,15 @@ func init() {
 }
 
 func main() {
+
+	if err := os.RemoveAll(WORK_DIR); err != nil {
+		fmt.Println(err)
+	}
+
+	defer os.RemoveAll(WORK_DIR)
 	err := run()
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
 	}
 }
 
@@ -56,6 +61,7 @@ func createGoFile() error {
 		fmt.Println("WorkFile create error")
 		return err
 	}
+	defer file.Close()
 
 	tpl := template.Must(template.ParseFiles(INPUT_DIR + INPUT))
 	if err := tpl.Execute(file, embed); err != nil {
@@ -66,9 +72,8 @@ func createGoFile() error {
 }
 
 func generateJSFile() error {
-	err := Command("gopherjs", "build", "-m", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
 
-	//err := Command("gopherjs", "build", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
+	err := Command("gopherjs", "build", "-m", WORK_DIR+INPUT, "-o", WORK_DIR+OUTPUT_JS)
 	if err != nil {
 		fmt.Println("GopherJS build error")
 		return err
@@ -139,14 +144,12 @@ func deploy() error {
 func run() error {
 
 	fmt.Println("Create Work directory")
-	err := os.Mkdir(WORK_DIR, 0777)
-	defer os.RemoveAll(WORK_DIR)
 
+	err := os.Mkdir(WORK_DIR, 0777)
 	if err != nil {
 		fmt.Println("Create work error")
 		return err
 	}
-	defer os.RemoveAll(WORK_DIR)
 
 	fmt.Println("Create Go File")
 	err = createGoFile()
@@ -177,15 +180,7 @@ func run() error {
 
 func Command(name string, arg ...string) error {
 	cmd := exec.Command(name, arg...)
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-	stdin.Close()
-	out, err := cmd.Output()
-	if err != nil {
-		return err
-	}
+	out, err := cmd.CombinedOutput()
 	fmt.Println(string(out))
-	return nil
+	return err
 }
