@@ -76,23 +76,34 @@ func main() {
 		jQuery("#bgForm").Call("submit")
 	})
 
-	if jQuery("#AutoSave").Val() != "" {
-		println("AutoSave")
-		go func() {
-			t := time.NewTicker(15 * time.Second)
-			for {
-				select {
-				case <-t.C:
-					println("redraw()")
-					if redraw() {
-						println("ajax()")
-						ajax("autosave")
+	auto := jQuery("#AutoSave").Val()
+	rd, aj := 0, 0
+	go func() {
+		t := time.NewTicker(5 * time.Second)
+		for {
+			select {
+			case <-t.C:
+				rd = rd + 1
+				aj = aj + 1
+				flag := false
+
+				if rd == 2 {
+					flag = redraw()
+					rd = 0
+				}
+
+				if auto != "" {
+					if aj == 4 {
+						if flag {
+							ajax("autosave")
+						}
+						aj = 0
 					}
 				}
 			}
-			t.Stop()
-		}()
-	}
+		}
+		t.Stop()
+	}()
 }
 
 func ajax(url string) {
@@ -132,7 +143,6 @@ func ajax(url string) {
 			}
 		},
 	}
-
 	jquery.Ajax(ajaxopt)
 }
 

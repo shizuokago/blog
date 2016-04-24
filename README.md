@@ -47,10 +47,28 @@
     ./app/static/images/bg_2880.jpg
 
 
+## Command
+
 ### if you change design
+
+create editor js
+```bash
+    go run gopherjs/editor.go
+```
+
+woking directory(in "go run gopherjs/editor.js")
 ```bash
     go run gopherjs/deploy.go
 ```
+
+watch design(in "go run gopherjs/deploy.js")
+### if you change design(watch)
+```bash
+    go run gopherjs/watch.go
+```
+
+
+
 
 
 ## Sample
