@@ -53,18 +53,18 @@
 
 create editor js
 ```bash
-    go run gopherjs/editor.go
+    go run cmd/editor.go
 ```
 
-woking directory(in "go run gopherjs/editor.js")
+woking directory(in "go run cmd/editor.js")
 ```bash
-    go run gopherjs/deploy.go
+    go run cmd/deploy.go
 ```
 
-watch design(in "go run gopherjs/deploy.js")
+watch design(in "go run cmd/deploy.js")
 ### if you change design(watch)
 ```bash
-    go run gopherjs/watch.go
+    go run cmd/watch.go
 ```
 
 
