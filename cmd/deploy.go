@@ -11,7 +11,7 @@ import (
 
 const (
 	WORK_DIR     = "./work/"
-	INPUT_DIR    = "./gopherjs/"
+	INPUT_DIR    = "./cmd/"
 	OUTPUT_DIR   = "./app/static/js/"
 	TEMPLATE_DIR = "./app/templates/entry/"
 	INPUT        = "editor.go"

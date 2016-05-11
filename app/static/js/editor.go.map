@@ -360,9 +360,14 @@ const (
   <body>
     <div class="demo-blog demo-blog--blogpost mdl-layout mdl-js-layout has-drawer is-upgraded">
       <main class="mdl-layout__content">
+
         <div class="demo-back">
-          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="javascript:history.back()" title="index" role="button">
+          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="javascript:history.back()" title="back" role="button">
             <i class="material-icons" role="presentation">arrow_back</i>
+          </a>
+
+          <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon right" href="/" title="home" role="button">
+            <i class="material-icons" role="presentation">home</i>
           </a>
         </div>
 
