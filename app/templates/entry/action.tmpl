@@ -41,6 +41,11 @@ It determines how the formatting actions are rendered.
 </div>
 {{end}}
 
+{{define "picture"}}
+<div class="image">
+  <img src="{{.URL}}"{{with .Height}} height="{{.}}"{{end}}{{with .Width}} width="{{.}}"{{end}}>
+</div>
+{{end}}
 
 {{define "iframe"}}
 <iframe src="{{.URL}}"{{with .Height}} height="{{.}}"{{end}}{{with .Width}} width="{{.}}"{{end}}></iframe>
