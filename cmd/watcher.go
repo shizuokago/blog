@@ -28,7 +28,7 @@ func run() error {
 	go monitor(watcher, done)
 
 	listFiles := make([]string, 2)
-	listFiles[0] = "./gopherjs"
+	listFiles[0] = "./cmd"
 	listFiles[1] = "./app/templates/entry"
 
 	for _, elm := range listFiles {
@@ -78,7 +78,7 @@ func notify(event fsnotify.Event) {
 
 func command() {
 
-	out, err := exec.Command("go", "run", "gopherjs/deploy.go").CombinedOutput()
+	out, err := exec.Command("go", "run", "cmd/deploy.go").CombinedOutput()
 	if err != nil {
 		fmt.Println(err.Error())
 	}

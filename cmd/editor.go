@@ -299,26 +299,19 @@ func convert(t time.Time) string {
 
 func readFile(name string) ([]byte, error) {
 
-	loc := js.Global.Get("location")
-	//get host
-	host := loc.Get("origin")
 	file := "/file/data/" + name
-
-	url := host.String() + file
-
-	// request
-	//resp, err := http.Get(url)
-	//if err != nil {
-	//return nil, err
-	//}
-	//defer resp.Body.Close()
-
-	//byteArray, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//return nil, err
-	//}
-
-	return []byte(url), nil
+	code := "error"
+	ajaxopt := js.M{
+		"async":    false,
+		"type":     "GET",
+		"url":      file,
+		"dataType": "text/plain",
+		"complete": func(status map[string]interface{}) {
+			code = status["responseText"].(string)
+		},
+	}
+	jquery.Ajax(ajaxopt)
+	return []byte(code), nil
 }
 
 func parsePicture(ctx *present.Context, fileName string, lineno int, text string) (present.Elem, error) {
