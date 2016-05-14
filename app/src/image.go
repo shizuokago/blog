@@ -35,11 +35,11 @@ func toRadian(d float64) float64 {
 func init() {
 }
 
-func convertImage(r io.Reader) ([]byte, error) {
+func convertImage(r io.Reader) ([]byte, bool, error) {
 
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	var img image.Image
@@ -71,26 +71,29 @@ func convertImage(r io.Reader) ([]byte, error) {
 		}
 	*/
 
+	cnv := false
+
 	//over 1mb
 	if len(b) > (1 * 1024 * 1024) {
 		if img == nil {
 			img, _, err = image.Decode(buff)
 			if err != nil {
-				return nil, err
+				return nil, false, err
 			}
 		}
 		img = resize.Resize(1000, 0, img, resize.Lanczos3)
+		cnv = true
 	}
 
-	if img != nil {
+	if cnv {
 		buffer := new(bytes.Buffer)
 		if err := jpeg.Encode(buffer, img, nil); err != nil {
-			return nil, err
+			return nil, cnv, err
 		}
 		b = buffer.Bytes()
 	}
 
-	return b, nil
+	return b, cnv, nil
 }
 
 func readOrientation(r io.Reader) (o int, err error) {
