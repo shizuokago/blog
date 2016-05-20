@@ -677,7 +677,7 @@ func saveFile(r *http.Request, id string, t int64) error {
 	}
 	defer upload.Close()
 
-	b, err := convertImage(upload)
+	b, flg, err := convertImage(upload)
 	if err != nil {
 		return err
 	}
@@ -706,9 +706,15 @@ func saveFile(r *http.Request, id string, t int64) error {
 	if err != nil {
 		return err
 	}
+
+	mime := header.Header["Content-Type"][0]
+	if flg {
+		mime = "image/jpeg"
+	}
+
 	fileData := &FileData{
 		Content: b,
-		Mime:    header.Header["Content-Type"][0],
+		Mime:    mime,
 	}
 	fileData.SetKey(getFileDataKey(r, fid))
 	err = ds.Put(c, fileData)

@@ -28,6 +28,8 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", file.Mime)
+
 	//set MIME
 	_, err = w.Write(file.Content)
 	if err != nil {
