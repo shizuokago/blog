@@ -42,7 +42,7 @@ func getBlog(r *http.Request) *Blog {
 	key := datastore.NewKey(c, KIND_BLOG, "Fixing", 0, nil)
 	err := ds.Get(c, key, &pkgBlog)
 	if err != nil {
-		// Error
+		// Nothing
 	}
 	return &pkgBlog
 }
