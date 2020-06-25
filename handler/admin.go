@@ -1,14 +1,17 @@
-package blog
+package handler
 
 import (
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/shizuokago/blog/datastore"
+	. "github.com/shizuokago/blog/handler/internal"
 )
 
 func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
-	funcMap := template.FuncMap{"convert": convert, "deleteDir": deleteDir}
+	funcMap := template.FuncMap{"convert": Convert, "deleteDir": deleteDir}
 	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./templates/admin/layout.tmpl", tName)
 	if err != nil {
 		errorPage(w, "Template Parse Error", err.Error(), 500)
@@ -24,12 +27,12 @@ func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 
-	var u *User
+	var u *datastore.User
 	var err error
 	if r.Method == "POST" {
-		u, err = putInformation(r)
+		u, err = datastore.PutInformation(r)
 	} else {
-		u, err = getUser(r)
+		u, err = datastore.GetUser(r)
 	}
 
 	if err != nil {
@@ -38,20 +41,20 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if u == nil {
-		u = &User{}
+		u = &datastore.User{}
 	}
 
-	bgd := getBlog(r)
+	bgd := datastore.GetBlog(r)
 	data := struct {
-		Blog *Blog
-		User *User
+		Blog *datastore.Blog
+		User *datastore.User
 	}{bgd, u}
 
 	adminRender(w, "./templates/admin/profile.tmpl", data)
 }
 
 func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
-	err := saveAvatar(r)
+	err := datastore.SaveAvatar(r)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 		return
@@ -61,7 +64,7 @@ func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 
-	bgd := getBlog(r)
+	bgd := datastore.GetBlog(r)
 	if bgd.Name == "" {
 		http.Redirect(w, r, "/admin/profile", 301)
 		return
@@ -81,7 +84,7 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	articles, err := selectArticle(r, p)
+	articles, err := datastore.SelectArticle(r, p)
 	if err != nil {
 		errorPage(w, "Not Found", err.Error(), 404)
 		return
@@ -95,7 +98,7 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Articles []Article
+		Articles []datastore.Article
 		Next     string
 		Prev     string
 		PFlag    bool

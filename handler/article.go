@@ -1,13 +1,15 @@
-package blog
+package handler
 
 import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+
+	"github.com/shizuokago/blog/datastore"
 )
 
 func createArticleHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := createArticle(r)
+	id, err := datastore.CreateArticle(r)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 	}
@@ -19,14 +21,14 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["key"]
 
-	art, err := getArticle(r, name)
+	art, err := datastore.GetArticle(r, name)
 
 	if err != nil {
 		errorPage(w, "Key Error", err.Error(), 400)
 		return
 	}
 
-	u, err := getUser(r)
+	u, err := datastore.GetUser(r)
 	if err != nil {
 		errorPage(w, "User Error", err.Error(), 401)
 		return
@@ -38,10 +40,10 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		autosave = "on"
 	}
 
-	bgd := getBlog(r)
+	bgd := datastore.GetBlog(r)
 	s := struct {
-		Article  *Article
-		User     *User
+		Article  *datastore.Article
+		User     *datastore.User
 		Markdown string
 		BlogName string
 		AutoSave string
@@ -54,7 +56,7 @@ func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["key"]
-	_, err := updateArticle(r, id, time.Time{})
+	_, err := datastore.UpdateArticle(r, id, time.Time{})
 	if err != nil {
 		errorPage(w, "Internal Server Error", err.Error(), 500)
 		return
@@ -67,7 +69,7 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["key"]
 
-	err := updateHtml(r, id)
+	err := datastore.UpdateHtml(r, id)
 	if err != nil {
 		errorPage(w, "Internal Server Error", err.Error(), 500)
 		return
@@ -79,7 +81,7 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 func deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["key"]
-	err := deleteArticle(r, id)
+	err := datastore.DeleteArticle(r, id)
 	if err != nil {
 		errorPage(w, "Internal Server Error", err.Error(), 500)
 	}
@@ -90,7 +92,7 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["key"]
-	err := deleteHtml(r, id)
+	err := datastore.DeleteHtml(r, id)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 	}

@@ -1,0 +1,6 @@
+runtime: go112
+
+handlers:
+  - url: /.*
+    script: _go_app
+

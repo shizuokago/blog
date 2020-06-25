@@ -1,11 +1,14 @@
-package blog
+package handler
 
 import (
-	"github.com/gorilla/mux"
-
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+
+	"github.com/shizuokago/blog/datastore"
+	. "github.com/shizuokago/blog/handler/internal"
 )
 
 var indexTmpl *template.Template
@@ -13,7 +16,7 @@ var errorTmpl *template.Template
 
 func init() {
 
-	funcMap := template.FuncMap{"convert": convert}
+	funcMap := template.FuncMap{"convert": Convert}
 
 	var err error
 	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./templates/index.tmpl")
@@ -43,7 +46,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	htmls, err := selectHtml(r, p)
+	htmls, err := datastore.SelectHtml(r, p)
 	if err != nil {
 		errorPage(w, "Not Found", err.Error(), 404)
 		return
@@ -56,10 +59,10 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		flag = false
 	}
 
-	bgd := getBlog(r)
+	bgd := datastore.GetBlog(r)
 	data := struct {
-		Blog  *Blog
-		HTMLs []Html
+		Blog  *datastore.Blog
+		HTMLs []datastore.Html
 		Next  string
 		Prev  string
 		PFlag bool
@@ -76,7 +79,7 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 	//Get Key
 	vars := mux.Vars(r)
 	id := vars["key"]
-	data, err := getHtmlData(r, id)
+	data, err := datastore.GetHtmlData(r, id)
 	if err != nil {
 		errorPage(w, "Not Found", err.Error(), 404)
 		return

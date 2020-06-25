@@ -1,4 +1,4 @@
-package blog
+package datastore
 
 import (
 	"bytes"
@@ -35,7 +35,7 @@ func toRadian(d float64) float64 {
 func init() {
 }
 
-func convertImage(r io.Reader) ([]byte, bool, error) {
+func ConvertImage(r io.Reader) ([]byte, bool, error) {
 
 	b, err := ioutil.ReadAll(r)
 	if err != nil {

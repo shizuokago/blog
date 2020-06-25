@@ -1,4 +1,4 @@
-package blog
+package datastore
 
 import (
 	"net/http"
@@ -33,7 +33,7 @@ type Blog struct {
 
 var pkgBlog = Blog{}
 
-func getBlog(r *http.Request) *Blog {
+func GetBlog(r *http.Request) *Blog {
 
 	if pkgBlog.Name != "" {
 		return &pkgBlog
@@ -47,7 +47,7 @@ func getBlog(r *http.Request) *Blog {
 	return &pkgBlog
 }
 
-func putBlog(r *http.Request) error {
+func PutBlog(r *http.Request) error {
 
 	pkgBlog = Blog{
 		Name:        r.FormValue("BlogName"),
@@ -87,7 +87,7 @@ func getUserKey(r *http.Request) *datastore.Key {
 	return datastore.NewKey(c, KIND_USER, u.ID, 0, nil)
 }
 
-func getUser(r *http.Request) (*User, error) {
+func GetUser(r *http.Request) (*User, error) {
 
 	c := appengine.NewContext(r)
 
@@ -105,7 +105,7 @@ func getUser(r *http.Request) (*User, error) {
 	return &rtn, nil
 }
 
-func putInformation(r *http.Request) (*User, error) {
+func PutInformation(r *http.Request) (*User, error) {
 
 	c := appengine.NewContext(r)
 
@@ -125,7 +125,7 @@ func putInformation(r *http.Request) (*User, error) {
 		AutoSave:  save,
 	}
 
-	err := putBlog(r)
+	err := PutBlog(r)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func getArticleKey(r *http.Request, id string) *datastore.Key {
 	return datastore.NewKey(c, KIND_ARTICLE, id, 0, nil)
 }
 
-func selectArticle(r *http.Request, p int) ([]Article, error) {
+func SelectArticle(r *http.Request, p int) ([]Article, error) {
 
 	c := appengine.NewContext(r)
 	item, err := memcache.Get(c, "article_"+strconv.Itoa(p)+"_cursor")
@@ -209,7 +209,7 @@ func selectArticle(r *http.Request, p int) ([]Article, error) {
 	return s, nil
 }
 
-func getArticle(r *http.Request, id string) (*Article, error) {
+func GetArticle(r *http.Request, id string) (*Article, error) {
 	c := appengine.NewContext(r)
 
 	rtn := Article{}
@@ -226,14 +226,14 @@ func getArticle(r *http.Request, id string) (*Article, error) {
 	return &rtn, nil
 }
 
-func updateArticle(r *http.Request, id string, pub time.Time) (*Article, error) {
+func UpdateArticle(r *http.Request, id string, pub time.Time) (*Article, error) {
 
 	r.ParseForm()
 	title := r.FormValue("Title")
 	tags := r.FormValue("Tags")
 	mark := datastore.ByteString(r.FormValue("Markdown"))
 
-	art, err := getArticle(r, id)
+	art, err := GetArticle(r, id)
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func updateArticle(r *http.Request, id string, pub time.Time) (*Article, error) 
 	c := appengine.NewContext(r)
 
 	art.Title = title
-	art.SubTitle = createSubTitle(r.FormValue("Markdown"))
+	art.SubTitle = CreateSubTitle(r.FormValue("Markdown"))
 	art.Tags = tags
 	art.Markdown = mark
 	if !pub.IsZero() {
@@ -256,7 +256,7 @@ func updateArticle(r *http.Request, id string, pub time.Time) (*Article, error) 
 	return art, nil
 }
 
-func createSubTitle(src string) string {
+func CreateSubTitle(src string) string {
 
 	dst := strings.Replace(src, "\n", "", -1)
 	dst = strings.Replace(dst, "*", "", -1)
@@ -267,12 +267,12 @@ func createSubTitle(src string) string {
 	return dst
 }
 
-func createArticle(r *http.Request) (string, error) {
+func CreateArticle(r *http.Request) (string, error) {
 
 	c := appengine.NewContext(r)
 	id := uuid.New()
 
-	bgd := getBlog(r)
+	bgd := GetBlog(r)
 	base := bgd.Template
 	article := &Article{
 		Title:    "New Title",
@@ -286,17 +286,17 @@ func createArticle(r *http.Request) (string, error) {
 		return "", err
 	}
 
-	err = saveFile(r, id, FILE_TYPE_BG)
+	err = SaveFile(r, id, FILE_TYPE_BG)
 
 	return id, err
 }
 
-func createHtmlFromMail(r *http.Request, d *MailData) error {
+func CreateHtmlFromMail(r *http.Request, d *MailData) error {
 
 	c := appengine.NewContext(r)
 	id := uuid.New()
 
-	bgd := getBlog(r)
+	bgd := GetBlog(r)
 	article := &Article{
 		Title:    d.subject,
 		Tags:     bgd.Tags,
@@ -334,16 +334,16 @@ func createHtmlFromMail(r *http.Request, d *MailData) error {
 
 }
 
-func deleteArticle(r *http.Request, id string) error {
+func DeleteArticle(r *http.Request, id string) error {
 
 	c := appengine.NewContext(r)
 
-	err := deleteFile(r, "bg/"+id)
+	err := DeleteFile(r, "bg/"+id)
 	if err != nil {
 		return err
 	}
 
-	err = deleteHtml(r, id)
+	err = DeleteHtml(r, id)
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ func getHtmlKey(r *http.Request, key string) *datastore.Key {
 	return datastore.NewKey(c, KIND_HTML, key, 0, nil)
 }
 
-func getHtml(r *http.Request, k string) (*Html, error) {
+func GetHtml(r *http.Request, k string) (*Html, error) {
 
 	c := appengine.NewContext(r)
 
@@ -388,21 +388,21 @@ func getHtml(r *http.Request, k string) (*Html, error) {
 	return &rtn, err
 }
 
-func updateHtml(r *http.Request, key string) error {
+func UpdateHtml(r *http.Request, key string) error {
 
 	c := appengine.NewContext(r)
 
-	u, err := getUser(r)
+	u, err := GetUser(r)
 	if err != nil {
 		return err
 	}
 
-	art, err := updateArticle(r, key, time.Now())
+	art, err := UpdateArticle(r, key, time.Now())
 	if err != nil {
 		return err
 	}
 
-	html, err := getHtml(r, key)
+	html, err := GetHtml(r, key)
 	if err != nil {
 		return err
 	}
@@ -438,7 +438,7 @@ func updateHtml(r *http.Request, key string) error {
 		return err
 	}
 
-	b, err := createHtml(r, art, u, html)
+	b, err := CreateHtml(r, art, u, html)
 	if err != nil {
 		return err
 	}
@@ -448,7 +448,7 @@ func updateHtml(r *http.Request, key string) error {
 	return err
 }
 
-func selectHtml(r *http.Request, p int) ([]Html, error) {
+func SelectHtml(r *http.Request, p int) ([]Html, error) {
 
 	c := appengine.NewContext(r)
 	item, err := memcache.Get(c, "html_"+strconv.Itoa(p)+"_cursor")
@@ -502,7 +502,7 @@ func selectHtml(r *http.Request, p int) ([]Html, error) {
 	return s, nil
 }
 
-func deleteHtml(r *http.Request, id string) error {
+func DeleteHtml(r *http.Request, id string) error {
 
 	c := appengine.NewContext(r)
 
@@ -536,7 +536,7 @@ func (d *HtmlData) SetKey(k *datastore.Key) {
 	d.key = k
 }
 
-func getHtmlData(r *http.Request, k string) (*HtmlData, error) {
+func GetHtmlData(r *http.Request, k string) (*HtmlData, error) {
 
 	c := appengine.NewContext(r)
 	rtn := HtmlData{}
@@ -572,7 +572,7 @@ func getFileKey(r *http.Request, name string) *datastore.Key {
 	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
 }
 
-func selectFile(r *http.Request, p int) ([]File, error) {
+func SelectFile(r *http.Request, p int) ([]File, error) {
 
 	c := appengine.NewContext(r)
 
@@ -628,7 +628,7 @@ func selectFile(r *http.Request, p int) ([]File, error) {
 	return s, nil
 }
 
-func deleteFile(r *http.Request, id string) error {
+func DeleteFile(r *http.Request, id string) error {
 
 	c := appengine.NewContext(r)
 
@@ -643,7 +643,7 @@ func deleteFile(r *http.Request, id string) error {
 	return err
 }
 
-func existsFile(r *http.Request, id string, t int64) (bool, error) {
+func ExistsFile(r *http.Request, id string, t int64) (bool, error) {
 
 	c := appengine.NewContext(r)
 	dir := "data"
@@ -669,7 +669,7 @@ func existsFile(r *http.Request, id string, t int64) (bool, error) {
 
 }
 
-func saveFile(r *http.Request, id string, t int64) error {
+func SaveFile(r *http.Request, id string, t int64) error {
 
 	upload, header, err := r.FormFile("file")
 	if err != nil {
@@ -677,7 +677,7 @@ func saveFile(r *http.Request, id string, t int64) error {
 	}
 	defer upload.Close()
 
-	b, flg, err := convertImage(upload)
+	b, flg, err := ConvertImage(upload)
 	if err != nil {
 		return err
 	}
@@ -724,20 +724,20 @@ func saveFile(r *http.Request, id string, t int64) error {
 	return nil
 }
 
-func saveAvatar(r *http.Request) error {
+func SaveAvatar(r *http.Request) error {
 	c := appengine.NewContext(r)
 	u := user.Current(c)
-	err := saveFile(r, u.ID, FILE_TYPE_AVATAR)
+	err := SaveFile(r, u.ID, FILE_TYPE_AVATAR)
 	return err
 }
 
-func saveBackgroundImage(r *http.Request, id string) error {
-	err := saveFile(r, id, FILE_TYPE_BG)
+func SaveBackgroundImage(r *http.Request, id string) error {
+	err := SaveFile(r, id, FILE_TYPE_BG)
 	return err
 }
 
-func deleteBackgroundImage(r *http.Request, id string) error {
-	err := deleteFile(r, "bg/"+id)
+func DeleteBackgroundImage(r *http.Request, id string) error {
+	err := DeleteFile(r, "bg/"+id)
 	return err
 }
 
@@ -762,7 +762,7 @@ func getFileDataKey(r *http.Request, name string) *datastore.Key {
 	return datastore.NewKey(c, KIND_FILEDATA, name, 0, nil)
 }
 
-func getFileData(r *http.Request, name string) (*FileData, error) {
+func GetFileData(r *http.Request, name string) (*FileData, error) {
 	c := appengine.NewContext(r)
 
 	rtn := FileData{}

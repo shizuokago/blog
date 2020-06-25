@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-fsnotify/fsnotify"
+	"github.com/fsnotify/fsnotify"
 	"log"
 	"os/exec"
 )

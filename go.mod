@@ -9,8 +9,9 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pborman/uuid v1.2.0
 	github.com/qedus/nds v1.0.0 // indirect
-	github.com/rwcarlsen/goexif v0.0.0-20190107194617-b1fd11e07dc5
-	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
-	golang.org/x/tools v0.0.0-20190214204934-8dcb7bc8c7fe
-	google.golang.org/appengine v1.4.0
+	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
+	golang.org/x/text v0.3.3
+	golang.org/x/tools v0.0.0-20200624225443-88f3c62a19ff
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+	google.golang.org/appengine v1.6.6
 )

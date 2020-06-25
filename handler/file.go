@@ -1,15 +1,17 @@
-package blog
+package handler
 
 import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 
-	"github.com/gorilla/mux"
-
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
+
+	"github.com/shizuokago/blog/datastore"
 )
 
 func fileHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +19,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	name := strings.Replace(url, "/file/", "", 1)
 
-	file, err := getFileData(r, name)
+	file, err := datastore.GetFileData(r, name)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 		return
@@ -46,7 +48,7 @@ func existsFileHandler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	log.Infof(c, id)
 
-	flag, err := existsFile(r, id, FILE_TYPE_DATA)
+	flag, err := datastore.ExistsFile(r, id, datastore.FILE_TYPE_DATA)
 	if err != nil {
 		errorJson(w, "InternalServerError", err.Error(), 500)
 		return
@@ -75,7 +77,7 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	files, err := selectFile(r, p)
+	files, err := datastore.SelectFile(r, p)
 	if err != nil {
 		errorPage(w, "Not Found", err.Error(), 404)
 		return
@@ -94,7 +96,7 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Files []File
+		Files []datastore.File
 		Next  string
 		Prev  string
 		PFlag bool
@@ -104,7 +106,7 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 
 func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 
-	err := saveFile(r, r.FormValue("FileName"), FILE_TYPE_DATA)
+	err := datastore.SaveFile(r, r.FormValue("FileName"), datastore.FILE_TYPE_DATA)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 		return
@@ -115,7 +117,7 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 
 func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
 	filename := r.FormValue("FileName")
-	err := deleteFile(r, "data/"+filename)
+	err := datastore.DeleteFile(r, "data/"+filename)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 		return
@@ -127,7 +129,7 @@ func saveBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["key"]
 
-	err := saveBackgroundImage(r, name)
+	err := datastore.SaveBackgroundImage(r, name)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 		return
@@ -139,7 +141,7 @@ func deleteBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["key"]
 
-	err := deleteBackgroundImage(r, name)
+	err := datastore.DeleteBackgroundImage(r, name)
 	if err != nil {
 		errorPage(w, "InternalServerError", err.Error(), 500)
 		return

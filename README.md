@@ -1,28 +1,20 @@
 # GoogleAppEngine Blog Engine
 
+## Install 
 
-## Using
 
-	"golang.org/x/tools/present"
+```bash
 
-	"github.com/gorilla/mux"
-	"github.com/knightso/base"
-	"github.com/pborman/uuid"
 
-	"github.com/gopherjs/gopherjs/js"
-	"github.com/gopherjs/jquery"
 
-	"github.com/PuerkitoBio/goquery"
 
-	"github.com/nfnt/resize"
-	"github.com/robfig/graphics-go/graphics"
-
+```
 
 ## AppEngine Deploy
 
 - production
 ```bash
-   goapp deploy app
+   gcloud app deploy --project=[Project ID] app.yaml index.yaml
 ```
 
 ## Original
@@ -46,30 +38,25 @@
     ./app/static/images/bg_2048.jpg
     ./app/static/images/bg_2880.jpg
 
-
 ## Command
 
 ### if you change design
 
 create editor js
 ```bash
-    go run cmd/editor.go
+    editor
 ```
 
 woking directory(in "go run cmd/editor.js")
 ```bash
-    go run cmd/deploy.go
+    deploy
 ```
 
 watch design(in "go run cmd/deploy.js")
 ### if you change design(watch)
 ```bash
-    go run cmd/watch.go
+    watcher
 ```
-
-
-
-
 
 ## Sample
 

@@ -1,4 +1,4 @@
-package blog
+package datastore
 
 import (
 	"bufio"
@@ -71,7 +71,7 @@ func incomingMail(w http.ResponseWriter, r *http.Request) {
 
 	parseBody(r, msg.Body, contentType, &data)
 
-	err = createHtmlFromMail(r, &data)
+	err = CreateHtmlFromMail(r, &data)
 	if err != nil {
 		log.Errorf(c, "ReadMessage Error[%s]", err.Error())
 		return
