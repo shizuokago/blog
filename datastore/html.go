@@ -52,7 +52,7 @@ func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 		StringID    string
 		Blog        *Blog
 		HTML        *Html
-	}{doc, tmpl, true, art.Key.StringID(), bgd, html}
+	}{doc, tmpl, true, art.Key.Name, bgd, html}
 
 	//Render
 	var b bytes.Buffer
@@ -69,8 +69,8 @@ func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 
 func createTemplate() (*template.Template, error) {
 
-	action := "templates/entry/action.tmpl"
-	entry := "templates/entry/entry.tmpl"
+	action := "./cmd/static/templates/entry/action.tmpl"
+	entry := "./cmd/static/templates/entry/entry.tmpl"
 
 	tmpl = present.Template()
 	funcMap := template.FuncMap{

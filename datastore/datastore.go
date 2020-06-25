@@ -1,23 +1,27 @@
 package datastore
 
 import (
+	"context"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
 	verr "github.com/knightso/base/errors"
-	"github.com/knightso/base/gae/ds"
 	"github.com/pborman/uuid"
 
+	"cloud.google.com/go/datastore"
+
+	"google.golang.org/api/iterator"
 	"google.golang.org/appengine"
-	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/memcache"
 	"google.golang.org/appengine/user"
 )
 
 func init() {
-	ds.DefaultCache = true
+}
+
+func createClient(ctx context.Context) (*datastore.Client, error) {
+	client, err := datastore.NewClient(ctx, "shizuoka-go")
+	return client, err
 }
 
 const KIND_BLOG = "Blog"
@@ -28,7 +32,7 @@ type Blog struct {
 	Tags        string
 	Description string
 	Template    string
-	ds.Meta
+	Meta
 }
 
 var pkgBlog = Blog{}
@@ -39,8 +43,14 @@ func GetBlog(r *http.Request) *Blog {
 		return &pkgBlog
 	}
 	c := appengine.NewContext(r)
-	key := datastore.NewKey(c, KIND_BLOG, "Fixing", 0, nil)
-	err := ds.Get(c, key, &pkgBlog)
+	key := datastore.NameKey(KIND_BLOG, "Fixing", nil)
+
+	client, err := createClient(c)
+	if err != nil {
+		//
+	}
+
+	err = client.Get(c, key, &pkgBlog)
 	if err != nil {
 		// Nothing
 	}
@@ -58,10 +68,13 @@ func PutBlog(r *http.Request) error {
 	}
 
 	c := appengine.NewContext(r)
-	key := datastore.NewKey(c, KIND_BLOG, "Fixing", 0, nil)
+	key := datastore.NameKey(KIND_BLOG, "Fixing", nil)
 
 	pkgBlog.SetKey(key)
-	err := ds.Put(c, &pkgBlog)
+
+	client, err := createClient(c)
+
+	_, err = client.Put(c, key, &pkgBlog)
 	if err != nil {
 		return err
 	}
@@ -78,13 +91,14 @@ type User struct {
 	URL       string
 	TwitterId string
 	AutoSave  bool
-	ds.Meta
+	Meta
 }
 
 func getUserKey(r *http.Request) *datastore.Key {
 	c := appengine.NewContext(r)
 	u := user.Current(c)
-	return datastore.NewKey(c, KIND_USER, u.ID, 0, nil)
+
+	return datastore.NameKey(KIND_USER, u.ID, nil)
 }
 
 func GetUser(r *http.Request) (*User, error) {
@@ -94,7 +108,9 @@ func GetUser(r *http.Request) (*User, error) {
 	rtn := User{}
 	key := getUserKey(r)
 
-	err := ds.Get(c, key, &rtn)
+	client, err := createClient(c)
+
+	err = client.Get(c, key, &rtn)
 	if err != nil {
 		if verr.Root(err) != datastore.ErrNoSuchEntity {
 			return nil, verr.Root(err)
@@ -132,7 +148,10 @@ func PutInformation(r *http.Request) (*User, error) {
 
 	//function
 	rtn.Key = getUserKey(r)
-	err = ds.Put(c, &rtn)
+
+	client, err := createClient(c)
+
+	_, err = client.Put(c, rtn.Key, &rtn)
 	if err != nil {
 		return nil, err
 	}
@@ -146,43 +165,34 @@ type Article struct {
 	SubTitle    string
 	Tags        string
 	PublishDate time.Time
-	Markdown    datastore.ByteString `datastore:",noindex"`
-	ds.Meta
+	Markdown    string `datastore:",noindex"`
+	Meta
 }
 
 func getArticleKey(r *http.Request, id string) *datastore.Key {
-	c := appengine.NewContext(r)
-	return datastore.NewKey(c, KIND_ARTICLE, id, 0, nil)
+	return datastore.NameKey(KIND_ARTICLE, id, nil)
 }
 
 func SelectArticle(r *http.Request, p int) ([]Article, error) {
 
 	c := appengine.NewContext(r)
-	item, err := memcache.Get(c, "article_"+strconv.Itoa(p)+"_cursor")
 
-	cursor := ""
-	if err == nil {
-		cursor = string(item.Value)
-	}
+	//TODO CURCOR
 
-	q := datastore.NewQuery("Article").
-		Order("- UpdatedAt").
-		Limit(10)
-
-	if cursor != "" {
-		cur, err := datastore.DecodeCursor(cursor)
-		if err == nil {
-			q = q.Start(cur)
-		}
-	}
+	q := datastore.NewQuery("Article").Order("- UpdatedAt").Limit(10)
 
 	var s []Article
-	t := q.Run(c)
+
+	client, err := createClient(c)
+	if err != nil {
+	}
+
+	t := client.Run(c, q)
 	for {
 		var a Article
 		key, err := t.Next(&a)
 
-		if err == datastore.Done {
+		if err == iterator.Done {
 			break
 		}
 		if err != nil {
@@ -190,20 +200,6 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 		}
 		a.SetKey(key)
 		s = append(s, a)
-	}
-
-	cur, err := t.Cursor()
-	if err != nil {
-		return nil, err
-	}
-
-	err = memcache.Set(c, &memcache.Item{
-		Key:   "article_" + strconv.Itoa(p+1) + "_cursor",
-		Value: []byte(cur.String()),
-	})
-
-	if err != nil {
-		return nil, err
 	}
 
 	return s, nil
@@ -215,7 +211,9 @@ func GetArticle(r *http.Request, id string) (*Article, error) {
 	rtn := Article{}
 	key := getArticleKey(r, id)
 
-	err := ds.Get(c, key, &rtn)
+	client, err := createClient(c)
+
+	err = client.Get(c, key, &rtn)
 	if err != nil {
 		if verr.Root(err) != datastore.ErrNoSuchEntity {
 			return nil, verr.Root(err)
@@ -231,7 +229,7 @@ func UpdateArticle(r *http.Request, id string, pub time.Time) (*Article, error) 
 	r.ParseForm()
 	title := r.FormValue("Title")
 	tags := r.FormValue("Tags")
-	mark := datastore.ByteString(r.FormValue("Markdown"))
+	mark := r.FormValue("Markdown")
 
 	art, err := GetArticle(r, id)
 	if err != nil {
@@ -248,7 +246,8 @@ func UpdateArticle(r *http.Request, id string, pub time.Time) (*Article, error) 
 		art.PublishDate = pub
 	}
 
-	err = ds.Put(c, art)
+	client, err := createClient(c)
+	_, err = client.Put(c, art.GetKey(), art)
 	if err != nil {
 		return nil, err
 	}
@@ -277,11 +276,13 @@ func CreateArticle(r *http.Request) (string, error) {
 	article := &Article{
 		Title:    "New Title",
 		Tags:     bgd.Tags,
-		Markdown: []byte(base),
+		Markdown: base,
 	}
 
 	article.Key = getArticleKey(r, id)
-	err := ds.Put(c, article)
+
+	client, err := createClient(c)
+	_, err = client.Put(c, article.Key, article)
 	if err != nil {
 		return "", err
 	}
@@ -300,11 +301,12 @@ func CreateHtmlFromMail(r *http.Request, d *MailData) error {
 	article := &Article{
 		Title:    d.subject,
 		Tags:     bgd.Tags,
-		Markdown: d.msg.Bytes(),
+		Markdown: string(d.msg.Bytes()),
 	}
 
 	article.Key = getArticleKey(r, id)
-	err := ds.Put(c, article)
+	client, err := createClient(c)
+	_, err = client.Put(c, article.Key, article)
 	if err != nil {
 		return err
 	}
@@ -317,7 +319,8 @@ func CreateHtmlFromMail(r *http.Request, d *MailData) error {
 	}
 
 	file.Key = getFileKey(r, fid)
-	err = ds.Put(c, file)
+
+	_, err = client.Put(c, file.Key, file)
 	if err != nil {
 		return err
 	}
@@ -325,8 +328,10 @@ func CreateHtmlFromMail(r *http.Request, d *MailData) error {
 		Content: fb,
 		Mime:    d.mime,
 	}
-	fileData.SetKey(getFileDataKey(r, fid))
-	err = ds.Put(c, fileData)
+
+	fdk := getFileDataKey(r, fid)
+	fileData.SetKey(fdk)
+	_, err = client.Put(c, fileData.GetKey(), fileData)
 	if err != nil {
 		return err
 	}
@@ -349,7 +354,9 @@ func DeleteArticle(r *http.Request, id string) error {
 	}
 
 	akey := getArticleKey(r, id)
-	err = ds.Delete(c, akey)
+
+	client, err := createClient(c)
+	err = client.Delete(c, akey)
 
 	return err
 }
@@ -363,12 +370,11 @@ type Html struct {
 	AuthorID  string
 	Updater   string
 	UpdaterID string
-	ds.Meta
+	Meta
 }
 
 func getHtmlKey(r *http.Request, key string) *datastore.Key {
-	c := appengine.NewContext(r)
-	return datastore.NewKey(c, KIND_HTML, key, 0, nil)
+	return datastore.NameKey(KIND_HTML, key, nil)
 }
 
 func GetHtml(r *http.Request, k string) (*Html, error) {
@@ -377,7 +383,10 @@ func GetHtml(r *http.Request, k string) (*Html, error) {
 
 	rtn := Html{}
 	key := getHtmlKey(r, k)
-	err := ds.Get(c, key, &rtn)
+
+	client, err := createClient(c)
+	err = client.Get(c, key, &rtn)
+
 	if err != nil {
 		if verr.Root(err) != datastore.ErrNoSuchEntity {
 			return nil, verr.Root(err)
@@ -410,6 +419,8 @@ func UpdateHtml(r *http.Request, key string) error {
 	data := &HtmlData{}
 	dk := getHtmlDataKey(r, key)
 
+	client, err := createClient(c)
+
 	//get html
 	if html == nil {
 		// first
@@ -420,20 +431,20 @@ func UpdateHtml(r *http.Request, key string) error {
 		data.SetKey(dk)
 
 		html.Author = u.Name
-		html.AuthorID = u.Key.StringID()
+		html.AuthorID = u.Key.Name
 	} else {
-		err = ds.Get(c, dk, data)
+		err = client.Get(c, dk, data)
 		if err != nil {
 			return err
 		}
 		html.Updater = u.Name
-		html.UpdaterID = u.Key.StringID()
+		html.UpdaterID = u.Key.Name
 	}
 
 	html.Title = art.Title
 	html.SubTitle = art.SubTitle
 
-	err = ds.Put(c, html)
+	_, err = client.Put(c, html.GetKey(), html)
 	if err != nil {
 		return err
 	}
@@ -442,40 +453,33 @@ func UpdateHtml(r *http.Request, key string) error {
 	if err != nil {
 		return err
 	}
-	data.Content = b
+	data.Content = string(b)
 
-	err = ds.Put(c, data)
+	_, err = client.Put(c, data.GetKey(), data)
 	return err
 }
 
 func SelectHtml(r *http.Request, p int) ([]Html, error) {
 
 	c := appengine.NewContext(r)
-	item, err := memcache.Get(c, "html_"+strconv.Itoa(p)+"_cursor")
-	cursor := ""
-	if err == nil {
-		cursor = string(item.Value)
-	}
 
 	q := datastore.NewQuery(KIND_HTML).
 		Order("- CreatedAt").
 		Limit(5)
 
-	if cursor != "" {
-		cur, err := datastore.DecodeCursor(cursor)
-		if err == nil {
-			q = q.Start(cur)
-		}
-	}
-
 	var s []Html
 
-	t := q.Run(c)
+	client, err := createClient(c)
+	if err != nil {
+		return nil, err
+	}
+
+	t := client.Run(c, q)
 	for {
 		var h Html
 		key, err := t.Next(&h)
 
-		if err == datastore.Done {
+		if err == iterator.Done {
 			break
 		}
 		if err != nil {
@@ -483,20 +487,6 @@ func SelectHtml(r *http.Request, p int) ([]Html, error) {
 		}
 		h.SetKey(key)
 		s = append(s, h)
-	}
-
-	cur, err := t.Cursor()
-	if err != nil {
-		return nil, err
-	}
-
-	err = memcache.Set(c, &memcache.Item{
-		Key:   "html_" + strconv.Itoa(p+1) + "_cursor",
-		Value: []byte(cur.String()),
-	})
-
-	if err != nil {
-		return nil, err
 	}
 
 	return s, nil
@@ -507,12 +497,15 @@ func DeleteHtml(r *http.Request, id string) error {
 	c := appengine.NewContext(r)
 
 	hkey := getHtmlKey(r, id)
-	err := ds.Delete(c, hkey)
+
+	client, err := createClient(c)
+
+	err = client.Delete(c, hkey)
 	if err != nil {
 		return err
 	}
 	hdkey := getHtmlDataKey(r, id)
-	err = ds.Delete(c, hdkey)
+	err = client.Delete(c, hdkey)
 	return err
 }
 
@@ -520,12 +513,11 @@ const KIND_HTMLDATA = "HtmlData"
 
 type HtmlData struct {
 	key     *datastore.Key
-	Content datastore.ByteString `datastore:",noindex"`
+	Content string `datastore:",noindex"`
 }
 
 func getHtmlDataKey(r *http.Request, key string) *datastore.Key {
-	c := appengine.NewContext(r)
-	return datastore.NewKey(c, KIND_HTMLDATA, key, 0, nil)
+	return datastore.NameKey(KIND_HTMLDATA, key, nil)
 }
 
 func (d *HtmlData) GetKey() *datastore.Key {
@@ -541,7 +533,9 @@ func GetHtmlData(r *http.Request, k string) (*HtmlData, error) {
 	c := appengine.NewContext(r)
 	rtn := HtmlData{}
 	key := getHtmlDataKey(r, k)
-	err := ds.Get(c, key, &rtn)
+
+	client, err := createClient(c)
+	err = client.Get(c, key, &rtn)
 
 	if err != nil {
 		if verr.Root(err) == datastore.ErrNoSuchEntity {
@@ -558,7 +552,7 @@ const KIND_FILE = "File"
 type File struct {
 	Size int64
 	Type int64
-	ds.Meta
+	Meta
 }
 
 const (
@@ -568,40 +562,30 @@ const (
 )
 
 func getFileKey(r *http.Request, name string) *datastore.Key {
-	c := appengine.NewContext(r)
-	return datastore.NewKey(c, KIND_FILE, name, 0, nil)
+	return datastore.NameKey(KIND_FILE, name, nil)
 }
 
 func SelectFile(r *http.Request, p int) ([]File, error) {
 
 	c := appengine.NewContext(r)
 
-	item, err := memcache.Get(c, "file_"+strconv.Itoa(p)+"_cursor")
-	cursor := ""
-	if err == nil {
-		cursor = string(item.Value)
-	}
-
 	q := datastore.NewQuery(KIND_FILE).
 		Filter("Type =", 3).
 		Order("- UpdatedAt").
 		Limit(10)
 
-	if cursor != "" {
-		cur, err := datastore.DecodeCursor(cursor)
-		if err == nil {
-			q = q.Start(cur)
-		}
-	}
-
 	var s []File
 
-	t := q.Run(c)
+	client, err := createClient(c)
+	if err != nil {
+		return nil, err
+	}
+	t := client.Run(c, q)
 	for {
 		var f File
 		key, err := t.Next(&f)
 
-		if err == datastore.Done {
+		if err == iterator.Done {
 			break
 		}
 		if err != nil {
@@ -609,20 +593,6 @@ func SelectFile(r *http.Request, p int) ([]File, error) {
 		}
 		f.SetKey(key)
 		s = append(s, f)
-	}
-
-	cur, err := t.Cursor()
-	if err != nil {
-		return nil, err
-	}
-
-	err = memcache.Set(c, &memcache.Item{
-		Key:   "file_" + strconv.Itoa(p+1) + "_cursor",
-		Value: []byte(cur.String()),
-	})
-
-	if err != nil {
-		return nil, err
 	}
 
 	return s, nil
@@ -633,13 +603,15 @@ func DeleteFile(r *http.Request, id string) error {
 	c := appengine.NewContext(r)
 
 	fkey := getFileKey(r, id)
-	err := ds.Delete(c, fkey)
+
+	client, err := createClient(c)
+	err = client.Delete(c, fkey)
 	if err != nil {
 		return err
 	}
 
 	fdkey := getFileDataKey(r, id)
-	err = ds.Delete(c, fdkey)
+	err = client.Delete(c, fdkey)
 	return err
 }
 
@@ -656,7 +628,8 @@ func ExistsFile(r *http.Request, id string, t int64) (bool, error) {
 	key := getFileKey(r, dir+"/"+id)
 
 	rtn := File{}
-	err := ds.Get(c, key, &rtn)
+	client, err := createClient(c)
+	err = client.Get(c, key, &rtn)
 	if err != nil {
 		if verr.Root(err) != datastore.ErrNoSuchEntity {
 			return true, verr.Root(err)
@@ -702,7 +675,9 @@ func SaveFile(r *http.Request, id string, t int64) error {
 	}
 
 	file.Key = getFileKey(r, fid)
-	err = ds.Put(c, file)
+
+	client, err := createClient(c)
+	_, err = client.Put(c, file.Key, file)
 	if err != nil {
 		return err
 	}
@@ -717,7 +692,7 @@ func SaveFile(r *http.Request, id string, t int64) error {
 		Mime:    mime,
 	}
 	fileData.SetKey(getFileDataKey(r, fid))
-	err = ds.Put(c, fileData)
+	_, err = client.Put(c, fileData.GetKey(), fileData)
 	if err != nil {
 		return err
 	}
@@ -758,8 +733,7 @@ func (d *FileData) SetKey(k *datastore.Key) {
 }
 
 func getFileDataKey(r *http.Request, name string) *datastore.Key {
-	c := appengine.NewContext(r)
-	return datastore.NewKey(c, KIND_FILEDATA, name, 0, nil)
+	return datastore.NameKey(KIND_FILEDATA, name, nil)
 }
 
 func GetFileData(r *http.Request, name string) (*FileData, error) {
@@ -768,7 +742,8 @@ func GetFileData(r *http.Request, name string) (*FileData, error) {
 	rtn := FileData{}
 	key := getFileDataKey(r, name)
 
-	err := ds.Get(c, key, &rtn)
+	client, err := createClient(c)
+	err = client.Get(c, key, &rtn)
 	if err != nil {
 		if verr.Root(err) != datastore.ErrNoSuchEntity {
 			return nil, verr.Root(err)

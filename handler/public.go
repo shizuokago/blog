@@ -19,12 +19,12 @@ func init() {
 	funcMap := template.FuncMap{"convert": Convert}
 
 	var err error
-	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./templates/index.tmpl")
+	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./cmd/static/templates/index.tmpl")
 	if err != nil {
 		panic(err)
 	}
 
-	errorTmpl, err = template.New("root").ParseFiles("./templates/error.tmpl")
+	errorTmpl, err = template.New("root").ParseFiles("./cmd/static/templates/error.tmpl")
 	if err != nil {
 		panic(err)
 	}
@@ -85,7 +85,7 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(data.Content)
+	w.Write([]byte(data.Content))
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
