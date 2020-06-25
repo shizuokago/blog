@@ -28,8 +28,8 @@ func run() error {
 	go monitor(watcher, done)
 
 	listFiles := make([]string, 2)
-	listFiles[0] = "./cmd"
-	listFiles[1] = "./app/templates/entry"
+	listFiles[0] = "../../cmd/editor"
+	listFiles[1] = "../static/templates/entry"
 
 	for _, elm := range listFiles {
 		err = watcher.Add(elm)
@@ -78,7 +78,7 @@ func notify(event fsnotify.Event) {
 
 func command() {
 
-	out, err := exec.Command("go", "run", "cmd/deploy.go").CombinedOutput()
+	out, err := exec.Command("go", "run", "cmd/editor/deploy.go").CombinedOutput()
 	if err != nil {
 		fmt.Println(err.Error())
 	}

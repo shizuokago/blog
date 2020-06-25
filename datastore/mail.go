@@ -195,7 +195,7 @@ func CreateHtmlFromMail(r *http.Request, d *MailData) error {
 	article := &Article{
 		Title:    d.subject,
 		Tags:     bgd.Tags,
-		Markdown: string(d.msg.Bytes()),
+		Markdown: d.msg.Bytes(),
 	}
 
 	article.Key = getArticleKey(r, id)

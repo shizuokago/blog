@@ -171,14 +171,14 @@ func UpdateHtml(r *http.Request, mail, key string) error {
 		data.SetKey(dk)
 
 		html.Author = u.Name
-		html.AuthorID = u.Key.Name
+		html.AuthorID = mail
 	} else {
 		err = client.Get(c, dk, data)
 		if err != nil {
 			return err
 		}
 		html.Updater = u.Name
-		html.UpdaterID = u.Key.Name
+		html.UpdaterID = mail
 	}
 
 	html.Title = art.Title

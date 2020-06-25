@@ -17,7 +17,7 @@ type Article struct {
 	SubTitle    string
 	Tags        string
 	PublishDate time.Time
-	Markdown    string `datastore:",noindex"`
+	Markdown    []byte `datastore:",noindex"`
 	Meta
 }
 
@@ -65,6 +65,7 @@ func GetArticle(r *http.Request, id string) (*Article, error) {
 	key := getArticleKey(r, id)
 
 	client, err := createClient(c)
+	rtn.SetKey(key)
 
 	err = client.Get(c, key, &rtn)
 	if err != nil {
@@ -74,6 +75,7 @@ func GetArticle(r *http.Request, id string) (*Article, error) {
 			return nil, err
 		}
 	}
+
 	return &rtn, nil
 }
 
@@ -94,7 +96,7 @@ func UpdateArticle(r *http.Request, id string, pub time.Time) (*Article, error) 
 	art.Title = title
 	art.SubTitle = CreateSubTitle(r.FormValue("Markdown"))
 	art.Tags = tags
-	art.Markdown = mark
+	art.Markdown = []byte(mark)
 	if !pub.IsZero() {
 		art.PublishDate = pub
 	}
@@ -140,7 +142,7 @@ func CreateArticle(r *http.Request) (string, error) {
 	article := &Article{
 		Title:    "New Title",
 		Tags:     bgd.Tags,
-		Markdown: base,
+		Markdown: []byte(base),
 	}
 
 	article.Key = getArticleKey(r, id)

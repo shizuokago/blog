@@ -52,7 +52,7 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		AutoSave string
 	}{art, u, string(art.Markdown), bgd.Name, autosave}
 
-	adminRender(w, "./templates/admin/edit.tmpl", s)
+	adminRender(w, "./cmd/static/templates/admin/edit.tmpl", s)
 }
 
 func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +73,10 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["key"]
 
 	user, err := GetSession(r)
+	if err != nil {
+		ErrorPage(w, "Internal Server Error", err.Error(), 500)
+		return
+	}
 
 	err = datastore.UpdateHtml(r, user.Email, id)
 	if err != nil {
