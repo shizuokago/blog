@@ -14,7 +14,7 @@
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
   </head>
 
   <body>
@@ -37,7 +37,7 @@
   </div>
 
   <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-    <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
+    <img class="avatar" src="/file/avatar/{{ .AuthorID }}" width="48" height="48" onerror="this.src='/images/somebody.jpg'"/>
     <div>
       <strong>{{ .Author }}</strong>
       <span>{{ convert .CreatedAt }}</span>
@@ -50,7 +50,7 @@
       <strong>{{ .Updater }}</strong>
       <span>{{ convert .UpdatedAt }}</span>
     </div>
-    <img class="avatar" src="/file/avatar/{{ .UpdaterID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
+    <img class="avatar" src="/file/avatar/{{ .UpdaterID }}" width="48" height="48" onerror="this.src='/images/somebody.jpg'"/>
 {{ end }}
 
   </div>

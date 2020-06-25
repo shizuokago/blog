@@ -37,19 +37,19 @@
 {{ range .Files }}
 <tr>
     <td width="48">
-      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect updateBtn" data-id="{{.Key.StringID}}">
+      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect updateBtn" data-id="{{.Key.Name}}">
         <i class="material-icons right-section">file_upload</i>
       </button>
     </td>
     <td class="mdl-data-table__cell--non-numeric">
-        <a href="/file/{{ .Key.StringID }}" target="_blank">
-        {{ deleteDir .Key.StringID }}
+        <a href="/file/{{ .Key.Name }}" target="_blank">
+        {{ deleteDir .Key.Name }}
         </a>
     </td>
     <td>{{ .Size }}</td>
     <td>{{ convert .UpdatedAt }}</td>
     <td width="48">
-      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
+      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.Name}}">
         <i class="material-icons right-section">delete</i>
       </button>
     </td>

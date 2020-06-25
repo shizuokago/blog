@@ -1,6 +1,6 @@
 {{define "body"}}
 
-<form action="/admin/article/save/{{.Article.Key.StringID}}" id="slideForm" method="post">
+<form action="/admin/article/save/{{.Article.Key.Name}}" id="slideForm" method="post">
 
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--6-col" id="left">
@@ -11,8 +11,8 @@
 
       <iframe id="result" style="z-index:0;"></iframe>
 
-      <a id="deleteBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}" style="z-index:2;position:absolute;top:40px;">
-         <i class="material-icons" role="presentation" href="/admin/article/bg/delete/{{ .Article.Key.StringID }}" >delete</i>
+      <a id="deleteBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab" href="/admin/article/bg/delete/{{ .Article.Key.Name }}" style="z-index:2;position:absolute;top:40px;">
+         <i class="material-icons" role="presentation" href="/admin/article/bg/delete/{{ .Article.Key.Name }}" >delete</i>
       </a>
 
       <a id="saveBGBtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab" style="z-index:2;position:absolute;top:40px;right:20px;">
@@ -24,13 +24,13 @@
 </form>
 
 
-<script src="/static/js/editor.js"></script>
+<script src="/js/editor.js"></script>
 
 {{end}}
 
 {{define "header_menu"}}
 
-<form id="bgForm" method="post" action="/admin/article/bg/save/{{ .Article.Key.StringID }}" enctype="multipart/form-data">
+<form id="bgForm" method="post" action="/admin/article/bg/save/{{ .Article.Key.Name }}" enctype="multipart/form-data">
 <input type="file" name="file" id="file" value="" style="display:none;"/>
 </form>
 
@@ -49,7 +49,7 @@
 <input type="hidden" id="Email" value="{{.User.Email}}"/>
 <input type="hidden" id="URL" value="{{.User.URL}}"/>
 <input type="hidden" id="TwitterId" value="{{.User.TwitterId}}"/>
-<input type="hidden" id="ID" value="{{.Article.Key.StringID}}"/>
+<input type="hidden" id="ID" value="{{.Article.Key.Name}}"/>
 <input type="hidden" id="BlogName" value="{{.BlogName}}"/>
 <input type="hidden" id="AutoSave" value="{{.AutoSave}}"/>
 {{end}}

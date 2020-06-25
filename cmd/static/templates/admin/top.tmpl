@@ -42,8 +42,8 @@
 {{ range .Articles }}
 
 <div class="card-wide mdl-card mdl-shadow--2dp">
-    <div class="mdl-card__title" style="background: url('/file/bg/{{ .Key.StringID }}') center / cover;cursor:pointer;">
-        <div class="mdl-card__title-text title" href="/admin/article/edit/{{ .Key.StringID }}">{{ .Title }}</div>
+    <div class="mdl-card__title" style="background: url('/file/bg/{{ .Key.Name }}') center / cover;cursor:pointer;">
+        <div class="mdl-card__title-text title" href="/admin/article/edit/{{ .Key.Name }}">{{ .Title }}</div>
     </div>
 
     <div class="mdl-card__supporting-text" style="max-height:50px;min-height:50px;">
@@ -54,10 +54,10 @@
       <tbody>
         <tr style="height:20px;">
           <td class="mdl-data-table__cell--non-numeric" rowspan="2">
-            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.StringID}}">
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.Name}}">
               <i class="material-icons right-section">cloud_off</i>
             </button>
-            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.StringID}}">
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.Name}}">
               <i class="material-icons right-section">delete</i>
             </button>
           </td>
@@ -66,7 +66,7 @@
           <td class="mdl-data-table__cell--non-numeric"> {{ convert .UpdatedAt }} </td>
           <td class="mdl-data-table__cell--non-numeric" rowspan="2">
       
-            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.StringID}}">
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.Name}}">
               <i class="material-icons right-section">screen_share</i>
             </button>
 
@@ -87,7 +87,7 @@
 
     <div class="mdl-card__menu">
 
-        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.StringID}}">
+        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.Name}}">
             <i class="material-icons">mode_edit</i>
         </button>
 

@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
 
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 
   </head>
 
@@ -52,7 +52,7 @@
 
             <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
 
-              <img class="avatar" src="/file/avatar/{{ .HTML.AuthorID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
+              <img class="avatar" src="/file/avatar/{{ .HTML.AuthorID }}" width="48" height="48" onerror="this.src='/images/somebody.jpg'"/>
 
               <div>
                   <strong style="width:100%;"> {{ .HTML.Author }} </strong>
@@ -67,7 +67,7 @@
                 <span>{{ convert .HTML.UpdatedAt }}</span>
               </div>
 
-              <img class="avatar" src="/file/avatar/{{ .HTML.UpdaterID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'"/>
+              <img class="avatar" src="/file/avatar/{{ .HTML.UpdaterID }}" width="48" height="48" onerror="this.src='/images/somebody.jpg'"/>
 {{ end }}
 
             </div>

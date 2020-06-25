@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"io"
+
 	"io/ioutil"
 	"mime"
 	"mime/multipart"
@@ -13,11 +14,10 @@ import (
 	"net/mail"
 	"strings"
 
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/log"
-
+	"github.com/pborman/uuid"
 	"golang.org/x/text/encoding/japanese"
 	"golang.org/x/text/transform"
+	"google.golang.org/appengine/log"
 )
 
 func init() {
@@ -46,7 +46,7 @@ const (
 
 func incomingMail(w http.ResponseWriter, r *http.Request) {
 
-	c := appengine.NewContext(r)
+	c := r.Context()
 	defer r.Body.Close()
 
 	//var b bytes.Buffer
@@ -80,7 +80,7 @@ func incomingMail(w http.ResponseWriter, r *http.Request) {
 
 func parseBody(r *http.Request, body io.Reader, contentType string, data *MailData) {
 
-	c := appengine.NewContext(r)
+	c := r.Context()
 	log.Infof(c, "Parse ContentType [%s]", contentType)
 
 	var mediatype string
@@ -183,5 +183,52 @@ func decSubject(subject string) string {
 		}
 	}
 	return bufSubj.String()
+
+}
+
+func CreateHtmlFromMail(r *http.Request, d *MailData) error {
+
+	c := r.Context()
+	id := uuid.New()
+
+	bgd := GetBlog(r)
+	article := &Article{
+		Title:    d.subject,
+		Tags:     bgd.Tags,
+		Markdown: string(d.msg.Bytes()),
+	}
+
+	article.Key = getArticleKey(r, id)
+	client, err := createClient(c)
+	_, err = client.Put(c, article.Key, article)
+	if err != nil {
+		return err
+	}
+
+	fid := "bg/" + id
+	fb := d.file.Bytes()
+	file := &File{
+		Size: int64(len(fb)),
+		Type: FILE_TYPE_BG,
+	}
+
+	file.Key = getFileKey(r, fid)
+
+	_, err = client.Put(c, file.Key, file)
+	if err != nil {
+		return err
+	}
+	fileData := &FileData{
+		Content: fb,
+		Mime:    d.mime,
+	}
+
+	fdk := getFileDataKey(r, fid)
+	fileData.SetKey(fdk)
+	_, err = client.Put(c, fileData.GetKey(), fileData)
+	if err != nil {
+		return err
+	}
+	return nil
 
 }

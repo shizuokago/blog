@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"mime"
 	"net/http"
 
@@ -45,6 +46,13 @@ func Register() error {
 	r.HandleFunc("/", topHandler).Methods("GET")
 	r.HandleFunc("/entry/{key}", entryHandler).Methods("GET")
 	http.HandleFunc("/file/", fileHandler)
+
+	fs := http.FileServer(http.Dir("./cmd/static"))
+	http.Handle("/js/", fs)
+	http.Handle("/css/", fs)
+	http.Handle("/images/", fs)
+	http.Handle("/favicon.ico", fs)
+
 	http.Handle("/", r)
 
 	return nil
@@ -64,6 +72,10 @@ func deleteDir(s string) string {
 
 func errorPage(w http.ResponseWriter, t, m string, code int) {
 
+	log.Println(t)
+	log.Println(m)
+	log.Println(code)
+
 	data := struct {
 		Code    int
 		Title   string
@@ -71,6 +83,7 @@ func errorPage(w http.ResponseWriter, t, m string, code int) {
 	}{code, t, m}
 
 	w.WriteHeader(data.Code)
+
 	err := errorTmpl.Execute(w, data)
 	if err != nil {
 		panic(err)

@@ -12,7 +12,7 @@ import (
 func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
 	funcMap := template.FuncMap{"convert": Convert, "deleteDir": deleteDir}
-	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./templates/admin/layout.tmpl", tName)
+	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./cmd/static/templates/admin/layout.tmpl", tName)
 	if err != nil {
 		errorPage(w, "Template Parse Error", err.Error(), 500)
 		return
@@ -31,8 +31,6 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	if r.Method == "POST" {
 		u, err = datastore.PutInformation(r)
-	} else {
-		u, err = datastore.GetUser(r)
 	}
 
 	if err != nil {
@@ -50,7 +48,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		User *datastore.User
 	}{bgd, u}
 
-	adminRender(w, "./templates/admin/profile.tmpl", data)
+	adminRender(w, "./cmd/static/templates/admin/profile.tmpl", data)
 }
 
 func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,5 +102,5 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		PFlag    bool
 	}{articles, strconv.Itoa(next), strconv.Itoa(prev), flag}
 
-	adminRender(w, "./templates/admin/top.tmpl", data)
+	adminRender(w, "./cmd/static/templates/admin/top.tmpl", data)
 }

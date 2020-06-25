@@ -33,7 +33,7 @@
     <div class="mdl-cell mdl-cell--6-col">
 {{ if .User.Key }}
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <img id="upload" class="avatar" src="/file/avatar/{{ .User.Key.StringID }}" width="48" height="48" onerror="this.src='/static/images/somebody.jpg'" style="cursor:pointer;"/>
+          <img id="upload" class="avatar" src="/file/avatar/{{ .User.Key.Name }}" width="48" height="48" onerror="this.src='/images/somebody.jpg'" style="cursor:pointer;"/>
       </div>
 {{ end }}
 
