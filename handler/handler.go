@@ -2,15 +2,17 @@ package handler
 
 import (
 	"encoding/json"
+	"html/template"
 	"log"
 	"mime"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	_ "golang.org/x/tools/playground"
 	"golang.org/x/tools/present"
 
 	"github.com/shizuokago/blog/config"
+	"github.com/shizuokago/blog/handler/editor"
+	. "github.com/shizuokago/blog/handler/internal"
 )
 
 func Register() error {
@@ -20,32 +22,7 @@ func Register() error {
 	// App Engine has no /etc/mime.types
 	mime.AddExtensionType(".svg", "image/svg+xml")
 
-	r := mux.NewRouter()
-	r.HandleFunc("/admin/profile/upload", uploadAvatarHandler).Methods("POST")
-	r.HandleFunc("/admin/profile", profileHandler)
-	r.HandleFunc("/admin/", adminHandler).Methods("GET")
-
-	r.HandleFunc("/admin/article/create", createArticleHandler).Methods("POST")
-	r.HandleFunc("/admin/article/edit/{key}", editArticleHandler).Methods("GET")
-
-	r.HandleFunc("/admin/article/save/{key}", saveArticleHandler).Methods("POST")
-	r.HandleFunc("/admin/article/publish/{key}", publishArticleHandler).Methods("POST")
-	r.HandleFunc("/admin/article/private/{key}", privateArticleHandler)
-
-	r.HandleFunc("/admin/article/delete/{key}", deleteArticleHandler).Methods("GET")
-
-	r.HandleFunc("/admin/article/bg/save/{key}", saveBackgroundHandler)
-	r.HandleFunc("/admin/article/bg/delete/{key}", deleteBackgroundHandler)
-
-	r.HandleFunc("/admin/file/view", viewFileHandler).Methods("GET")
-	r.HandleFunc("/admin/file/upload", uploadFileHandler).Methods("POST")
-	r.HandleFunc("/admin/file/delete", deleteFileHandler).Methods("POST")
-	r.HandleFunc("/admin/file/exists", existsFileHandler).Methods("POST")
-
-	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
-	r.HandleFunc("/", topHandler).Methods("GET")
-	r.HandleFunc("/entry/{key}", entryHandler).Methods("GET")
-	http.HandleFunc("/file/", fileHandler)
+	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	fs := http.FileServer(http.Dir("./cmd/static"))
 	http.Handle("/js/", fs)
@@ -53,7 +30,17 @@ func Register() error {
 	http.Handle("/images/", fs)
 	http.Handle("/favicon.ico", fs)
 
-	http.Handle("/", r)
+	http.HandleFunc("/", topHandler)
+	http.HandleFunc("/entry/{key}", entryHandler)
+	http.HandleFunc("/file/", fileHandler)
+
+	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/session", sessionHandler)
+
+	err := editor.Register()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -65,39 +52,61 @@ func Listen() error {
 	return http.ListenAndServe(":"+conf.Port, nil)
 }
 
-func deleteDir(s string) string {
-	ds := []byte(s)
-	return string(ds[5:])
-}
+func loginHandler(w http.ResponseWriter, r *http.Request) {
 
-func errorPage(w http.ResponseWriter, t, m string, code int) {
-
-	log.Println(t)
-	log.Println(m)
-	log.Println(code)
-
-	data := struct {
-		Code    int
-		Title   string
-		Message string
-	}{code, t, m}
-
-	w.WriteHeader(data.Code)
-
-	err := errorTmpl.Execute(w, data)
+	err := SetSession(w, r, nil)
 	if err != nil {
-		panic(err)
 	}
+
+	tmpl, err := template.ParseFiles("cmd/static/templates/authentication.tmpl")
+	if err != nil {
+		log.Println("Error Page Parse Error")
+		log.Println(err)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		log.Println("Error Page Execute Error")
+		log.Println(err)
+		return
+	}
+
 }
 
-func errorJson(w http.ResponseWriter, t, m string, code int) {
+func sessionHandler(w http.ResponseWriter, r *http.Request) {
+
+	code := 200
+	dto := struct {
+		Success bool
+	}{false}
+
+	r.ParseForm()
+	email := r.FormValue("email")
+	token := r.FormValue("token")
+
+	//TODO
+	log.Println(email)
+	flag := true
+
+	dto.Success = flag
+
+	if !flag {
+		//403を返す
+		code = 403
+	} else {
+		//Cookieの作成
+		u := NewLoginUser(email, token)
+
+		err := SetSession(w, r, u)
+		if err != nil {
+			code = 500
+			dto.Success = false
+			log.Println(err)
+		}
+	}
 
 	w.WriteHeader(code)
-	enc := json.NewEncoder(w)
-	d := map[string]interface{}{
-		"success": false,
-		"title":   t,
-		"message": m,
-	}
-	enc.Encode(d)
+	json.NewEncoder(w).Encode(dto)
+
 }

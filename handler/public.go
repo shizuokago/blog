@@ -12,7 +12,6 @@ import (
 )
 
 var indexTmpl *template.Template
-var errorTmpl *template.Template
 
 func init() {
 
@@ -24,10 +23,6 @@ func init() {
 		panic(err)
 	}
 
-	errorTmpl, err = template.New("root").ParseFiles("./cmd/static/templates/error.tmpl")
-	if err != nil {
-		panic(err)
-	}
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,14 +36,14 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		pbuf := ps[0]
 		p, err = strconv.Atoi(pbuf)
 		if err != nil {
-			errorPage(w, "Bad Request", err.Error(), 400)
+			ErrorPage(w, "Bad Request", err.Error(), 400)
 			return
 		}
 	}
 
 	htmls, err := datastore.SelectHtml(r, p)
 	if err != nil {
-		errorPage(w, "Not Found", err.Error(), 404)
+		ErrorPage(w, "Not Found", err.Error(), 404)
 		return
 	}
 
@@ -70,7 +65,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = indexTmpl.Execute(w, data)
 	if err != nil {
-		errorPage(w, "Internal Server Error", err.Error(), 500)
+		ErrorPage(w, "Internal Server Error", err.Error(), 500)
 		return
 	}
 }
@@ -81,7 +76,7 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["key"]
 	data, err := datastore.GetHtmlData(r, id)
 	if err != nil {
-		errorPage(w, "Not Found", err.Error(), 404)
+		ErrorPage(w, "Not Found", err.Error(), 404)
 		return
 	}
 
@@ -92,5 +87,5 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	t := "Not Found"
 	m := "Page is Not Found"
 	code := http.StatusNotFound
-	errorPage(w, t, m, code)
+	ErrorPage(w, t, m, code)
 }

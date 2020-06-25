@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/datastore v1.2.0
 	github.com/dddaisuke/graphics-go v0.0.0-20150401005551-3d09df467d64
 	github.com/gorilla/mux v1.7.0
+	github.com/gorilla/sessions v1.2.0
 	github.com/knightso/base v0.0.0-20180829052934-576c8c61deca
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pborman/uuid v1.2.0

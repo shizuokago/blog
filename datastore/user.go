@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"cloud.google.com/go/datastore"
-	"google.golang.org/appengine/user"
 )
 
 const KIND_USER = "User"
@@ -20,19 +19,16 @@ type User struct {
 	Meta
 }
 
-func getUserKey(r *http.Request) *datastore.Key {
-	c := r.Context()
-	u := user.Current(c)
-
-	return datastore.NameKey(KIND_USER, u.ID, nil)
+func getUserKey(key string) *datastore.Key {
+	return datastore.NameKey(KIND_USER, key, nil)
 }
 
-func GetUser(r *http.Request) (*User, error) {
+func GetUser(r *http.Request, email string) (*User, error) {
 
 	c := r.Context()
 
 	rtn := User{}
-	key := getUserKey(r)
+	key := getUserKey(email)
 
 	client, err := createClient(c)
 
@@ -47,9 +43,7 @@ func GetUser(r *http.Request) (*User, error) {
 	return &rtn, nil
 }
 
-func SaveAvatar(r *http.Request) error {
-	c := r.Context()
-	u := user.Current(c)
-	err := SaveFile(r, u.ID, FILE_TYPE_AVATAR)
+func SaveAvatar(r *http.Request, key string) error {
+	err := SaveFile(r, key, FILE_TYPE_AVATAR)
 	return err
 }

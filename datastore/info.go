@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func PutInformation(r *http.Request) (*User, error) {
+func PutInformation(r *http.Request, key string) (*User, error) {
 
 	c := r.Context()
 
@@ -30,7 +30,7 @@ func PutInformation(r *http.Request) (*User, error) {
 	}
 
 	//function
-	rtn.Key = getUserKey(r)
+	rtn.Key = getUserKey(key)
 
 	client, err := createClient(c)
 

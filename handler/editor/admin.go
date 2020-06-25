@@ -1,4 +1,4 @@
-package handler
+package editor
 
 import (
 	"html/template"
@@ -14,13 +14,13 @@ func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 	funcMap := template.FuncMap{"convert": Convert, "deleteDir": deleteDir}
 	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./cmd/static/templates/admin/layout.tmpl", tName)
 	if err != nil {
-		errorPage(w, "Template Parse Error", err.Error(), 500)
+		ErrorPage(w, "Template Parse Error", err.Error(), 500)
 		return
 	}
 
 	err = tmpl.Execute(w, obj)
 	if err != nil {
-		errorPage(w, "Template Execute Error", err.Error(), 500)
+		ErrorPage(w, "Template Execute Error", err.Error(), 500)
 		return
 	}
 }
@@ -28,14 +28,17 @@ func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 
 	var u *datastore.User
-	var err error
 	if r.Method == "POST" {
-		u, err = datastore.PutInformation(r)
-	}
-
-	if err != nil {
-		errorPage(w, "InternalServerError", err.Error(), 500)
-		return
+		user, err := GetSession(r)
+		if err != nil {
+			ErrorPage(w, "InternalServerError", err.Error(), 500)
+			return
+		}
+		u, err = datastore.PutInformation(r, user.Email)
+		if err != nil {
+			ErrorPage(w, "InternalServerError", err.Error(), 500)
+			return
+		}
 	}
 
 	if u == nil {
@@ -52,9 +55,12 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
-	err := datastore.SaveAvatar(r)
+
+	u, err := GetSession(r)
+
+	err = datastore.SaveAvatar(r, u.Email)
 	if err != nil {
-		errorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err.Error(), 500)
 		return
 	}
 	http.Redirect(w, r, "/admin/profile", 301)
@@ -77,14 +83,14 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		pbuf := ps[0]
 		p, err = strconv.Atoi(pbuf)
 		if err != nil {
-			errorPage(w, "Bad Request", err.Error(), 400)
+			ErrorPage(w, "Bad Request", err.Error(), 400)
 			return
 		}
 	}
 
 	articles, err := datastore.SelectArticle(r, p)
 	if err != nil {
-		errorPage(w, "Not Found", err.Error(), 404)
+		ErrorPage(w, "Not Found", err.Error(), 404)
 		return
 	}
 

@@ -137,11 +137,11 @@ func GetHtml(r *http.Request, k string) (*Html, error) {
 	return &rtn, err
 }
 
-func UpdateHtml(r *http.Request, key string) error {
+func UpdateHtml(r *http.Request, mail, key string) error {
 
 	c := r.Context()
 
-	u, err := GetUser(r)
+	u, err := GetUser(r, mail)
 	if err != nil {
 		return err
 	}
