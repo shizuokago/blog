@@ -78,7 +78,7 @@ func notify(event fsnotify.Event) {
 
 func command() {
 
-	out, err := exec.Command("go", "run", "cmd/editor/deploy.go").CombinedOutput()
+	out, err := exec.Command("go", "run", "deploy.go").CombinedOutput()
 	if err != nil {
 		fmt.Println(err.Error())
 	}

@@ -3,49 +3,15 @@
   <head>
     <title>Blog Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
-    <script defer src="https://code.getmdl.io/1.1.1/material.min.js"></script>
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-blue.min.css">
 
-<script>
-function waitDialog(title) {
-    if(title === undefined) title = "Wait...";
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
-    var dialog = document.querySelector('dialog.waitDialog');
-    dialog.querySelector('h3.mdl-dialog__title').textContent = title;
-
-    dialog.showModal();
-    return dialog;
-}
-
-function confirmDialog(title,msg,btn,func) {
-    var dialog = document.querySelector('dialog.confirmDialog');
-
-    if(title === undefined) title = "Confirm";
-    if(msg === undefined) msg = "OK?";
-    if(btn === undefined) btn = "OK";
-
-    dialog.querySelector('h4.mdl-dialog__title').textContent = title;
-    dialog.querySelector('p.confirm_msg').textContent = msg;
-    dialog.querySelector('button.ok').textContent = btn;
-
-    dialog.showModal();
-
-    dialog.querySelector('button.ok').addEventListener('click', func);
-    dialog.querySelector('button.cancel').addEventListener('click', function() {
-        dialog.close();
-    });
-    return dialog;
-}
-
-function toast(msg) {
-   var snackbarContainer = document.querySelector('#TOAST');
-   var data = {message: msg};
-   snackbarContainer.MaterialSnackbar.showSnackbar(data);
-}
-
-</script>
-  <script src="/js/jquery.min.js"></script>
+    <script defer src="/js/main.js"></script>
+    <script defer src="/js/editor.js"></script>
 
   </head>
 
@@ -81,10 +47,6 @@ function toast(msg) {
 
       <main id="main" class="mdl-layout__content">
         {{template "body" .}}
-        <!--
-        <div class="page-content">
-        </div>
-        -->
       </main>
 
       <footer class="mdl-mini-footer">
@@ -100,6 +62,7 @@ function toast(msg) {
           </ul>
         </div>
       </footer>
+
 
 <dialog class="mdl-dialog waitDialog">
   <h3 class="mdl-dialog__title">Wait...</h3>
