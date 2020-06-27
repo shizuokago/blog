@@ -1,9 +1,6 @@
 package editor
 
 import (
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/log"
-
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -18,9 +15,6 @@ func existsFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	id := r.FormValue("fileName")
-
-	c := appengine.NewContext(r)
-	log.Infof(c, id)
 
 	flag, err := datastore.ExistsFile(r, id, datastore.FILE_TYPE_DATA)
 	if err != nil {

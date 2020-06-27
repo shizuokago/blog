@@ -9,6 +9,7 @@ import (
 
 	_ "golang.org/x/tools/playground"
 	"golang.org/x/tools/present"
+	"golang.org/x/xerrors"
 
 	"github.com/shizuokago/blog/config"
 	"github.com/shizuokago/blog/handler/editor"
@@ -39,7 +40,7 @@ func Register() error {
 
 	err := editor.Register()
 	if err != nil {
-		return err
+		return xerrors.Errorf("editor register: %w", err)
 	}
 
 	return nil
@@ -48,8 +49,11 @@ func Register() error {
 func Listen() error {
 
 	conf := config.Get()
+	s := ":" + conf.Port
 
-	return http.ListenAndServe(":"+conf.Port, nil)
+	log.Println("Start Blog Server[" + s + "]")
+
+	return http.ListenAndServe(s, nil)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -60,15 +64,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("cmd/static/templates/authentication.tmpl")
 	if err != nil {
-		log.Println("Error Page Parse Error")
-		log.Println(err)
+		log.Printf("Error Page Parse Error: %v", err)
 		return
 	}
 
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		log.Println("Error Page Execute Error")
-		log.Println(err)
+		log.Printf("Error Page Execute Error: %v", err)
 		return
 	}
 

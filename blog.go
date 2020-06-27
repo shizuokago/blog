@@ -1,10 +1,10 @@
 package blog
 
 import (
+	"golang.org/x/xerrors"
+
 	"github.com/shizuokago/blog/config"
 	"github.com/shizuokago/blog/handler"
-
-	"golang.org/x/xerrors"
 )
 
 func Start(opts ...config.Option) error {
