@@ -5,12 +5,14 @@ import (
 	"bytes"
 	"errors"
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/tools/present"
+	"golang.org/x/xerrors"
 	"google.golang.org/api/iterator"
 )
 
@@ -20,7 +22,7 @@ func init() {
 	var err error
 	tmpl, err = createTemplate()
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
 
@@ -44,7 +46,7 @@ func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 	reader := strings.NewReader(txt)
 	doc, err := ctx.Parse(reader, "blog.article", 0)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("context parse: %w", err)
 	}
 
 	bgd := GetBlog(r)
@@ -63,7 +65,7 @@ func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 	err = tmpl.ExecuteTemplate(writer, "root", rtn)
 
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("execute template: %w", err)
 	}
 	writer.Flush()
 
@@ -83,7 +85,7 @@ func createTemplate() (*template.Template, error) {
 	tmpl = tmpl.Funcs(funcMap)
 	_, err := tmpl.ParseFiles(action, entry)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("template parse files: %w", err)
 	}
 	return tmpl, nil
 }
@@ -124,14 +126,13 @@ func GetHtml(r *http.Request, k string) (*Html, error) {
 	rtn := Html{}
 	key := getHtmlKey(r, k)
 
-	client, err := createClient(c)
-	err = client.Get(c, key, &rtn)
+	err := Get(c, key, &rtn)
 
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, xerrors.Errorf("datastore get: %w", err)
 	}
 
 	return &rtn, err
@@ -143,23 +144,21 @@ func UpdateHtml(r *http.Request, mail, key string) error {
 
 	u, err := GetUser(r, mail)
 	if err != nil {
-		return err
+		return xerrors.Errorf("get user: %w", err)
 	}
 
 	art, err := UpdateArticle(r, key, time.Now())
 	if err != nil {
-		return err
+		return xerrors.Errorf("update article: %w", err)
 	}
 
 	html, err := GetHtml(r, key)
 	if err != nil {
-		return err
+		return xerrors.Errorf("get html: %w", err)
 	}
 
 	data := &HtmlData{}
 	dk := getHtmlDataKey(r, key)
-
-	client, err := createClient(c)
 
 	//get html
 	if html == nil {
@@ -172,10 +171,11 @@ func UpdateHtml(r *http.Request, mail, key string) error {
 
 		html.Author = u.Name
 		html.AuthorID = mail
+
 	} else {
-		err = client.Get(c, dk, data)
+		err = Get(c, dk, data)
 		if err != nil {
-			return err
+			return xerrors.Errorf("get html data: %w", err)
 		}
 		html.Updater = u.Name
 		html.UpdaterID = mail
@@ -184,19 +184,22 @@ func UpdateHtml(r *http.Request, mail, key string) error {
 	html.Title = art.Title
 	html.SubTitle = art.SubTitle
 
-	_, err = client.Put(c, html.GetKey(), html)
+	err = Put(c, html)
 	if err != nil {
-		return err
+		return xerrors.Errorf("put html: %w", err)
 	}
 
 	b, err := CreateHtml(r, art, u, html)
 	if err != nil {
-		return err
+		return xerrors.Errorf("put create html: %w", err)
 	}
 	data.Content = b
 
-	_, err = client.Put(c, data.GetKey(), data)
-	return err
+	err = Put(c, data)
+	if err != nil {
+		return xerrors.Errorf("put html data: %w", err)
+	}
+	return nil
 }
 
 func SelectHtml(r *http.Request, p int) ([]Html, error) {
@@ -211,7 +214,7 @@ func SelectHtml(r *http.Request, p int) ([]Html, error) {
 
 	client, err := createClient(c)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("get html: %w", err)
 	}
 
 	t := client.Run(c, q)
@@ -223,7 +226,7 @@ func SelectHtml(r *http.Request, p int) ([]Html, error) {
 			break
 		}
 		if err != nil {
-			return nil, err
+			return nil, xerrors.Errorf("html(next): %w", err)
 		}
 		h.SetKey(key)
 		s = append(s, h)
@@ -242,11 +245,14 @@ func DeleteHtml(r *http.Request, id string) error {
 
 	err = client.Delete(c, hkey)
 	if err != nil {
-		return err
+		return xerrors.Errorf("delete html: %w", err)
 	}
 	hdkey := getHtmlDataKey(r, id)
 	err = client.Delete(c, hdkey)
-	return err
+	if err != nil {
+		return xerrors.Errorf("delete html data: %w", err)
+	}
+	return nil
 }
 
 const KIND_HTMLDATA = "HtmlData"
@@ -281,7 +287,7 @@ func GetHtmlData(r *http.Request, k string) (*HtmlData, error) {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
 			return nil, nil
 		} else {
-			return nil, err
+			return nil, xerrors.Errorf("get html data: %w", err)
 		}
 	}
 	return &rtn, nil

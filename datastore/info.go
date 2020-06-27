@@ -2,6 +2,8 @@ package datastore
 
 import (
 	"net/http"
+
+	"golang.org/x/xerrors"
 )
 
 func PutInformation(r *http.Request, key string) (*User, error) {
@@ -26,17 +28,15 @@ func PutInformation(r *http.Request, key string) (*User, error) {
 
 	err := PutBlog(r)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("put blog: %w", err)
 	}
 
 	//function
 	rtn.Key = getUserKey(key)
 
-	client, err := createClient(c)
-
-	_, err = client.Put(c, rtn.Key, &rtn)
+	err = Put(c, &rtn)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("put user: %w", err)
 	}
 	return &rtn, nil
 }

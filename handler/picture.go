@@ -16,6 +16,7 @@ func parsePicture(ctx *present.Context, fileName string, lineno int, text string
 
 	args := strings.Fields(text)
 	img := present.Image{URL: "/file/data/" + args[1]}
+
 	a, err := parseArgs(fileName, lineno, args[2:])
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -27,34 +28,44 @@ func Convert(t time.Time) string {
 	return jt.Format("2006/01/02 15:04")
 }
 
-func ErrorPage(w http.ResponseWriter, t, m string, code int) {
+func ErrorPage(w http.ResponseWriter, t string, err error, code int) {
 
-	log.Println(t)
-	log.Println(m)
-	log.Println(code)
+	buf := fmt.Sprintf("%+v", err)
+
+	if code != 404 {
+		log.Println(buf)
+	}
 
 	data := struct {
 		Code    int
 		Title   string
 		Message string
-	}{code, t, m}
+		Detail  string
+	}{code, t, err.Error(), buf}
 
 	w.WriteHeader(data.Code)
 
-	err := errorTmpl.Execute(w, data)
+	err = errorTmpl.Execute(w, data)
 	if err != nil {
-		panic(err)
+		log.Println("ErrorPage() write error:", err.Error())
 	}
 }
 
-func ErrorJson(w http.ResponseWriter, t, m string, code int) {
+func ErrorJson(w http.ResponseWriter, t string, err error, code int) {
 
-	w.WriteHeader(code)
+	buf := fmt.Sprintf("%+v", err)
+
 	enc := json.NewEncoder(w)
 	d := map[string]interface{}{
 		"success": false,
 		"title":   t,
-		"message": m,
+		"message": err.Error(),
+		"detail":  buf,
 	}
-	enc.Encode(d)
+
+	w.WriteHeader(code)
+	err = enc.Encode(d)
+	if err != nil {
+		log.Println("ErrorJson() write error:", err.Error())
+	}
 }

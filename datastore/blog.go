@@ -1,9 +1,11 @@
 package datastore
 
 import (
+	"log"
 	"net/http"
 
 	"cloud.google.com/go/datastore"
+	"golang.org/x/xerrors"
 )
 
 const KIND_BLOG = "Blog"
@@ -27,14 +29,9 @@ func GetBlog(r *http.Request) *Blog {
 	c := r.Context()
 	key := datastore.NameKey(KIND_BLOG, "Fixing", nil)
 
-	client, err := createClient(c)
+	err := Get(c, key, &pkgBlog)
 	if err != nil {
-		//
-	}
-
-	err = client.Get(c, key, &pkgBlog)
-	if err != nil {
-		// Nothing
+		log.Println(err)
 	}
 	return &pkgBlog
 }
@@ -54,11 +51,9 @@ func PutBlog(r *http.Request) error {
 
 	pkgBlog.SetKey(key)
 
-	client, err := createClient(c)
-
-	_, err = client.Put(c, key, &pkgBlog)
+	err := Put(c, &pkgBlog)
 	if err != nil {
-		return err
+		return xerrors.Errorf("blog put: %w", err)
 	}
 
 	return nil

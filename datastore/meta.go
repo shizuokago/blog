@@ -14,6 +14,21 @@ type Meta struct {
 	UpdatedAt time.Time      `json:"updatedAt"`
 }
 
+type HasVersion interface {
+	IncrementVersion()
+	HasTime
+}
+
+type HasTime interface {
+	SetTime()
+	HasKey
+}
+
+type HasKey interface {
+	GetKey() *datastore.Key
+	SetKey(*datastore.Key)
+}
+
 func (m *Meta) GetKey() *datastore.Key {
 	return m.Key
 }
@@ -22,7 +37,7 @@ func (m *Meta) SetKey(key *datastore.Key) {
 	m.Key = key
 }
 
-func (m *Meta) SetMetaTime() {
+func (m *Meta) SetTime() {
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = time.Now()
 	}

@@ -30,12 +30,12 @@ func Register() error {
 	http.Handle("/images/", fs)
 	http.Handle("/favicon.ico", fs)
 
-	http.HandleFunc("/", topHandler)
-	http.HandleFunc("/entry/{key}", entryHandler)
+	http.HandleFunc("/entry/", entryHandler)
 	http.HandleFunc("/file/", fileHandler)
-
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/session", sessionHandler)
+
+	http.HandleFunc("/", topHandler)
 
 	err := editor.Register()
 	if err != nil {

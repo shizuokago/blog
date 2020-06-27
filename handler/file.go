@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -15,12 +16,12 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 
 	file, err := datastore.GetFileData(r, name)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 
 	if file == nil {
-		ErrorPage(w, "Not Found", "File Not Found", http.StatusNotFound)
+		ErrorPage(w, "Not Found", fmt.Errorf("FileNotFound:"+name), http.StatusNotFound)
 		return
 	}
 
@@ -29,7 +30,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	//set MIME
 	_, err = w.Write(file.Content)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 }

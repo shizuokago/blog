@@ -12,7 +12,6 @@ import (
 	"math"
 
 	"github.com/dddaisuke/graphics-go/graphics"
-	//"github.com/dddaisuke/graphics-go/graphics/interp"
 	"github.com/nfnt/resize"
 	"github.com/rwcarlsen/goexif/exif"
 )

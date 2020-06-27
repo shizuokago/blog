@@ -12,7 +12,7 @@ import (
 func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := datastore.CreateArticle(r)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
@@ -27,13 +27,13 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	art, err := datastore.GetArticle(r, name)
 	if err != nil {
-		ErrorPage(w, "Key Error", err.Error(), 400)
+		ErrorPage(w, "Key Error", err, 400)
 		return
 	}
 
 	u, err := datastore.GetUser(r, user.Email)
 	if err != nil {
-		ErrorPage(w, "User Error", err.Error(), 401)
+		ErrorPage(w, "User Error", err, 401)
 		return
 	}
 
@@ -61,7 +61,7 @@ func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["key"]
 	_, err := datastore.UpdateArticle(r, id, time.Time{})
 	if err != nil {
-		ErrorPage(w, "Internal Server Error", err.Error(), 500)
+		ErrorPage(w, "Internal Server Error", err, 500)
 		return
 	}
 	return
@@ -74,13 +74,13 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := GetSession(r)
 	if err != nil {
-		ErrorPage(w, "Internal Server Error", err.Error(), 500)
+		ErrorPage(w, "Internal Server Error", err, 500)
 		return
 	}
 
 	err = datastore.UpdateHtml(r, user.Email, id)
 	if err != nil {
-		ErrorPage(w, "Internal Server Error", err.Error(), 500)
+		ErrorPage(w, "Internal Server Error", err, 500)
 		return
 	}
 
@@ -92,7 +92,7 @@ func deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["key"]
 	err := datastore.DeleteArticle(r, id)
 	if err != nil {
-		ErrorPage(w, "Internal Server Error", err.Error(), 500)
+		ErrorPage(w, "Internal Server Error", err, 500)
 		return
 	}
 	http.Redirect(w, r, "/admin/", 301)
@@ -104,7 +104,7 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["key"]
 	err := datastore.DeleteHtml(r, id)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 	http.Redirect(w, r, "/admin/", 301)

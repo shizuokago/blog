@@ -24,7 +24,7 @@ func existsFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	flag, err := datastore.ExistsFile(r, id, datastore.FILE_TYPE_DATA)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 
@@ -46,14 +46,14 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 		pbuf := ps[0]
 		p, err = strconv.Atoi(pbuf)
 		if err != nil {
-			ErrorPage(w, "Bad Request", err.Error(), 400)
+			ErrorPage(w, "Bad Request", err, 400)
 			return
 		}
 	}
 
 	files, err := datastore.SelectFile(r, p)
 	if err != nil {
-		ErrorPage(w, "Not Found", err.Error(), 404)
+		ErrorPage(w, "Not Found", err, 404)
 		return
 	}
 
@@ -65,7 +65,7 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		ErrorPage(w, "Internal Server Error", err.Error(), 500)
+		ErrorPage(w, "Internal Server Error", err, 500)
 		return
 	}
 
@@ -82,7 +82,7 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := datastore.SaveFile(r, r.FormValue("FileName"), datastore.FILE_TYPE_DATA)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 
@@ -93,7 +93,7 @@ func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
 	filename := r.FormValue("FileName")
 	err := datastore.DeleteFile(r, "data/"+filename)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 	http.Redirect(w, r, "/admin/file/view", 301)
@@ -105,7 +105,7 @@ func saveBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := datastore.SaveBackgroundImage(r, name)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 	http.Redirect(w, r, "/admin/article/edit/"+name, 301)
@@ -117,7 +117,7 @@ func deleteBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := datastore.DeleteBackgroundImage(r, name)
 	if err != nil {
-		ErrorPage(w, "InternalServerError", err.Error(), 500)
+		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
 	http.Redirect(w, r, "/admin/article/edit/"+name, 301)

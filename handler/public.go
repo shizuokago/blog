@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
+	"strings"
 
 	"github.com/shizuokago/blog/datastore"
 	. "github.com/shizuokago/blog/handler/internal"
@@ -16,16 +17,16 @@ var indexTmpl *template.Template
 func init() {
 
 	funcMap := template.FuncMap{"convert": Convert}
-
 	var err error
 	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./cmd/static/templates/index.tmpl")
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
-
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("top")
 
 	var err error
 	vals := r.URL.Query()
@@ -36,14 +37,15 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		pbuf := ps[0]
 		p, err = strconv.Atoi(pbuf)
 		if err != nil {
-			ErrorPage(w, "Bad Request", err.Error(), 400)
+			ErrorPage(w, "Bad Request", err, 400)
 			return
 		}
 	}
 
+	//ページデータ
 	htmls, err := datastore.SelectHtml(r, p)
 	if err != nil {
-		ErrorPage(w, "Not Found", err.Error(), 404)
+		ErrorPage(w, "Not Found", err, 404)
 		return
 	}
 
@@ -54,6 +56,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		flag = false
 	}
 
+	//ブログデータ
 	bgd := datastore.GetBlog(r)
 	data := struct {
 		Blog  *datastore.Blog
@@ -65,27 +68,33 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = indexTmpl.Execute(w, data)
 	if err != nil {
-		ErrorPage(w, "Internal Server Error", err.Error(), 500)
+		ErrorPage(w, "Internal Server Error", err, 500)
 		return
 	}
 }
 
 func entryHandler(w http.ResponseWriter, r *http.Request) {
-	//Get Key
-	vars := mux.Vars(r)
-	id := vars["key"]
+
+	url := r.URL.Path
+	id := strings.Replace(url, "/entry/", "", 1)
+
 	data, err := datastore.GetHtmlData(r, id)
 	if err != nil {
-		ErrorPage(w, "Not Found", err.Error(), 404)
+		ErrorPage(w, "Not Found", err, 404)
 		return
 	}
 
-	w.Write([]byte(data.Content))
+	log.Println(string(data.Content))
+
+	_, err = w.Write(data.Content)
+	if err != nil {
+		log.Println(err.Error())
+	}
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	t := "Not Found"
 	m := "Page is Not Found"
 	code := http.StatusNotFound
-	ErrorPage(w, t, m, code)
+	ErrorPage(w, t, fmt.Errorf(m), code)
 }

@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"github.com/pborman/uuid"
+	"golang.org/x/xerrors"
 	"google.golang.org/api/iterator"
 )
 
@@ -37,7 +38,7 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 
 	client, err := createClient(c)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("create client: %w", err)
 	}
 
 	t := client.Run(c, q)
@@ -49,7 +50,7 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 			break
 		}
 		if err != nil {
-			return nil, err
+			return nil, xerrors.Errorf("next: %w", err)
 		}
 		a.SetKey(key)
 		s = append(s, a)
@@ -64,15 +65,12 @@ func GetArticle(r *http.Request, id string) (*Article, error) {
 	rtn := Article{}
 	key := getArticleKey(r, id)
 
-	client, err := createClient(c)
-	rtn.SetKey(key)
-
-	err = client.Get(c, key, &rtn)
+	err := Get(c, key, &rtn)
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
 			return nil, nil
 		} else {
-			return nil, err
+			return nil, xerrors.Errorf("client get: %w", err)
 		}
 	}
 
@@ -88,7 +86,7 @@ func UpdateArticle(r *http.Request, id string, pub time.Time) (*Article, error) 
 
 	art, err := GetArticle(r, id)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("get article: %w", err)
 	}
 
 	c := r.Context()
@@ -101,10 +99,9 @@ func UpdateArticle(r *http.Request, id string, pub time.Time) (*Article, error) 
 		art.PublishDate = pub
 	}
 
-	client, err := createClient(c)
-	_, err = client.Put(c, art.GetKey(), art)
+	err = Put(c, art)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("put article: %w", err)
 	}
 
 	return art, nil
@@ -128,8 +125,11 @@ func DeleteArticle(r *http.Request, id string) error {
 
 	client, err := createClient(c)
 	err = client.Delete(c, akey)
+	if err != nil {
+		return xerrors.Errorf("delete article: %w", err)
+	}
 
-	return err
+	return nil
 }
 
 func CreateArticle(r *http.Request) (string, error) {
@@ -147,13 +147,15 @@ func CreateArticle(r *http.Request) (string, error) {
 
 	article.Key = getArticleKey(r, id)
 
-	client, err := createClient(c)
-	_, err = client.Put(c, article.Key, article)
+	err := Put(c, article)
 	if err != nil {
 		return "", err
 	}
 
 	err = SaveFile(r, id, FILE_TYPE_BG)
+	if err != nil {
+		return "", xerrors.Errorf("save file: %w", err)
+	}
 
-	return id, err
+	return id, nil
 }

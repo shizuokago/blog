@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"cloud.google.com/go/datastore"
+	"golang.org/x/xerrors"
 )
 
 const KIND_USER = "User"
@@ -30,14 +31,12 @@ func GetUser(r *http.Request, email string) (*User, error) {
 	rtn := User{}
 	key := getUserKey(email)
 
-	client, err := createClient(c)
-
-	err = client.Get(c, key, &rtn)
+	err := Get(c, key, &rtn)
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
-			return nil, err
-		} else {
 			return nil, nil
+		} else {
+			return nil, xerrors.Errorf("get user: %w", err)
 		}
 	}
 	return &rtn, nil
@@ -45,5 +44,8 @@ func GetUser(r *http.Request, email string) (*User, error) {
 
 func SaveAvatar(r *http.Request, key string) error {
 	err := SaveFile(r, key, FILE_TYPE_AVATAR)
-	return err
+	if err != nil {
+		return xerrors.Errorf("save file: %w", err)
+	}
+	return nil
 }
