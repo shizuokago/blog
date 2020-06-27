@@ -65,6 +65,12 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if u.Email != "secondarykey@gmail.com" {
+		log.Println("ユーザが違う:" + u.Email)
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+
 	h.r.ServeHTTP(w, r)
 }
 

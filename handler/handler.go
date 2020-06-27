@@ -28,6 +28,7 @@ func Register() error {
 	fs := http.FileServer(http.Dir("./cmd/static"))
 	http.Handle("/js/", fs)
 	http.Handle("/css/", fs)
+	http.Handle("/static/css/", fs) // 既存ブログ用に設定
 	http.Handle("/images/", fs)
 	http.Handle("/favicon.ico", fs)
 

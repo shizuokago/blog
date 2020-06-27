@@ -26,8 +26,6 @@ func init() {
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("top")
-
 	var err error
 	vals := r.URL.Query()
 	ps := vals["p"]
@@ -83,8 +81,6 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "Not Found", err, 404)
 		return
 	}
-
-	log.Println(string(data.Content))
 
 	_, err = w.Write(data.Content)
 	if err != nil {
