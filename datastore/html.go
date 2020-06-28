@@ -17,6 +17,7 @@ import (
 )
 
 var tmpl *template.Template
+var htmlCursor map[int]string
 
 func init() {
 	var err error
@@ -24,6 +25,8 @@ func init() {
 	if err != nil {
 		log.Println(err)
 	}
+
+	htmlCursor = make(map[int]string)
 }
 
 func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, error) {
@@ -181,6 +184,9 @@ func UpdateHtml(r *http.Request, mail, key string) error {
 		html.UpdaterID = mail
 	}
 
+	//再度更新
+	htmlCursor = make(map[int]string)
+
 	html.Title = art.Title
 	html.SubTitle = art.SubTitle
 
@@ -206,15 +212,22 @@ func SelectHtml(r *http.Request, p int) ([]Html, error) {
 
 	c := r.Context()
 
-	q := datastore.NewQuery(KIND_HTML).
-		Order("- CreatedAt").
-		Limit(5)
+	q := datastore.NewQuery(KIND_HTML).Order("- CreatedAt").Limit(5)
 
 	var s []Html
 
 	client, err := createClient(c)
 	if err != nil {
 		return nil, xerrors.Errorf("get html: %w", err)
+	}
+
+	if cur, ok := htmlCursor[p]; ok {
+		cursor, err := datastore.DecodeCursor(cur)
+		if err != nil {
+			log.Printf("%+v", err)
+		} else {
+			q = q.Start(cursor)
+		}
 	}
 
 	t := client.Run(c, q)
@@ -230,6 +243,13 @@ func SelectHtml(r *http.Request, p int) ([]Html, error) {
 		}
 		h.SetKey(key)
 		s = append(s, h)
+	}
+
+	next, err := t.Cursor()
+	if err != nil {
+		log.Printf("%+v", err)
+	} else {
+		htmlCursor[p+1] = next.String()
 	}
 
 	return s, nil
@@ -252,6 +272,8 @@ func DeleteHtml(r *http.Request, id string) error {
 	if err != nil {
 		return xerrors.Errorf("delete html data: %w", err)
 	}
+
+	htmlCursor = make(map[int]string)
 	return nil
 }
 

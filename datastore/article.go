@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"time"
 
@@ -10,6 +11,12 @@ import (
 	"golang.org/x/xerrors"
 	"google.golang.org/api/iterator"
 )
+
+var articleCursor map[int]string
+
+func init() {
+	articleCursor = make(map[int]string)
+}
 
 const KIND_ARTICLE = "Article"
 
@@ -30,8 +37,6 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 
 	c := r.Context()
 
-	//TODO CURCOR
-
 	q := datastore.NewQuery("Article").Order("- UpdatedAt").Limit(10)
 
 	var s []Article
@@ -39,6 +44,15 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 	client, err := createClient(c)
 	if err != nil {
 		return nil, xerrors.Errorf("create client: %w", err)
+	}
+
+	if cur, ok := articleCursor[p]; ok {
+		cursor, err := datastore.DecodeCursor(cur)
+		if err != nil {
+			log.Printf("%+v", err)
+		} else {
+			q = q.Start(cursor)
+		}
 	}
 
 	t := client.Run(c, q)
@@ -54,6 +68,13 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 		}
 		a.SetKey(key)
 		s = append(s, a)
+	}
+
+	next, err := t.Cursor()
+	if err != nil {
+		log.Printf("%+v", err)
+	} else {
+		articleCursor[p+1] = next.String()
 	}
 
 	return s, nil
@@ -129,6 +150,7 @@ func DeleteArticle(r *http.Request, id string) error {
 		return xerrors.Errorf("delete article: %w", err)
 	}
 
+	articleCursor = make(map[int]string)
 	return nil
 }
 
@@ -156,6 +178,8 @@ func CreateArticle(r *http.Request) (string, error) {
 	if err != nil {
 		return "", xerrors.Errorf("save file: %w", err)
 	}
+
+	articleCursor = make(map[int]string)
 
 	return id, nil
 }

@@ -8,7 +8,11 @@ import (
 )
 
 func main() {
-	err := blog.Start(config.AppEnginePort())
+
+	err := blog.Start(
+		config.AppEnginePort(),
+	)
+
 	if err != nil {
 		log.Println("blog start:", err)
 	}

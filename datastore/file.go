@@ -2,12 +2,19 @@ package datastore
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/xerrors"
 	"google.golang.org/api/iterator"
 )
+
+var fileCursor map[int]string
+
+func init() {
+	fileCursor = make(map[int]string)
+}
 
 type FileDs struct {
 	request *http.Request
@@ -55,6 +62,16 @@ func SelectFile(r *http.Request, p int) ([]File, error) {
 	if err != nil {
 		return nil, xerrors.Errorf("create client: %w", err)
 	}
+
+	if cur, ok := fileCursor[p]; ok {
+		cursor, err := datastore.DecodeCursor(cur)
+		if err != nil {
+			log.Printf("%+v", err)
+		} else {
+			q = q.Start(cursor)
+		}
+	}
+
 	t := client.Run(c, q)
 	for {
 		var f File
@@ -70,6 +87,12 @@ func SelectFile(r *http.Request, p int) ([]File, error) {
 		s = append(s, f)
 	}
 
+	next, err := t.Cursor()
+	if err != nil {
+		log.Printf("%+v", err)
+	} else {
+		fileCursor[p+1] = next.String()
+	}
 	return s, nil
 }
 
@@ -90,6 +113,7 @@ func DeleteFile(r *http.Request, id string) error {
 	if err != nil {
 		return xerrors.Errorf("delete file data: %w", err)
 	}
+	fileCursor = make(map[int]string)
 	return nil
 }
 
@@ -173,6 +197,8 @@ func SaveFile(r *http.Request, id string, t int64) error {
 	if err != nil {
 		return xerrors.Errorf("put file data: %w", err)
 	}
+
+	fileCursor = make(map[int]string)
 	return nil
 }
 
