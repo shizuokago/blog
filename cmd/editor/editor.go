@@ -80,6 +80,7 @@ func main() {
 	})
 
 	auto := jQuery("#AutoSave").Val()
+
 	rd, aj := 0, 0
 	go func() {
 		t := time.NewTicker(5 * time.Second)
@@ -184,13 +185,16 @@ func draw() {
 
 	doc := js.Global.Get("document")
 	iframe := doc.Call("getElementById", "result")
-	idoc := iframe.Get("contentDocument")
 
-	idoc.Call("open")
-	idoc.Call("write", h)
-	idoc.Call("close")
+	if iframe != nil {
+		idoc := iframe.Get("contentDocument")
 
-	unbind()
+		idoc.Call("open")
+		idoc.Call("write", h)
+		idoc.Call("close")
+
+		unbind()
+	}
 }
 
 var beforeBody = ""

@@ -1,11 +1,13 @@
 package config
 
 import (
-	"os"
+	"log"
 )
 
 type Config struct {
-	Port string
+	Port        string
+	DevelopMode bool
+	ProjectID   string
 }
 
 var gConf Config
@@ -16,21 +18,11 @@ func Get() *Config {
 
 func Set(opts ...Option) error {
 	gConf = Config{}
-
 	for _, opt := range opts {
-		opt(&gConf)
+		err := opt(&gConf)
+		if err != nil {
+			log.Printf("%+v", err)
+		}
 	}
 	return nil
-}
-
-type Option func(*Config)
-
-func AppEnginePort() Option {
-	return func(c *Config) {
-		port := os.Getenv("PORT")
-		if port == "" {
-			port = "8080"
-		}
-		c.Port = port
-	}
 }

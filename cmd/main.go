@@ -9,8 +9,9 @@ import (
 
 func main() {
 
+	//blog start
 	err := blog.Start(
-		config.AppEnginePort(),
+		config.Port(), config.Project(), config.Datastore(),
 	)
 
 	if err != nil {

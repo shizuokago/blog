@@ -52,7 +52,7 @@ func Listen() error {
 	conf := config.Get()
 	s := ":" + conf.Port
 
-	log.Println("Start Blog Server[" + s + "]")
+	log.Println("Blog Server Start[" + s + "]")
 
 	return http.ListenAndServe(s, nil)
 }

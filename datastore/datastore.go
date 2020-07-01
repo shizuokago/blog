@@ -6,13 +6,16 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/xerrors"
+
+	"github.com/shizuokago/blog/config"
 )
 
 func init() {
 }
 
 func createClient(ctx context.Context) (*datastore.Client, error) {
-	client, err := datastore.NewClient(ctx, "shizuoka-go")
+
+	client, err := datastore.NewClient(ctx, config.ProjectID())
 	if err != nil {
 		return nil, xerrors.Errorf("datastore client: %w", err)
 	}
