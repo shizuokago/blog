@@ -69,7 +69,7 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 		Prev  string
 		PFlag bool
 	}{files, strconv.Itoa(next), strconv.Itoa(prev), flag}
-	adminRender(w, "./cmd/static/templates/admin/file.tmpl", data)
+	adminRender(w, "./cmd/templates/admin/file.tmpl", data)
 }
 
 func uploadFileHandler(w http.ResponseWriter, r *http.Request) {

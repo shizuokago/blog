@@ -22,9 +22,15 @@
         <input class="mdl-textfield__input" type="text" id="BlogTags" name="BlogTags" value="{{ .Blog.Tags }}" />
         <label class="mdl-textfield__label" for="BlogTags">Default Tags...</label>
       </div>
+
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <input class="mdl-textfield__input" type="text" id="BlogTemplate" name="BlogTemplate" value="{{ .Blog.Template }}" />
         <label class="mdl-textfield__label" for="BlogTags">Default Template...</label>
+      </div>
+
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="users" name="Users" value="{{.Blog.Users}}"/>
+        <label class="mdl-textfield__label" for="users">mail address(csv)</label>
       </div>
 
 
@@ -58,6 +64,7 @@
         <label class="mdl-textfield__label" for="twitterid">TwitterId...</label>
       </div>
 
+
 <label for="AutoSave" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
     <input type="checkbox" id="AutoSave" name="AutoSave" class="mdl-checkbox__input" {{if .User.AutoSave}}checked{{ end }} />
   <span class="mdl-checkbox__label">Enable AutoSave</span>
@@ -66,7 +73,7 @@
     </div>
 
     <div style="flex-grow:1;">
-        <button id="save" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
+        <button id="saveProfile" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
     </div>
 
   </div>
@@ -79,7 +86,7 @@
 
 <script>
 
-$("#save").click(function() {
+$("#saveProfile").click(function() {
     $("#profileForm").submit();
     return false;
 });

@@ -5,19 +5,20 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
+	"github.com/shizuokago/blog/datastore"
 	. "github.com/shizuokago/blog/handler/internal"
 )
 
 func Register() error {
 
 	n := mux.NewRouter()
-	h := NewHandler(n)
+	h := NewLoginHandler(n)
 
 	r := n.PathPrefix("/admin").Subrouter()
 
 	r.HandleFunc("/profile/upload", uploadAvatarHandler).Methods("POST")
 	r.HandleFunc("/profile", profileHandler)
-	r.HandleFunc("/", adminHandler).Methods("GET")
 
 	r.HandleFunc("/article/create", createArticleHandler).Methods("POST")
 	r.HandleFunc("/article/edit/{key}", editArticleHandler).Methods("GET")
@@ -36,25 +37,26 @@ func Register() error {
 	r.HandleFunc("/file/delete", deleteFileHandler).Methods("POST")
 	r.HandleFunc("/file/exists", existsFileHandler).Methods("POST")
 
+	r.HandleFunc("/", adminHandler).Methods("GET")
+
 	http.Handle("/admin/", h)
 
 	return nil
 }
 
-type Handler struct {
+type LoginHandler struct {
 	r *mux.Router
 }
 
-func NewHandler(r *mux.Router) Handler {
-	return Handler{r}
+func NewLoginHandler(r *mux.Router) LoginHandler {
+	return LoginHandler{r}
 }
 
-func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("ServeHTTP:" + r.URL.String())
-	//セッションの存在を確認
 	u, err := GetSession(r)
 	if err != nil {
+		log.Printf("session : %+v", err)
 		http.Redirect(w, r, "/login", 301)
 		return
 	}
@@ -65,16 +67,12 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if u.Email != "secondarykey@gmail.com" {
+	//メンバ設定
+	if !datastore.IsUser(r, u.Email) {
 		log.Println("ユーザが違う:" + u.Email)
-		http.Redirect(w, r, "/login", 301)
+		http.Redirect(w, r, "/logout", 301)
 		return
 	}
 
 	h.r.ServeHTTP(w, r)
-}
-
-func deleteDir(s string) string {
-	ds := []byte(s)
-	return string(ds[5:])
 }

@@ -3,6 +3,7 @@ package datastore
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/xerrors"
@@ -16,6 +17,7 @@ type Blog struct {
 	Tags        string
 	Description string
 	Template    string
+	Users       string
 	Meta
 }
 
@@ -44,6 +46,7 @@ func PutBlog(r *http.Request) error {
 		Description: r.FormValue("Description"),
 		Tags:        r.FormValue("BlogTags"),
 		Template:    r.FormValue("BlogTemplate"),
+		Users:       r.FormValue("Users"),
 	}
 
 	c := r.Context()
@@ -57,4 +60,33 @@ func PutBlog(r *http.Request) error {
 	}
 
 	return nil
+}
+
+func (b Blog) getUsers() []string {
+
+	if b.Users == "" {
+		return nil
+	}
+	users := strings.Split(b.Users, ",")
+	return users
+}
+
+func IsUser(r *http.Request, id string) bool {
+
+	b := GetBlog(r)
+
+	users := b.getUsers()
+	if users == nil {
+		log.Println("ユーザが存在しない為、フルアクセス")
+		return true
+	}
+
+	//ユーザが存在した場合OK
+	for _, elm := range users {
+		if elm == id {
+			return true
+		}
+	}
+
+	return false
 }

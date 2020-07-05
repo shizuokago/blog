@@ -18,7 +18,7 @@ func init() {
 
 	funcMap := template.FuncMap{"convert": Convert}
 	var err error
-	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./cmd/static/templates/index.tmpl")
+	indexTmpl, err = template.New("root").Funcs(funcMap).ParseFiles("./cmd/templates/index.tmpl")
 	if err != nil {
 		log.Println(err)
 	}

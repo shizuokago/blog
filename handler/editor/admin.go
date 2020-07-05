@@ -9,10 +9,15 @@ import (
 	. "github.com/shizuokago/blog/handler/internal"
 )
 
+func deleteDir(s string) string {
+	ds := []byte(s)
+	return string(ds[5:])
+}
+
 func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
 	funcMap := template.FuncMap{"convert": Convert, "deleteDir": deleteDir}
-	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./cmd/static/templates/admin/layout.tmpl", tName)
+	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./cmd/templates/admin/layout.tmpl", tName)
 	if err != nil {
 		ErrorPage(w, "Template Parse Error", err, 500)
 		return
@@ -23,47 +28,6 @@ func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 		ErrorPage(w, "Template Execute Error", err, 500)
 		return
 	}
-}
-
-func profileHandler(w http.ResponseWriter, r *http.Request) {
-
-	var u *datastore.User
-	if r.Method == "POST" {
-		user, err := GetSession(r)
-		if err != nil {
-			ErrorPage(w, "InternalServerError", err, 500)
-			return
-		}
-		u, err = datastore.PutInformation(r, user.Email)
-		if err != nil {
-			ErrorPage(w, "InternalServerError", err, 500)
-			return
-		}
-	}
-
-	if u == nil {
-		u = &datastore.User{}
-	}
-
-	bgd := datastore.GetBlog(r)
-	data := struct {
-		Blog *datastore.Blog
-		User *datastore.User
-	}{bgd, u}
-
-	adminRender(w, "./cmd/static/templates/admin/profile.tmpl", data)
-}
-
-func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
-
-	u, err := GetSession(r)
-
-	err = datastore.SaveAvatar(r, u.Email)
-	if err != nil {
-		ErrorPage(w, "InternalServerError", err, 500)
-		return
-	}
-	http.Redirect(w, r, "/admin/profile", 301)
 }
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
@@ -108,5 +72,5 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		PFlag    bool
 	}{articles, strconv.Itoa(next), strconv.Itoa(prev), flag}
 
-	adminRender(w, "./cmd/static/templates/admin/top.tmpl", data)
+	adminRender(w, "./cmd/templates/admin/top.tmpl", data)
 }

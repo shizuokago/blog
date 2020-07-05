@@ -4,12 +4,34 @@
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="743437884925-0i93q3frcjp9aa7hm0ulpkeab8j3vt21.apps.googleusercontent.com">
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <style>
+.outer{
+  position: relative;
+}
+.inner{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  width: 80%;
+  height: 3.2rem;
+}
+    </style>
   </head>
 
   <body>
 
-    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    <div class="outer">
+      <div class="inner">
+        <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+          <a href="#" onclick="signOut();">Sign out</a>
+        </div>
+    </div>
+
     <script>
+    signOut();
 
     function EncodeHTMLForm( data ) {
       var params = [];
@@ -43,6 +65,7 @@
           if ( data.Success == true )  {
               location.href = "/admin/";
           } else {
+              location.href = "/logout";
           }
         };
 
@@ -59,7 +82,6 @@
 
     </script>
 
-    <a href="#" onclick="signOut();">Sign out</a>
 
   </body>
 </html>

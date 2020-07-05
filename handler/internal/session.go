@@ -10,16 +10,16 @@ import (
 
 var store = sessions.NewCookieStore([]byte("Let's Golang"))
 
+type LoginUser struct {
+	Email string
+	Token string
+}
+
 func init() {
 	gob.Register(&LoginUser{})
 }
 
 const sessionName = "shizuokago-blog"
-
-type LoginUser struct {
-	Email string
-	Token string
-}
 
 func getSessionOptions() *sessions.Options {
 	return &sessions.Options{
@@ -37,6 +37,7 @@ func NewLoginUser(email string, token string) *LoginUser {
 }
 
 func GetSession(r *http.Request) (*LoginUser, error) {
+
 	sess, err := store.Get(r, sessionName)
 	if err != nil {
 		return nil, err
@@ -44,6 +45,9 @@ func GetSession(r *http.Request) (*LoginUser, error) {
 
 	obj := sess.Values["User"]
 	if user, ok := obj.(*LoginUser); ok {
+		if user.Email == "" {
+			return nil, fmt.Errorf("クリアデータ")
+		}
 		return user, nil
 	}
 	return nil, fmt.Errorf("ユーザの取得失敗")
@@ -54,6 +58,11 @@ func SetSession(w http.ResponseWriter, r *http.Request, u *LoginUser) error {
 	sess, err := store.Get(r, sessionName)
 	if err != nil {
 		return err
+	}
+
+	if u == nil {
+		wk := LoginUser{}
+		u = &wk
 	}
 
 	sess.Options = getSessionOptions()

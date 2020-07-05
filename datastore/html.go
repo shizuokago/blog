@@ -77,8 +77,8 @@ func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 
 func createTemplate() (*template.Template, error) {
 
-	action := "./cmd/static/templates/entry/action.tmpl"
-	entry := "./cmd/static/templates/entry/entry.tmpl"
+	action := "./cmd/templates/entry/action.tmpl"
+	entry := "./cmd/templates/entry/entry.tmpl"
 
 	tmpl = present.Template()
 	funcMap := template.FuncMap{

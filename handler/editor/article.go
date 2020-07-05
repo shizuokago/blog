@@ -52,7 +52,7 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		AutoSave string
 	}{art, u, string(art.Markdown), bgd.Name, autosave}
 
-	adminRender(w, "./cmd/static/templates/admin/edit.tmpl", s)
+	adminRender(w, "./cmd/templates/admin/edit.tmpl", s)
 }
 
 func saveArticleHandler(w http.ResponseWriter, r *http.Request) {

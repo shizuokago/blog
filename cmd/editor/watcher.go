@@ -29,7 +29,7 @@ func run() error {
 
 	listFiles := make([]string, 2)
 	listFiles[0] = "../../cmd/editor"
-	listFiles[1] = "../static/templates/entry"
+	listFiles[1] = "../templates/entry"
 
 	for _, elm := range listFiles {
 		err = watcher.Add(elm)

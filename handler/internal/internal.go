@@ -13,7 +13,7 @@ var errorTmpl *template.Template
 
 func init() {
 	var err error
-	errorTmpl, err = template.New("root").ParseFiles("./cmd/static/templates/error.tmpl")
+	errorTmpl, err = template.New("root").ParseFiles("./cmd/templates/error.tmpl")
 	if err != nil {
 		panic(err)
 	}

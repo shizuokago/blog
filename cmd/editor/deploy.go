@@ -12,8 +12,8 @@ import (
 const (
 	WORK_DIR     = "./work/"
 	INPUT_DIR    = "../../cmd/editor/"
-	OUTPUT_DIR   = "../static/js/"
-	TEMPLATE_DIR = "../static/templates/entry/"
+	OUTPUT_DIR   = "../assets/js/"
+	TEMPLATE_DIR = "../templates/entry/"
 	INPUT        = "editor.go"
 	OUTPUT_GO    = "editor.go.map"
 	OUTPUT_JS    = "editor.js"
