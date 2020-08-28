@@ -67,6 +67,7 @@ func Datastore() Option {
 				host = DefaultDatastoreEmulatorHost
 				os.Setenv(DatastoreEmulatorHostEnv, DefaultDatastoreEmulatorHost)
 			}
+
 			log.Println("Develop DatastoreHost=" + host)
 
 			if os.Getenv(DatastoreProjectIDEnv) == "" {

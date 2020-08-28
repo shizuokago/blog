@@ -4,34 +4,16 @@
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="743437884925-0i93q3frcjp9aa7hm0ulpkeab8j3vt21.apps.googleusercontent.com">
     <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <style>
-.outer{
-  position: relative;
-}
-.inner{
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  margin: auto;
-  width: 80%;
-  height: 3.2rem;
-}
-    </style>
   </head>
 
   <body>
 
-    <div class="outer">
-      <div class="inner">
-        <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
-          <a href="#" onclick="signOut();">Sign out</a>
-        </div>
+    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+      <a href="#" onclick="signOut();">Sign out</a>
     </div>
 
     <script>
-    signOut();
+
 
     function EncodeHTMLForm( data ) {
       var params = [];
@@ -75,9 +57,11 @@
 
     function signOut() {
       var auth2 = gapi.auth2.getAuthInstance();
-      auth2.signOut().then(function () {
-        console.log('User signed out.');
-      });
+      auth2.signOut();
+    }
+
+    window.onload = function() {
+        //signOut();
     }
 
     </script>

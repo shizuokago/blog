@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
+	"github.com/shizuokago/blog/config"
 )
 
 var store = sessions.NewCookieStore([]byte("Let's Golang"))
@@ -22,10 +23,15 @@ func init() {
 const sessionName = "shizuokago-blog"
 
 func getSessionOptions() *sessions.Options {
+
+	conf := config.Get()
+	secure := !conf.DevelopMode
+
 	return &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 7,
-		HttpOnly: true,
+		Secure:   secure,
+		SameSite: http.SameSiteDefaultMode,
 	}
 }
 
@@ -50,6 +56,7 @@ func GetSession(r *http.Request) (*LoginUser, error) {
 		}
 		return user, nil
 	}
+
 	return nil, fmt.Errorf("ユーザの取得失敗")
 }
 

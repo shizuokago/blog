@@ -20,11 +20,6 @@ func Register() error {
 	// App Engine has no /etc/mime.types
 	mime.AddExtensionType(".svg", "image/svg+xml")
 
-	err := editor.Register()
-	if err != nil {
-		return xerrors.Errorf("editor register: %w", err)
-	}
-
 	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	fs := http.FileServer(http.Dir("./cmd/assets"))
@@ -40,14 +35,20 @@ func Register() error {
 	//static := http.FileServer(http.Dir("./cmd"))
 	//http.Handle("/static", static)
 
-	http.HandleFunc("/entry/", entryHandler)
-	http.HandleFunc("/file/", fileHandler)
-
+	// login
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/session", sessionHandler)
+
+	// public page
+	http.HandleFunc("/file/", fileHandler)
+	http.HandleFunc("/entry/", entryHandler)
 	http.HandleFunc("/", topHandler)
 
+	err := editor.Register()
+	if err != nil {
+		return xerrors.Errorf("editor register: %w", err)
+	}
 	return nil
 }
 

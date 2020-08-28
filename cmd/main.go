@@ -11,10 +11,12 @@ func main() {
 
 	//blog start
 	err := blog.Start(
-		config.Port(), config.Project(), config.Datastore(),
+		config.Port(),
+		config.Project(),
+		config.Datastore(),
 	)
 
 	if err != nil {
-		log.Println("blog start:", err)
+		log.Printf("blog start: %+v\n", err)
 	}
 }

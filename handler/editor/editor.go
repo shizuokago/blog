@@ -13,9 +13,9 @@ import (
 func Register() error {
 
 	n := mux.NewRouter()
-	h := NewLoginHandler(n)
 
 	r := n.PathPrefix("/admin").Subrouter()
+	h := NewLoginHandler(r)
 
 	r.HandleFunc("/profile/upload", uploadAvatarHandler).Methods("POST")
 	r.HandleFunc("/profile", profileHandler)
@@ -54,23 +54,25 @@ func NewLoginHandler(r *mux.Router) LoginHandler {
 
 func (h LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	log.Println(r.URL)
+
 	u, err := GetSession(r)
 	if err != nil {
 		log.Printf("session : %+v", err)
-		http.Redirect(w, r, "/login", 301)
+		http.Redirect(w, r, "/login", 302)
 		return
 	}
 
 	if u == nil {
 		log.Println("ユーザがいない")
-		http.Redirect(w, r, "/login", 301)
+		http.Redirect(w, r, "/login", 302)
 		return
 	}
 
 	//メンバ設定
 	if !datastore.IsUser(r, u.Email) {
 		log.Println("ユーザが違う:" + u.Email)
-		http.Redirect(w, r, "/logout", 301)
+		http.Redirect(w, r, "/logout", 302)
 		return
 	}
 

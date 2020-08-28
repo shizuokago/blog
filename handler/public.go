@@ -26,6 +26,7 @@ func init() {
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
 
+	log.Println("top")
 	var err error
 	vals := r.URL.Query()
 	ps := vals["p"]
