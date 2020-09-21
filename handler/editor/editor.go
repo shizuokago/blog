@@ -37,6 +37,11 @@ func Register() error {
 	r.HandleFunc("/file/delete", deleteFileHandler).Methods("POST")
 	r.HandleFunc("/file/exists", existsFileHandler).Methods("POST")
 
+	r.HandleFunc("/cache/view", viewCacheHandler).Methods("GET")
+	r.HandleFunc("/cache/register", registerCacheHandler).Methods("POST")
+	r.HandleFunc("/cache/update", updateCacheHandler).Methods("POST")
+	r.HandleFunc("/cache/delete", deleteCacheHandler).Methods("POST")
+
 	r.HandleFunc("/", adminHandler).Methods("GET")
 
 	http.Handle("/admin/", h)
@@ -53,8 +58,6 @@ func NewLoginHandler(r *mux.Router) LoginHandler {
 }
 
 func (h LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	log.Println(r.URL)
 
 	u, err := GetSession(r)
 	if err != nil {

@@ -75,3 +75,17 @@ func Put(ctx context.Context, dst HasKey) error {
 	}
 	return nil
 }
+
+func Delete(ctx context.Context, key *datastore.Key) error {
+
+	client, err := createClient(ctx)
+	if err != nil {
+		return xerrors.Errorf("create client: %w", err)
+	}
+
+	err = client.Delete(ctx, key)
+	if err != nil {
+		return xerrors.Errorf("datastore delete error: %w", err)
+	}
+	return nil
+}

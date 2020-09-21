@@ -2,7 +2,6 @@ package handler
 
 import (
 	"log"
-	"mime"
 	"net/http"
 
 	_ "golang.org/x/tools/playground"
@@ -17,38 +16,26 @@ func Register() error {
 
 	present.PlayEnabled = true
 
-	// App Engine has no /etc/mime.types
-	mime.AddExtensionType(".svg", "image/svg+xml")
+	err := registerStatic()
+	if err != nil {
+		return xerrors.Errorf("static register: %w", err)
+	}
 
-	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
-
-	fs := http.FileServer(http.Dir("./cmd/assets"))
-	http.Handle("/js/", fs)
-	http.Handle("/css/", fs)
-	http.Handle("/images/", fs)
-	http.Handle("/favicon.ico", fs)
-
-	//既存のブログが見ている
-	http.Handle("/static/css/", fs)
-
-	//Deprecated
-	//static := http.FileServer(http.Dir("./cmd"))
-	//http.Handle("/static", static)
-
-	// login
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/logout", logoutHandler)
-	http.HandleFunc("/session", sessionHandler)
-
-	// public page
-	http.HandleFunc("/file/", fileHandler)
-	http.HandleFunc("/entry/", entryHandler)
-	http.HandleFunc("/", topHandler)
-
-	err := editor.Register()
+	err = editor.Register()
 	if err != nil {
 		return xerrors.Errorf("editor register: %w", err)
 	}
+
+	err = registerLogin()
+	if err != nil {
+		return xerrors.Errorf("login register: %w", err)
+	}
+
+	err = registerPublic()
+	if err != nil {
+		return xerrors.Errorf("public register: %w", err)
+	}
+
 	return nil
 }
 

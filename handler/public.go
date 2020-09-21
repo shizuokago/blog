@@ -24,9 +24,16 @@ func init() {
 	}
 }
 
+func registerPublic() error {
+	// public page
+	http.HandleFunc("/file/", fileHandler)
+	http.HandleFunc("/entry/", entryHandler)
+	http.HandleFunc("/", topHandler)
+	return nil
+}
+
 func topHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("top")
 	var err error
 	vals := r.URL.Query()
 	ps := vals["p"]
@@ -82,6 +89,8 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "Not Found", err, 404)
 		return
 	}
+
+	AddCacheHeader(w, r)
 
 	_, err = w.Write(data.Content)
 	if err != nil {

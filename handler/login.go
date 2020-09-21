@@ -9,6 +9,14 @@ import (
 	. "github.com/shizuokago/blog/handler/internal"
 )
 
+func registerLogin() error {
+	// login
+	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/logout", logoutHandler)
+	http.HandleFunc("/session", sessionHandler)
+	return nil
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := SetSession(w, r, nil)

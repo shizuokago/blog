@@ -37,7 +37,7 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 
 	c := r.Context()
 
-	q := datastore.NewQuery("Article").Order("- UpdatedAt").Limit(10)
+	q := datastore.NewQuery(KIND_ARTICLE).Order("- UpdatedAt").Limit(10)
 
 	var s []Article
 
