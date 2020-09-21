@@ -62,9 +62,13 @@
   </div>
 
 {{ template "paging" .}}
-
-
 </div>
+
+{{end}}
+
+
+
+{{define "script"}}
 
 <script>
 var selectId = "";
@@ -140,18 +144,12 @@ $("button.deleteBtn").click(function(e) {
 });
 
 </script>
-
 {{end}}
 
-{{define "header_menu"}}
-{{end}}
+{{define "header_menu"}} {{end}}
 
-{{define "footer_left_menu"}}
-{{end}}
-{{define "footer_right_menu"}}
-
-
-{{end}}
+{{define "footer_left_menu"}} {{end}}
+{{define "footer_right_menu"}} {{end}}
 
 {{ define "paging" }}
           <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">

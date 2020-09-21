@@ -107,8 +107,9 @@
 </form>
 
 </div>
+{{end}}
 
-
+{{define "script"}}
 <script>
 
 Array.prototype.forEach.call(document.querySelectorAll('.mdl-card__title'), function(el) {
@@ -162,7 +163,6 @@ $("#file").change(function() {
 });
 
 </script>
-
 {{end}}
 
 {{define "header_menu"}}
@@ -171,10 +171,8 @@ $("#file").change(function() {
 </button>
 {{end}}
 
-{{define "footer_left_menu"}}
-{{end}}
-{{define "footer_right_menu"}}
-{{end}}
+{{define "footer_left_menu"}} {{end}}
+{{define "footer_right_menu"}} {{end}}
 
 {{define "paging"}}
           <nav class="mdl-cell mdl-cell--12-col" style="display:flex;margin:0px 30px 0px 30px;">

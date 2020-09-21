@@ -83,7 +83,9 @@
 <form method="post" action="/admin/profile/upload" enctype="multipart/form-data">
   <input type="file" name="file" id="file" value="" style="display:none;"/>
 </form>
+{{end}}
 
+{{define "script"}}
 <script>
 
 $("#saveProfile").click(function() {
@@ -102,13 +104,9 @@ $("#file").change(function() {
 });
 
 </script>
-
 {{end}}
 
-{{define "header_menu"}}
-{{end}}
+{{define "header_menu"}} {{end}}
 
-{{define "footer_left_menu"}}
-{{end}}
-{{define "footer_right_menu"}}
-{{end}}
+{{define "footer_left_menu"}} {{end}}
+{{define "footer_right_menu"}} {{end}}
