@@ -50,7 +50,7 @@ func initCache(ctx context.Context) error {
 		return xerrors.Errorf("/images/* cache register: %w", err)
 	}
 
-	_, err = RegisterCache(ctx, "/file/*", 3600)
+	_, err = RegisterCache(ctx, "/file/*/*", 3600)
 	if err != nil {
 		return xerrors.Errorf("/file/* cache register: %w", err)
 	}
@@ -65,7 +65,7 @@ func initCache(ctx context.Context) error {
 		return xerrors.Errorf("/favicon.ico cache register: %w", err)
 	}
 
-	_, err = RegisterCache(ctx, "/", 3600)
+	_, err = RegisterCache(ctx, "/", 600)
 	if err != nil {
 		return xerrors.Errorf("/ cache register: %w", err)
 	}

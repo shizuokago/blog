@@ -11,6 +11,8 @@ import (
 
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 
+	AddCacheHeader(w, r)
+
 	url := r.URL.Path
 	name := strings.Replace(url, "/file/", "", 1)
 

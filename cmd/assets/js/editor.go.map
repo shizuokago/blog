@@ -80,6 +80,7 @@ func main() {
 	})
 
 	auto := jQuery("#AutoSave").Val()
+
 	rd, aj := 0, 0
 	go func() {
 		t := time.NewTicker(5 * time.Second)
@@ -184,13 +185,16 @@ func draw() {
 
 	doc := js.Global.Get("document")
 	iframe := doc.Call("getElementById", "result")
-	idoc := iframe.Get("contentDocument")
 
-	idoc.Call("open")
-	idoc.Call("write", h)
-	idoc.Call("close")
+	if iframe != nil {
+		idoc := iframe.Get("contentDocument")
 
-	unbind()
+		idoc.Call("open")
+		idoc.Call("write", h)
+		idoc.Call("close")
+
+		unbind()
+	}
 }
 
 var beforeBody = ""
@@ -404,9 +408,9 @@ const (
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.1.1/material.indigo-blue.min.css">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-blue.min.css">
 
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/file/data/styles.css">
 
   </head>
 

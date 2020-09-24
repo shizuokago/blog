@@ -5,6 +5,7 @@ go 1.12
 require (
 	cloud.google.com/go v0.57.0
 	cloud.google.com/go/datastore v1.2.0
+	cloud.google.com/go/pubsub v1.3.1 // indirect
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/dddaisuke/graphics-go v0.0.0-20150401005551-3d09df467d64
 	github.com/fsnotify/fsnotify v1.4.9

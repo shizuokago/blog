@@ -13,17 +13,21 @@ func registerStatic() error {
 	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 	fs := http.FileServer(http.Dir("./cmd/assets"))
 
-	http.Handle("/js/", fs)
-	http.Handle("/css/", fs)
-	http.Handle("/images/", fs)
 	http.Handle("/favicon.ico", fs)
+	http.Handle("/js/", fs)
+	http.Handle("/images/", fs)
+
+	http.HandleFunc("/css/styles.css", deprecatedStyles)
+	http.HandleFunc("/static/css/styles.css", deprecatedStyles)
 
 	//Deprecated
 	//static := http.FileServer(http.Dir("./cmd"))
 	//http.Handle("/static", static)
-
 	//既存のブログが見ている
-	http.Handle("/static/css/", fs)
 
 	return nil
+}
+
+func deprecatedStyles(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/file/data/styles.css", 302)
 }

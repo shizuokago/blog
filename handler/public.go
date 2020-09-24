@@ -34,6 +34,8 @@ func registerPublic() error {
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
 
+	AddCacheHeader(w, r)
+
 	var err error
 	vals := r.URL.Query()
 	ps := vals["p"]

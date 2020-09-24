@@ -1,63 +1,39 @@
 # GoogleAppEngine Blog Engine
 
+Shizuoka.goでは、GoogleAppEngine上でブログを動作させています。
+
+編集画面でGopherJSを利用し、エディタを実現しています。
+デザインを変更するには以下のファイルを変更する必要があります。
+
+  一覧を表示するテンプレート
+      cmd/templates/index.tmpl
+
+  記事のテンプレート
+      cmd/templates/entry/entry.tmpl
+      cmd/templates/entry/action.tmpl
+
+## GopherJS
+
+GopherJSの動作が、1.12以外では動作しない為、
+テンプレートの更新にはそれらが必要になります。
+※基本的に下書き用に利用している為、Generateする部分は別になります。
+
+GOPHERJS_GOROOT を利用する必要があります。
+
 ## Install 
 
 
-```bash
-
-
-
-
-```
-
-## AppEngine Deploy
+## Deploy
 
 - production
+
 ```bash
    gcloud app deploy --project=[Project ID] app.yaml index.yaml
 ```
 
-## Original
-
-  index HTML
-
-    ./app/templates/index.tmpl
-
-  article HTML
-
-    ./app/templates/entry/entry.tmpl
-    ./app/templates/entry/action.tmpl
-
-  stylesheet
-
-    ./app/static/css/style.css
-
-  backgroung image
-
-    ./app/static/images/bg_1024.jpg
-    ./app/static/images/bg_2048.jpg
-    ./app/static/images/bg_2880.jpg
-
 ## Command
 
-### if you change design
-
-create editor js
-```bash
-    editor
-```
-
-woking directory(in "go run cmd/editor.js")
-```bash
-    deploy
-```
-
-watch design(in "go run cmd/deploy.js")
-### if you change design(watch)
-```bash
-    watcher
-```
 
 ## Sample
 
-http://shizuoka-go.appspot.com/
+    http://shizuoka-go.appspot.com/

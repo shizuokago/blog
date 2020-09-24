@@ -1,37 +1,5 @@
 {{define "body"}}
 
-
-    <!-- Wide card with share menu button -->
-    <style>
-.card-wide.mdl-card {
-  float:left;
-  width: 420px;
-  margin:10px;
-}
-.card-wide > .mdl-card__title {
-  color: #fff;
-  height: 176px;
-}
-.card-wide > .mdl-card__menu {
-  color: #fff;
-}
-
-.title {
-  font-size : 24px;
-  text-shadow:
-    0px -1px #aaa,
-    1px 0px #555,
-    0px 1px #aaa,
-    -1px 1px #555;
-}
-
-.mdl-layout-spacer {
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-}
-    </style>
-
     <div class="mdl-grid" style="width:100%">
 
       {{ template "paging" . }}
