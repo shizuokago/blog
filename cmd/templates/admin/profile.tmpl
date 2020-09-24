@@ -24,11 +24,6 @@
       </div>
 
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="BlogTemplate" name="BlogTemplate" value="{{ .Blog.Template }}" />
-        <label class="mdl-textfield__label" for="BlogTags">Default Template...</label>
-      </div>
-
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <input class="mdl-textfield__input" type="text" id="users" name="Users" value="{{.Blog.Users}}"/>
         <label class="mdl-textfield__label" for="users">mail address(csv)</label>
       </div>
@@ -64,15 +59,27 @@
         <label class="mdl-textfield__label" for="twitterid">TwitterId...</label>
       </div>
 
-
-<label for="AutoSave" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-    <input type="checkbox" id="AutoSave" name="AutoSave" class="mdl-checkbox__input" {{if .User.AutoSave}}checked{{ end }} />
-  <span class="mdl-checkbox__label">Enable AutoSave</span>
-</label>
-
     </div>
 
+
+    <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-textfield mdl-js-textfield" style="width:100%;">
+            <textarea class="mdl-textfield__input" style="width:100%;" type="text" rows= "5" id="BlogTemplate" name="BlogTemplate">{{.Blog.Template}}</textarea>
+            <label class="mdl-textfield__label" for="BlogTemplate">Default Template...</label>
+        </div>
+    </div>
+
+
     <div style="flex-grow:1;">
+
+        <label for="AutoSave" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+            <input type="checkbox" id="AutoSave" name="AutoSave" class="mdl-checkbox__input" {{if .User.AutoSave}}checked{{ end }} />
+          <span class="mdl-checkbox__label">Enable AutoSave</span>
+        </label>
+
+        <br>
+        <br>
+
         <button id="saveProfile" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
     </div>
 
