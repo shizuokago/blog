@@ -1,24 +1,33 @@
 {{define "root"}}
 <!doctype html>
 <html lang="en">
-  <head>
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/ fb# website: http://ogp.me/ns/website#">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="{{ .Blog.Description }}">
     <meta name="author" content="{{ .Blog.Author }}">
     <meta name="keywords" content="{{ .Blog.Tags }}">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta property="og:url" content="https://shizuokago.appspot.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ .Blog.Name }}" />
+    <meta property="og:description" content="{{ .Blog.Description }}" />
+    <meta property="og:site_name" content="{{ .Blog.Name }}" />
+    <meta property="og:image" content="/file/data/bg_1024.jpg" />
+
+    <meta name="twitter:card" content="Summary Card" />
+
     <title>{{.Blog.Name}}</title>
 
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-blue.min.css">
     <link rel="stylesheet" href="/file/data/styles.css">
+
   </head>
 
   <body>
-
 
     <div class="demo-blog mdl-layout mdl-js-layout has-drawer is-upgraded">
 

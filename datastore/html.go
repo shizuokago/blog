@@ -39,7 +39,13 @@ func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 		u.URL + "\n" +
 		u.TwitterId + "\n"
 
-	txt := header + "\n" + string(art.Markdown)
+	mark := string(art.Markdown)
+	txt := header + "\n" + mark
+
+	desc := strings.ReplaceAll(mark, "\n", "")
+	if len(desc) > 100 {
+		desc = desc[:90] + "..."
+	}
 
 	ds := FileDs{
 		request: r,
@@ -58,9 +64,10 @@ func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, err
 		Template    *template.Template
 		PlayEnabled bool
 		StringID    string
+		Description string
 		Blog        *Blog
 		HTML        *Html
-	}{doc, tmpl, true, art.Key.Name, bgd, html}
+	}{doc, tmpl, true, art.Key.Name, desc, bgd, html}
 
 	//Render
 	var b bytes.Buffer
