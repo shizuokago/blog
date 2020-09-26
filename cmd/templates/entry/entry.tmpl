@@ -9,16 +9,17 @@
     <meta name="keywords" content="{{ .Blog.Tags }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta property="og:url" content="https://shizuokago.appspot.com/entry/{{ .StringID }}" />
+    <meta property="og:url" content="https://shizuoka-go.appspot.com/entry/{{ .StringID }}" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="{{ .Title }}" />
     <meta property="og:description" content="{{ .Description }}" />
     <meta property="og:site_name" content="{{ .Blog.Name }}" />
-    <meta property="og:image" content="/file/bg/{{ .StringID }}" />
+    <meta property="og:image" content="https://shizuoka-go.appspot.com/file/bg/{{ .StringID }}" />
 
-    <meta name="twitter:card" content="Summary Card" />
+    <meta name="twitter:card" content="summary_large_image" />
 
     <title>{{.Title}} [{{.Blog.Name}}]</title>
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-blue.min.css">
     <link rel="stylesheet" href="/file/data/styles.css">
@@ -123,7 +124,7 @@
     function tweet() {
         var address = location.href;
         var title = document.title;
-        var href = "http://twitter.com/share?count=horizontal&amp;original_referer=" + address + "&amp;text=" + title + "&amp;url=" + address;
+        var href = "https://twitter.com/share?count=horizontal&amp;original_referer=" + address + "&amp;text=" + title + "&amp;url=" + address;
         window.open(href,'tweetwindow','width=550, height=450,personalbar=0,toolbar=0,scrollbars=1,resizable=1');
         return false;
     }
