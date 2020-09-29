@@ -269,14 +269,17 @@ func getHtml() string {
 		Description string
 	}{"Empty", "Empty", "Empty", "Empty"}
 
+	//TODO 実際の値
+	desc := ""
 	rtn := struct {
 		*present.Doc
 		Template    *template.Template
 		PlayEnabled bool
 		StringID    string
+		Description string
 		Blog        interface{}
 		HTML        Html
-	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), blog, h}
+	}{doc, gblTmpl, true, jQuery(ARTICLE_ID).Val(), desc, blog, h}
 
 	//Render
 	var b bytes.Buffer
