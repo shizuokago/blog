@@ -9,6 +9,7 @@ import (
 
 	"github.com/shizuokago/blog/datastore"
 	. "github.com/shizuokago/blog/handler/internal"
+	. "github.com/shizuokago/blog/handler/internal/form"
 )
 
 func existsFileHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +17,9 @@ func existsFileHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	id := r.FormValue("fileName")
 
-	flag, err := datastore.ExistsFile(r, id, datastore.FILE_TYPE_DATA)
+	ctx := r.Context()
+
+	flag, err := datastore.ExistsFile(ctx, id, datastore.FILE_TYPE_DATA)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
@@ -45,7 +48,8 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	files, err := datastore.SelectFile(r, p)
+	ctx := r.Context()
+	files, err := datastore.SelectFile(ctx, p)
 	if err != nil {
 		ErrorPage(w, "Not Found", err, 404)
 		return
@@ -74,7 +78,20 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 
 func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 
-	err := datastore.SaveFile(r, r.FormValue("FileName"), datastore.FILE_TYPE_DATA)
+	f, d, err := GetFile(r)
+	if err != nil {
+		ErrorPage(w, "InternalServerError", err, 500)
+		return
+	}
+
+	id := r.FormValue("FileName")
+	p := datastore.FileParam{
+		File:     f,
+		FileData: d,
+	}
+
+	ctx := r.Context()
+	err = datastore.SaveFile(ctx, id, datastore.FILE_TYPE_DATA, &p)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
@@ -84,8 +101,11 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
-	filename := r.FormValue("FileName")
-	err := datastore.DeleteFile(r, "data/"+filename)
+
+	id := r.FormValue("FileName")
+
+	ctx := r.Context()
+	err := datastore.DeleteFile(ctx, id)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
@@ -94,10 +114,22 @@ func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func saveBackgroundHandler(w http.ResponseWriter, r *http.Request) {
+
 	vars := mux.Vars(r)
 	name := vars["key"]
 
-	err := datastore.SaveBackgroundImage(r, name)
+	f, d, err := GetFile(r)
+	if err != nil {
+		ErrorPage(w, "InternalServerError", err, 500)
+		return
+	}
+	p := datastore.FileParam{
+		File:     f,
+		FileData: d,
+	}
+
+	ctx := r.Context()
+	err = datastore.SaveBackgroundImage(ctx, name, &p)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
@@ -109,7 +141,8 @@ func deleteBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["key"]
 
-	err := datastore.DeleteBackgroundImage(r, name)
+	ctx := r.Context()
+	err := datastore.DeleteBackgroundImage(ctx, name)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return

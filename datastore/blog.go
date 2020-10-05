@@ -1,15 +1,18 @@
 package datastore
 
 import (
+	"context"
 	"log"
-	"net/http"
 	"strings"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/xerrors"
 )
 
-const KIND_BLOG = "Blog"
+const (
+	BlogKey  = "Fixing"
+	KindBlog = "Blog"
+)
 
 type Blog struct {
 	Name        string
@@ -23,41 +26,32 @@ type Blog struct {
 
 var pkgBlog = Blog{}
 
-func GetBlog(r *http.Request) *Blog {
+func GetBlog(ctx context.Context) *Blog {
 
 	if pkgBlog.Name != "" {
 		return &pkgBlog
 	}
-	c := r.Context()
-	key := datastore.NameKey(KIND_BLOG, "Fixing", nil)
 
-	err := Get(c, key, &pkgBlog)
+	key := datastore.NameKey(KindBlog, BlogKey, nil)
+
+	err := Get(ctx, key, &pkgBlog)
 	if err != nil {
 		log.Println(err)
 	}
 	return &pkgBlog
 }
 
-func PutBlog(r *http.Request) error {
+func PutBlog(ctx context.Context, blog *Blog) error {
 
-	pkgBlog = Blog{
-		Name:        r.FormValue("BlogName"),
-		Author:      r.FormValue("BlogAuthor"),
-		Description: r.FormValue("Description"),
-		Tags:        r.FormValue("BlogTags"),
-		Template:    r.FormValue("BlogTemplate"),
-		Users:       r.FormValue("Users"),
-	}
+	key := datastore.NameKey(KindBlog, BlogKey, nil)
+	blog.SetKey(key)
 
-	c := r.Context()
-	key := datastore.NameKey(KIND_BLOG, "Fixing", nil)
-
-	pkgBlog.SetKey(key)
-
-	err := Put(c, &pkgBlog)
+	err := Put(ctx, blog)
 	if err != nil {
 		return xerrors.Errorf("blog put: %w", err)
 	}
+
+	pkgBlog = *blog
 
 	return nil
 }
@@ -71,9 +65,9 @@ func (b Blog) getUsers() []string {
 	return users
 }
 
-func IsUser(r *http.Request, id string) bool {
+func IsUser(ctx context.Context, id string) bool {
 
-	b := GetBlog(r)
+	b := GetBlog(ctx)
 
 	users := b.getUsers()
 	if users == nil {
@@ -89,4 +83,18 @@ func IsUser(r *http.Request, id string) bool {
 	}
 
 	return false
+}
+
+func PutInformation(ctx context.Context, blog *Blog, user *User, key string) error {
+
+	err := Put(ctx, blog)
+	if err != nil {
+		return xerrors.Errorf("put blog: %w", err)
+	}
+
+	err = Put(ctx, user)
+	if err != nil {
+		return xerrors.Errorf("put user: %w", err)
+	}
+	return nil
 }

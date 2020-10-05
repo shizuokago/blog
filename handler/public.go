@@ -50,8 +50,9 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	ctx := r.Context()
 	//ページデータ
-	htmls, err := datastore.SelectHtml(r, p)
+	htmls, err := datastore.SelectHTML(ctx, p)
 	if err != nil {
 		ErrorPage(w, "Not Found", err, 404)
 		return
@@ -65,10 +66,10 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//ブログデータ
-	bgd := datastore.GetBlog(r)
+	bgd := datastore.GetBlog(ctx)
 	data := struct {
 		Blog  *datastore.Blog
-		HTMLs []datastore.Html
+		HTMLs []datastore.HTML
 		Next  string
 		Prev  string
 		PFlag bool
@@ -86,7 +87,9 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	id := strings.Replace(url, "/entry/", "", 1)
 
-	data, err := datastore.GetHtmlData(r, id)
+	ctx := r.Context()
+
+	data, err := datastore.GetHTMLData(ctx, id)
 	if err != nil {
 		ErrorPage(w, "Not Found", err, 404)
 		return

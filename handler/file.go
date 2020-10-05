@@ -16,7 +16,8 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	name := strings.Replace(url, "/file/", "", 1)
 
-	file, err := datastore.GetFileData(r, name)
+	ctx := r.Context()
+	file, err := datastore.GetFileData(ctx, name)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return

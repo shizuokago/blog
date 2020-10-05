@@ -1,9 +1,9 @@
 package datastore
 
 import (
+	"context"
 	"errors"
 	"log"
-	"net/http"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/xerrors"
@@ -12,24 +12,16 @@ import (
 
 var fileCursor map[int]string
 
+type FileParam struct {
+	File     *File
+	FileData *FileData
+}
+
 func init() {
 	fileCursor = make(map[int]string)
 }
 
-type FileDs struct {
-	request *http.Request
-}
-
-func (ds FileDs) readFile(name string) ([]byte, error) {
-	key := "data/" + name
-	file, err := GetFileData(ds.request, key)
-	if err != nil {
-		return []byte(err.Error()), err
-	}
-	return file.Content, nil
-}
-
-const KIND_FILE = "File"
+const KindFile = "File"
 
 type File struct {
 	Size int64
@@ -43,22 +35,20 @@ const (
 	FILE_TYPE_DATA   = 3
 )
 
-func getFileKey(r *http.Request, name string) *datastore.Key {
-	return datastore.NameKey(KIND_FILE, name, nil)
+func getFileKey(name string) *datastore.Key {
+	return datastore.NameKey(KindFile, name, nil)
 }
 
-func SelectFile(r *http.Request, p int) ([]File, error) {
+func SelectFile(ctx context.Context, p int) ([]File, error) {
 
-	c := r.Context()
-
-	q := datastore.NewQuery(KIND_FILE).
+	q := datastore.NewQuery(KindFile).
 		Filter("Type =", 3).
 		Order("- UpdatedAt").
 		Limit(10)
 
 	var s []File
 
-	client, err := createClient(c)
+	client, err := createClient(ctx)
 	if err != nil {
 		return nil, xerrors.Errorf("create client: %w", err)
 	}
@@ -72,7 +62,7 @@ func SelectFile(r *http.Request, p int) ([]File, error) {
 		}
 	}
 
-	t := client.Run(c, q)
+	t := client.Run(ctx, q)
 	for {
 		var f File
 		key, err := t.Next(&f)
@@ -96,30 +86,32 @@ func SelectFile(r *http.Request, p int) ([]File, error) {
 	return s, nil
 }
 
-func DeleteFile(r *http.Request, id string) error {
+func DeleteFile(ctx context.Context, id string) error {
 
-	c := r.Context()
+	fkey := getFileKey(id)
 
-	fkey := getFileKey(r, id)
+	client, err := createClient(ctx)
+	if err != nil {
+		return xerrors.Errorf("create client: %w", err)
+	}
 
-	client, err := createClient(c)
-	err = client.Delete(c, fkey)
+	err = client.Delete(ctx, fkey)
 	if err != nil {
 		return xerrors.Errorf("delete file: %w", err)
 	}
 
-	fdkey := getFileDataKey(r, id)
-	err = client.Delete(c, fdkey)
+	fdkey := getFileDataKey(id)
+	err = client.Delete(ctx, fdkey)
 	if err != nil {
 		return xerrors.Errorf("delete file data: %w", err)
 	}
+
 	fileCursor = make(map[int]string)
 	return nil
 }
 
-func ExistsFile(r *http.Request, id string, t int64) (bool, error) {
+func ExistsFile(ctx context.Context, id string, t int64) (bool, error) {
 
-	c := r.Context()
 	dir := "data"
 	if t == FILE_TYPE_BG {
 		dir = "bg"
@@ -127,10 +119,10 @@ func ExistsFile(r *http.Request, id string, t int64) (bool, error) {
 		dir = "avatar"
 	}
 
-	key := getFileKey(r, dir+"/"+id)
+	key := getFileKey(dir + "/" + id)
 
 	rtn := File{}
-	err := Get(c, key, &rtn)
+	err := Get(ctx, key, &rtn)
 
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
@@ -144,56 +136,30 @@ func ExistsFile(r *http.Request, id string, t int64) (bool, error) {
 
 }
 
-func SaveFile(r *http.Request, id string, t int64) error {
-
-	upload, header, err := r.FormFile("file")
-	if err != nil {
-		return xerrors.Errorf("from file: %w", err)
-	}
-	defer upload.Close()
-
-	b, flg, err := ConvertImage(upload)
-	if err != nil {
-		return xerrors.Errorf("convert image: %w", err)
-	}
-
-	c := r.Context()
+func SaveFile(ctx context.Context, id string, t int64, file *FileParam) error {
 
 	dir := "data"
 	if t == FILE_TYPE_BG {
 		dir = "bg"
 	} else if t == FILE_TYPE_AVATAR {
 		dir = "avatar"
-	} else {
-		if id == "" {
-			id = header.Filename
-		}
+	}
+
+	if id == "" {
+		return errors.New("id is empty")
 	}
 
 	fid := dir + "/" + id
-	file := &File{
-		Size: int64(len(b)),
-		Type: t,
-	}
 
-	file.Key = getFileKey(r, fid)
+	file.File.Key = getFileKey(fid)
+	file.FileData.SetKey(getFileDataKey(fid))
 
-	err = Put(c, file)
+	err := Put(ctx, file.File)
 	if err != nil {
 		return xerrors.Errorf("put file: %w", err)
 	}
 
-	mime := header.Header["Content-Type"][0]
-	if flg {
-		mime = "image/jpeg"
-	}
-
-	fileData := &FileData{
-		Content: b,
-		Mime:    mime,
-	}
-	fileData.SetKey(getFileDataKey(r, fid))
-	err = Put(c, fileData)
+	err = Put(ctx, file.FileData)
 	if err != nil {
 		return xerrors.Errorf("put file data: %w", err)
 	}
@@ -202,23 +168,23 @@ func SaveFile(r *http.Request, id string, t int64) error {
 	return nil
 }
 
-func SaveBackgroundImage(r *http.Request, id string) error {
-	err := SaveFile(r, id, FILE_TYPE_BG)
+func SaveBackgroundImage(ctx context.Context, id string, file *FileParam) error {
+	err := SaveFile(ctx, id, FILE_TYPE_BG, file)
 	if err != nil {
 		return xerrors.Errorf("save file: %w", err)
 	}
 	return nil
 }
 
-func DeleteBackgroundImage(r *http.Request, id string) error {
-	err := DeleteFile(r, "bg/"+id)
+func DeleteBackgroundImage(ctx context.Context, id string) error {
+	err := DeleteFile(ctx, "bg/"+id)
 	if err != nil {
 		return xerrors.Errorf("delete background file: %w", err)
 	}
 	return nil
 }
 
-const KIND_FILEDATA = "FileData"
+const KindFileData = "FileData"
 
 type FileData struct {
 	key     *datastore.Key
@@ -234,17 +200,16 @@ func (d *FileData) SetKey(k *datastore.Key) {
 	d.key = k
 }
 
-func getFileDataKey(r *http.Request, name string) *datastore.Key {
-	return datastore.NameKey(KIND_FILEDATA, name, nil)
+func getFileDataKey(name string) *datastore.Key {
+	return datastore.NameKey(KindFileData, name, nil)
 }
 
-func GetFileData(r *http.Request, name string) (*FileData, error) {
-	c := r.Context()
+func GetFileData(ctx context.Context, name string) (*FileData, error) {
 
 	rtn := FileData{}
-	key := getFileDataKey(r, name)
+	key := getFileDataKey(name)
 
-	err := Get(c, key, &rtn)
+	err := Get(ctx, key, &rtn)
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
 			return nil, nil

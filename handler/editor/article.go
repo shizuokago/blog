@@ -1,20 +1,36 @@
 package editor
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
-	"time"
+
+	"github.com/gorilla/mux"
 
 	"github.com/shizuokago/blog/datastore"
 	. "github.com/shizuokago/blog/handler/internal"
+	. "github.com/shizuokago/blog/handler/internal/form"
+	"github.com/shizuokago/blog/logic"
 )
 
 func createArticleHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := datastore.CreateArticle(r)
+
+	file, data, err := GetFile(r)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
+
+	ctx := r.Context()
+
+	blog := datastore.GetBlog(ctx)
+
+	article := CreateNewArticle(blog)
+
+	id, err := datastore.CreateArticle(ctx, article, file, data)
+	if err != nil {
+		ErrorPage(w, "InternalServerError", err, 500)
+		return
+	}
+
 	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
 }
 
@@ -25,13 +41,14 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := GetSession(r)
 
-	art, err := datastore.GetArticle(r, name)
+	ctx := r.Context()
+	art, err := datastore.GetArticle(ctx, name)
 	if err != nil {
 		ErrorPage(w, "Key Error", err, 400)
 		return
 	}
 
-	u, err := datastore.GetUser(r, user.Email)
+	u, err := datastore.GetUser(ctx, user.Email)
 	if err != nil {
 		ErrorPage(w, "User Error", err, 401)
 		return
@@ -43,7 +60,7 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		autosave = "on"
 	}
 
-	bgd := datastore.GetBlog(r)
+	bgd := datastore.GetBlog(ctx)
 	s := struct {
 		Article  *datastore.Article
 		User     *datastore.User
@@ -59,7 +76,16 @@ func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["key"]
-	_, err := datastore.UpdateArticle(r, id, time.Time{})
+
+	ctx := r.Context()
+
+	art, err := CreateArticle(r)
+	if err != nil {
+		ErrorPage(w, "Argument Error", err, 400)
+		return
+	}
+
+	err = datastore.UpdateArticle(ctx, id, art)
 	if err != nil {
 		ErrorPage(w, "Internal Server Error", err, 500)
 		return
@@ -78,7 +104,27 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = datastore.UpdateHtml(r, user.Email, id)
+	art, err := CreateArticle(r)
+	if err != nil {
+		ErrorPage(w, "Argument Error", err, 400)
+		return
+	}
+
+	ctx := r.Context()
+
+	u, err := datastore.GetUser(ctx, user.Email)
+	if err != nil {
+		ErrorPage(w, "Get User Error", err, 400)
+		return
+	}
+
+	p, err := logic.CreateHTML(ctx, id, art, u)
+	if err != nil {
+		ErrorPage(w, "Create HTML Error", err, 400)
+		return
+	}
+
+	err = datastore.UpdateHTML(ctx, id, p, art)
 	if err != nil {
 		ErrorPage(w, "Internal Server Error", err, 500)
 		return
@@ -90,7 +136,10 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 func deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["key"]
-	err := datastore.DeleteArticle(r, id)
+
+	ctx := r.Context()
+
+	err := datastore.DeleteArticle(ctx, id)
 	if err != nil {
 		ErrorPage(w, "Internal Server Error", err, 500)
 		return
@@ -102,7 +151,10 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["key"]
-	err := datastore.DeleteHtml(r, id)
+
+	ctx := r.Context()
+
+	err := datastore.DeleteHTML(ctx, id)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return

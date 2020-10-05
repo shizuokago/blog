@@ -1,121 +1,29 @@
 package datastore
 
 import (
-	"bufio"
-	"bytes"
+	"context"
 	"errors"
-	"html/template"
 	"log"
-	"net/http"
-	"strings"
-	"time"
 
 	"cloud.google.com/go/datastore"
-	"golang.org/x/tools/present"
 	"golang.org/x/xerrors"
 	"google.golang.org/api/iterator"
 )
 
-var tmpl *template.Template
 var htmlCursor map[int]string
 
 func init() {
-	var err error
-	tmpl, err = createTemplate()
-	if err != nil {
-		log.Println(err)
-	}
-
 	htmlCursor = make(map[int]string)
 }
 
-func CreateHtml(r *http.Request, art *Article, u *User, html *Html) ([]byte, error) {
+const KindHTML = "Html"
 
-	//create header
-	header := art.Title + "\n\n" +
-		u.Name + "\n" +
-		u.Job + "\n" +
-		u.Email + "\n" +
-		u.URL + "\n" +
-		u.TwitterId + "\n"
-
-	mark := string(art.Markdown)
-	txt := header + "\n" + mark
-
-	desc := strings.ReplaceAll(mark, "\n", "")
-	if len(desc) > 100 {
-		desc = desc[:90] + "..."
-	}
-
-	ds := FileDs{
-		request: r,
-	}
-	ctx := present.Context{ReadFile: ds.readFile}
-
-	reader := strings.NewReader(txt)
-	doc, err := ctx.Parse(reader, "blog.article", 0)
-	if err != nil {
-		return nil, xerrors.Errorf("context parse: %w", err)
-	}
-
-	bgd := GetBlog(r)
-	rtn := struct {
-		*present.Doc
-		Template    *template.Template
-		PlayEnabled bool
-		StringID    string
-		Description string
-		Blog        *Blog
-		HTML        *Html
-	}{doc, tmpl, true, art.Key.Name, desc, bgd, html}
-
-	//Render
-	var b bytes.Buffer
-	writer := bufio.NewWriter(&b)
-	err = tmpl.ExecuteTemplate(writer, "root", rtn)
-
-	if err != nil {
-		return nil, xerrors.Errorf("execute template: %w", err)
-	}
-	writer.Flush()
-
-	return b.Bytes(), nil
+type HTMLParam struct {
+	Body *HTML
+	Data *HTMLData
 }
 
-func createTemplate() (*template.Template, error) {
-
-	action := "./cmd/templates/entry/action.tmpl"
-	entry := "./cmd/templates/entry/entry.tmpl"
-
-	tmpl = present.Template()
-	funcMap := template.FuncMap{
-		"playable": playable,
-		"convert":  convert,
-	}
-	tmpl = tmpl.Funcs(funcMap)
-	_, err := tmpl.ParseFiles(action, entry)
-	if err != nil {
-		return nil, xerrors.Errorf("template parse files: %w", err)
-	}
-	return tmpl, nil
-}
-
-func playable(c present.Code) bool {
-	return present.PlayEnabled && c.Play && c.Ext == ".go"
-}
-
-func convert(t time.Time) string {
-	if t.IsZero() {
-		return "None"
-	}
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	jt := t.In(jst)
-	return jt.Format("2006/01/02 15:04")
-}
-
-const KIND_HTML = "Html"
-
-type Html struct {
+type HTML struct {
 	Title     string
 	SubTitle  string
 	Author    string
@@ -125,18 +33,16 @@ type Html struct {
 	Meta
 }
 
-func getHtmlKey(r *http.Request, key string) *datastore.Key {
-	return datastore.NameKey(KIND_HTML, key, nil)
+func getHTMLKey(key string) *datastore.Key {
+	return datastore.NameKey(KindHTML, key, nil)
 }
 
-func GetHtml(r *http.Request, k string) (*Html, error) {
+func GetHTML(ctx context.Context, k string) (*HTML, error) {
 
-	c := r.Context()
+	rtn := HTML{}
+	key := getHTMLKey(k)
 
-	rtn := Html{}
-	key := getHtmlKey(r, k)
-
-	err := Get(c, key, &rtn)
+	err := Get(ctx, key, &rtn)
 
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
@@ -148,82 +54,38 @@ func GetHtml(r *http.Request, k string) (*Html, error) {
 	return &rtn, err
 }
 
-func UpdateHtml(r *http.Request, mail, key string) error {
+func UpdateHTML(ctx context.Context, key string, html *HTMLParam, art *Article) error {
 
-	c := r.Context()
-
-	u, err := GetUser(r, mail)
-	if err != nil {
-		return xerrors.Errorf("get user: %w", err)
-	}
-
-	art, err := UpdateArticle(r, key, time.Now())
+	err := UpdateArticle(ctx, key, art)
 	if err != nil {
 		return xerrors.Errorf("update article: %w", err)
 	}
 
-	html, err := GetHtml(r, key)
-	if err != nil {
-		return xerrors.Errorf("get html: %w", err)
-	}
+	html.Body.Key = getHTMLKey(key)
+	html.Data.SetKey(getHTMLDataKey(key))
 
-	data := &HtmlData{}
-	dk := getHtmlDataKey(r, key)
-
-	//get html
-	if html == nil {
-		// first
-		html = &Html{}
-		k := getHtmlKey(r, key)
-
-		html.SetKey(k)
-		data.SetKey(dk)
-
-		html.Author = u.Name
-		html.AuthorID = mail
-
-	} else {
-		err = Get(c, dk, data)
-		if err != nil {
-			return xerrors.Errorf("get html data: %w", err)
-		}
-		html.Updater = u.Name
-		html.UpdaterID = mail
-	}
-
-	//再度更新
-	htmlCursor = make(map[int]string)
-
-	html.Title = art.Title
-	html.SubTitle = art.SubTitle
-
-	err = Put(c, html)
+	err = Put(ctx, html.Body)
 	if err != nil {
 		return xerrors.Errorf("put html: %w", err)
 	}
 
-	b, err := CreateHtml(r, art, u, html)
-	if err != nil {
-		return xerrors.Errorf("put create html: %w", err)
-	}
-	data.Content = b
-
-	err = Put(c, data)
+	err = Put(ctx, html.Data)
 	if err != nil {
 		return xerrors.Errorf("put html data: %w", err)
 	}
+
+	//再度更新
+	htmlCursor = make(map[int]string)
 	return nil
 }
 
-func SelectHtml(r *http.Request, p int) ([]Html, error) {
+func SelectHTML(ctx context.Context, p int) ([]HTML, error) {
 
-	c := r.Context()
+	q := datastore.NewQuery(KindHTML).Order("- CreatedAt").Limit(5)
 
-	q := datastore.NewQuery(KIND_HTML).Order("- CreatedAt").Limit(5)
+	var s []HTML
 
-	var s []Html
-
-	client, err := createClient(c)
+	client, err := createClient(ctx)
 	if err != nil {
 		return nil, xerrors.Errorf("get html: %w", err)
 	}
@@ -237,9 +99,9 @@ func SelectHtml(r *http.Request, p int) ([]Html, error) {
 		}
 	}
 
-	t := client.Run(c, q)
+	t := client.Run(ctx, q)
 	for {
-		var h Html
+		var h HTML
 		key, err := t.Next(&h)
 
 		if err == iterator.Done {
@@ -262,20 +124,18 @@ func SelectHtml(r *http.Request, p int) ([]Html, error) {
 	return s, nil
 }
 
-func DeleteHtml(r *http.Request, id string) error {
+func DeleteHTML(ctx context.Context, id string) error {
 
-	c := r.Context()
+	hkey := getHTMLKey(id)
 
-	hkey := getHtmlKey(r, id)
+	client, err := createClient(ctx)
 
-	client, err := createClient(c)
-
-	err = client.Delete(c, hkey)
+	err = client.Delete(ctx, hkey)
 	if err != nil {
 		return xerrors.Errorf("delete html: %w", err)
 	}
-	hdkey := getHtmlDataKey(r, id)
-	err = client.Delete(c, hdkey)
+	hdkey := getHTMLDataKey(id)
+	err = client.Delete(ctx, hdkey)
 	if err != nil {
 		return xerrors.Errorf("delete html data: %w", err)
 	}
@@ -284,33 +144,32 @@ func DeleteHtml(r *http.Request, id string) error {
 	return nil
 }
 
-const KIND_HTMLDATA = "HtmlData"
+const KindHTMLData = "HtmlData"
 
-type HtmlData struct {
+type HTMLData struct {
 	key     *datastore.Key
 	Content []byte `datastore:",noindex"`
 }
 
-func getHtmlDataKey(r *http.Request, key string) *datastore.Key {
-	return datastore.NameKey(KIND_HTMLDATA, key, nil)
+func getHTMLDataKey(key string) *datastore.Key {
+	return datastore.NameKey(KindHTMLData, key, nil)
 }
 
-func (d *HtmlData) GetKey() *datastore.Key {
+func (d *HTMLData) GetKey() *datastore.Key {
 	return d.key
 }
 
-func (d *HtmlData) SetKey(k *datastore.Key) {
+func (d *HTMLData) SetKey(k *datastore.Key) {
 	d.key = k
 }
 
-func GetHtmlData(r *http.Request, k string) (*HtmlData, error) {
+func GetHTMLData(ctx context.Context, k string) (*HTMLData, error) {
 
-	c := r.Context()
-	rtn := HtmlData{}
-	key := getHtmlDataKey(r, k)
+	rtn := HTMLData{}
+	key := getHTMLDataKey(k)
 
-	client, err := createClient(c)
-	err = client.Get(c, key, &rtn)
+	client, err := createClient(ctx)
+	err = client.Get(ctx, key, &rtn)
 
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {

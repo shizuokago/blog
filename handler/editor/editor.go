@@ -72,8 +72,9 @@ func (h LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
 	//メンバ設定
-	if !datastore.IsUser(r, u.Email) {
+	if !datastore.IsUser(ctx, u.Email) {
 		log.Println("ユーザが違う:" + u.Email)
 		http.Redirect(w, r, "/logout", 302)
 		return

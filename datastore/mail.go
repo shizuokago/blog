@@ -3,6 +3,7 @@ package datastore
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/base64"
 	"io"
 
@@ -46,7 +47,7 @@ const (
 
 func incomingMail(w http.ResponseWriter, r *http.Request) {
 
-	c := r.Context()
+	ctx := r.Context()
 	defer r.Body.Close()
 
 	//var b bytes.Buffer
@@ -58,7 +59,7 @@ func incomingMail(w http.ResponseWriter, r *http.Request) {
 
 	msg, err := mail.ReadMessage(r.Body)
 	if err != nil {
-		log.Errorf(c, "ReadMessage Error[%s]", err.Error())
+		log.Errorf(ctx, "ReadMessage Error[%s]", err.Error())
 		return
 	}
 
@@ -67,13 +68,13 @@ func incomingMail(w http.ResponseWriter, r *http.Request) {
 	data := MailData{
 		subject: decSubject(msg.Header.Get("Subject")),
 	}
-	log.Infof(c, "Subject = [%s]", msg.Header.Get("Subject"))
+	log.Infof(ctx, "Subject = [%s]", msg.Header.Get("Subject"))
 
 	parseBody(r, msg.Body, contentType, &data)
 
-	err = CreateHtmlFromMail(r, &data)
+	err = CreateHtmlFromMail(ctx, &data)
 	if err != nil {
-		log.Errorf(c, "ReadMessage Error[%s]", err.Error())
+		log.Errorf(ctx, "ReadMessage Error[%s]", err.Error())
 		return
 	}
 }
@@ -186,21 +187,20 @@ func decSubject(subject string) string {
 
 }
 
-func CreateHtmlFromMail(r *http.Request, d *MailData) error {
+func CreateHtmlFromMail(ctx context.Context, d *MailData) error {
 
-	c := r.Context()
 	id := uuid.New()
 
-	bgd := GetBlog(r)
+	bgd := GetBlog(ctx)
 	article := &Article{
 		Title:    d.subject,
 		Tags:     bgd.Tags,
 		Markdown: d.msg.Bytes(),
 	}
 
-	article.Key = getArticleKey(r, id)
-	client, err := createClient(c)
-	_, err = client.Put(c, article.Key, article)
+	article.Key = getArticleKey(id)
+	client, err := createClient(ctx)
+	_, err = client.Put(ctx, article.Key, article)
 	if err != nil {
 		return err
 	}
@@ -212,9 +212,9 @@ func CreateHtmlFromMail(r *http.Request, d *MailData) error {
 		Type: FILE_TYPE_BG,
 	}
 
-	file.Key = getFileKey(r, fid)
+	file.Key = getFileKey(fid)
 
-	_, err = client.Put(c, file.Key, file)
+	_, err = client.Put(ctx, file.Key, file)
 	if err != nil {
 		return err
 	}
@@ -223,9 +223,9 @@ func CreateHtmlFromMail(r *http.Request, d *MailData) error {
 		Mime:    d.mime,
 	}
 
-	fdk := getFileDataKey(r, fid)
+	fdk := getFileDataKey(fid)
 	fileData.SetKey(fdk)
-	_, err = client.Put(c, fileData.GetKey(), fileData)
+	_, err = client.Put(ctx, fileData.GetKey(), fileData)
 	if err != nil {
 		return err
 	}

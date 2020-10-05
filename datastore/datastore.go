@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"strings"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/xerrors"
@@ -14,23 +13,11 @@ func init() {
 }
 
 func createClient(ctx context.Context) (*datastore.Client, error) {
-
 	client, err := datastore.NewClient(ctx, config.ProjectID())
 	if err != nil {
 		return nil, xerrors.Errorf("datastore client: %w", err)
 	}
 	return client, nil
-}
-
-func CreateSubTitle(src string) string {
-
-	dst := strings.Replace(src, "\n", "", -1)
-	dst = strings.Replace(dst, "*", "", -1)
-
-	if len(dst) > 600 {
-		dst = string([]rune(dst)[0:200]) + "..."
-	}
-	return dst
 }
 
 func Get(ctx context.Context, key *datastore.Key, dst HasKey) error {

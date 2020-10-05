@@ -5,6 +5,7 @@ import (
 
 	"github.com/shizuokago/blog/datastore"
 	. "github.com/shizuokago/blog/handler/internal"
+	. "github.com/shizuokago/blog/handler/internal/form"
 )
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,19 +18,35 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 
 	var u *datastore.User
 	if r.Method == "POST" {
-		u, err = datastore.PutInformation(r, user.Email)
+
+		ctx := r.Context()
+
+		blog, err := CreateBlog(r)
+		if err != nil {
+			ErrorPage(w, "InternalServerError", err, 500)
+			return
+		}
+		user, err := CreateUser(r)
+		if err != nil {
+			ErrorPage(w, "InternalServerError", err, 500)
+			return
+		}
+
+		err = datastore.PutInformation(ctx, blog, user, user.Email)
 		if err != nil {
 			ErrorPage(w, "InternalServerError", err, 500)
 			return
 		}
 	}
 
-	u, err = datastore.GetUser(r, user.Email)
+	ctx := r.Context()
+
+	u, err = datastore.GetUser(ctx, user.Email)
 	if u == nil {
 		u = &datastore.User{}
 	}
 
-	bgd := datastore.GetBlog(r)
+	bgd := datastore.GetBlog(ctx)
 	data := struct {
 		Blog *datastore.Blog
 		User *datastore.User
@@ -42,7 +59,19 @@ func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 
 	u, err := GetSession(r)
 
-	err = datastore.SaveAvatar(r, u.Email)
+	ctx := r.Context()
+
+	f, d, err := GetFile(r)
+	if err != nil {
+		ErrorPage(w, "InternalServerError", err, 500)
+		return
+	}
+	p := datastore.FileParam{
+		File:     f,
+		FileData: d,
+	}
+
+	err = datastore.SaveAvatar(ctx, u.Email, &p)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return

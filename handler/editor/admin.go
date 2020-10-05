@@ -32,7 +32,9 @@ func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 
-	bgd := datastore.GetBlog(r)
+	ctx := r.Context()
+
+	bgd := datastore.GetBlog(ctx)
 	if bgd.Name == "" {
 		http.Redirect(w, r, "/admin/profile", 301)
 		return
@@ -52,7 +54,7 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	articles, err := datastore.SelectArticle(r, p)
+	articles, err := datastore.SelectArticle(ctx, p)
 	if err != nil {
 		ErrorPage(w, "Not Found", err, 404)
 		return

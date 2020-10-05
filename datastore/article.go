@@ -1,9 +1,9 @@
 package datastore
 
 import (
+	"context"
 	"errors"
 	"log"
-	"net/http"
 	"time"
 
 	"cloud.google.com/go/datastore"
@@ -18,7 +18,7 @@ func init() {
 	articleCursor = make(map[int]string)
 }
 
-const KIND_ARTICLE = "Article"
+const KindArticle = "Article"
 
 type Article struct {
 	Title       string
@@ -29,19 +29,17 @@ type Article struct {
 	Meta
 }
 
-func getArticleKey(r *http.Request, id string) *datastore.Key {
-	return datastore.NameKey(KIND_ARTICLE, id, nil)
+func getArticleKey(id string) *datastore.Key {
+	return datastore.NameKey(KindArticle, id, nil)
 }
 
-func SelectArticle(r *http.Request, p int) ([]Article, error) {
+func SelectArticle(ctx context.Context, p int) ([]Article, error) {
 
-	c := r.Context()
-
-	q := datastore.NewQuery(KIND_ARTICLE).Order("- UpdatedAt").Limit(10)
+	q := datastore.NewQuery(KindArticle).Order("- UpdatedAt").Limit(10)
 
 	var s []Article
 
-	client, err := createClient(c)
+	client, err := createClient(ctx)
 	if err != nil {
 		return nil, xerrors.Errorf("create client: %w", err)
 	}
@@ -55,7 +53,7 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 		}
 	}
 
-	t := client.Run(c, q)
+	t := client.Run(ctx, q)
 	for {
 		var a Article
 		key, err := t.Next(&a)
@@ -80,13 +78,12 @@ func SelectArticle(r *http.Request, p int) ([]Article, error) {
 	return s, nil
 }
 
-func GetArticle(r *http.Request, id string) (*Article, error) {
-	c := r.Context()
+func GetArticle(ctx context.Context, id string) (*Article, error) {
 
 	rtn := Article{}
-	key := getArticleKey(r, id)
+	key := getArticleKey(id)
 
-	err := Get(c, key, &rtn)
+	err := Get(ctx, key, &rtn)
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
 			return nil, nil
@@ -98,54 +95,35 @@ func GetArticle(r *http.Request, id string) (*Article, error) {
 	return &rtn, nil
 }
 
-func UpdateArticle(r *http.Request, id string, pub time.Time) (*Article, error) {
+func UpdateArticle(ctx context.Context, id string, art *Article) error {
 
-	r.ParseForm()
-	title := r.FormValue("Title")
-	tags := r.FormValue("Tags")
-	mark := r.FormValue("Markdown")
+	key := getArticleKey(id)
+	art.SetKey(key)
 
-	art, err := GetArticle(r, id)
+	err := Put(ctx, art)
 	if err != nil {
-		return nil, xerrors.Errorf("get article: %w", err)
+		return xerrors.Errorf("put article: %w", err)
 	}
 
-	c := r.Context()
-
-	art.Title = title
-	art.SubTitle = CreateSubTitle(r.FormValue("Markdown"))
-	art.Tags = tags
-	art.Markdown = []byte(mark)
-	if !pub.IsZero() {
-		art.PublishDate = pub
-	}
-
-	err = Put(c, art)
-	if err != nil {
-		return nil, xerrors.Errorf("put article: %w", err)
-	}
-
-	return art, nil
+	return nil
 }
 
-func DeleteArticle(r *http.Request, id string) error {
+func DeleteArticle(ctx context.Context, id string) error {
 
-	c := r.Context()
-
-	err := DeleteFile(r, "bg/"+id)
+	err := DeleteFile(ctx, "bg/"+id)
 	if err != nil {
 		return err
 	}
 
-	err = DeleteHtml(r, id)
+	err = DeleteHTML(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	akey := getArticleKey(r, id)
+	akey := getArticleKey(id)
 
-	client, err := createClient(c)
-	err = client.Delete(c, akey)
+	client, err := createClient(ctx)
+	err = client.Delete(ctx, akey)
 	if err != nil {
 		return xerrors.Errorf("delete article: %w", err)
 	}
@@ -154,29 +132,24 @@ func DeleteArticle(r *http.Request, id string) error {
 	return nil
 }
 
-func CreateArticle(r *http.Request) (string, error) {
+func CreateArticle(ctx context.Context, art *Article, f *File, d *FileData) (string, error) {
 
-	c := r.Context()
 	id := uuid.New()
+	art.Key = getArticleKey(id)
 
-	bgd := GetBlog(r)
-	base := bgd.Template
-	article := &Article{
-		Title:    "New Title",
-		Tags:     bgd.Tags,
-		Markdown: []byte(base),
+	err := Put(ctx, art)
+	if err != nil {
+		return "", xerrors.Errorf("Article put: %w", err)
 	}
 
-	article.Key = getArticleKey(r, id)
-
-	err := Put(c, article)
-	if err != nil {
-		return "", err
+	p := FileParam{
+		File:     f,
+		FileData: d,
 	}
 
-	err = SaveFile(r, id, FILE_TYPE_BG)
+	err = SaveFile(ctx, id, FILE_TYPE_BG, &p)
 	if err != nil {
-		return "", xerrors.Errorf("save file: %w", err)
+		return "", xerrors.Errorf("File put: %w", err)
 	}
 
 	articleCursor = make(map[int]string)

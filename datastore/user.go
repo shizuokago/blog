@@ -1,14 +1,14 @@
 package datastore
 
 import (
+	"context"
 	"errors"
-	"net/http"
 
 	"cloud.google.com/go/datastore"
 	"golang.org/x/xerrors"
 )
 
-const KIND_USER = "User"
+const KindUser = "User"
 
 type User struct {
 	Name      string
@@ -21,17 +21,15 @@ type User struct {
 }
 
 func getUserKey(key string) *datastore.Key {
-	return datastore.NameKey(KIND_USER, key, nil)
+	return datastore.NameKey(KindUser, key, nil)
 }
 
-func GetUser(r *http.Request, email string) (*User, error) {
-
-	c := r.Context()
+func GetUser(ctx context.Context, email string) (*User, error) {
 
 	rtn := User{}
 	key := getUserKey(email)
 
-	err := Get(c, key, &rtn)
+	err := Get(ctx, key, &rtn)
 	if err != nil {
 		if errors.Is(err, datastore.ErrNoSuchEntity) {
 			return nil, nil
@@ -42,8 +40,9 @@ func GetUser(r *http.Request, email string) (*User, error) {
 	return &rtn, nil
 }
 
-func SaveAvatar(r *http.Request, key string) error {
-	err := SaveFile(r, key, FILE_TYPE_AVATAR)
+func SaveAvatar(ctx context.Context, key string, p *FileParam) error {
+
+	err := SaveFile(ctx, key, FILE_TYPE_AVATAR, p)
 	if err != nil {
 		return xerrors.Errorf("save file: %w", err)
 	}
