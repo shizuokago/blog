@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
 	_ "golang.org/x/tools/playground"
@@ -10,13 +10,17 @@ import (
 
 	"github.com/shizuokago/blog/config"
 	"github.com/shizuokago/blog/handler/editor"
+	. "github.com/shizuokago/blog/handler/internal"
 )
+
+func init() {
+}
 
 func Register() error {
 
 	present.PlayEnabled = true
 
-	err := registerStatic()
+	err := RegisterStatic()
 	if err != nil {
 		return xerrors.Errorf("static register: %w", err)
 	}
@@ -44,7 +48,7 @@ func Listen() error {
 	conf := config.Get()
 	s := ":" + conf.Port
 
-	log.Println("Blog Server Start[" + s + "]")
+	fmt.Println("Blog Server Start[" + s + "]")
 
 	return http.ListenAndServe(s, nil)
 }

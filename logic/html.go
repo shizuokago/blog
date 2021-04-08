@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"embed"
 	"html/template"
 	"log"
 	"strings"
@@ -15,6 +16,8 @@ import (
 	"golang.org/x/xerrors"
 )
 
+//go:embed _entry
+var embEntry embed.FS
 var tmpl *template.Template
 
 func init() {
@@ -23,13 +26,14 @@ func init() {
 	if err != nil {
 		log.Println(err)
 	}
-
 }
 
 func createTemplate() (*template.Template, error) {
 
-	action := "./cmd/templates/entry/action.tmpl"
-	entry := "./cmd/templates/entry/entry.tmpl"
+	var err error
+
+	action := "_entry/action.tmpl"
+	entry := "_entry/entry.tmpl"
 
 	funcMap := template.FuncMap{
 		"playable": playable,
@@ -38,10 +42,12 @@ func createTemplate() (*template.Template, error) {
 
 	tmpl = present.Template()
 	tmpl = tmpl.Funcs(funcMap)
-	_, err := tmpl.ParseFiles(action, entry)
+
+	tmpl, err = tmpl.ParseFS(embEntry, action, entry)
 	if err != nil {
-		return nil, xerrors.Errorf("template parse files: %w", err)
+		return nil, xerrors.Errorf("action template parse: %w", err)
 	}
+
 	return tmpl, nil
 }
 
@@ -58,7 +64,7 @@ func convert(t time.Time) string {
 	return jt.Format("2006/01/02 15:04")
 }
 
-func CreateHTML(ctx context.Context, id string, art *datastore.Article, u *datastore.User) (*datastore.HTMLParam, error) {
+func CreateHTML(ctx context.Context, id string, blog *datastore.Blog, art *datastore.Article, u *datastore.User) (*datastore.HTMLParam, error) {
 
 	//create header
 	header := art.Title + "\n\n" +
@@ -72,8 +78,8 @@ func CreateHTML(ctx context.Context, id string, art *datastore.Article, u *datas
 	txt := header + "\n" + mark
 
 	desc := strings.ReplaceAll(mark, "\n", "")
-	if len(desc) > 100 {
-		desc = desc[:90] + "..."
+	if len(desc) > 600 {
+		desc = string([]rune(desc)[:200]) + "..."
 	}
 
 	ds := FileDs{
@@ -98,7 +104,6 @@ func CreateHTML(ctx context.Context, id string, art *datastore.Article, u *datas
 	html.Updater = u.Name
 	html.UpdaterID = u.Email
 
-	bgd := datastore.GetBlog(ctx)
 	rtn := struct {
 		*present.Doc
 		Template    *template.Template
@@ -107,7 +112,7 @@ func CreateHTML(ctx context.Context, id string, art *datastore.Article, u *datas
 		Description string
 		Blog        *datastore.Blog
 		HTML        *datastore.HTML
-	}{doc, tmpl, true, id, desc, bgd, html}
+	}{doc, tmpl, true, id, desc, blog, html}
 
 	//Render
 	var b bytes.Buffer

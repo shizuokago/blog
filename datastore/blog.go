@@ -85,13 +85,15 @@ func IsUser(ctx context.Context, id string) bool {
 	return false
 }
 
-func PutInformation(ctx context.Context, blog *Blog, user *User, key string) error {
+func PutInformation(ctx context.Context, blog *Blog, user *User, mail string) error {
 
+	blog.SetKey(datastore.NameKey(KindBlog, BlogKey, nil))
 	err := Put(ctx, blog)
 	if err != nil {
 		return xerrors.Errorf("put blog: %w", err)
 	}
 
+	user.SetKey(getUserKey(mail))
 	err = Put(ctx, user)
 	if err != nil {
 		return xerrors.Errorf("put user: %w", err)

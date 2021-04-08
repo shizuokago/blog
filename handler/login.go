@@ -24,6 +24,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error set session Error: %v", err)
 	}
 
+	//TODO 駄目
+
 	tmpl, err := template.ParseFiles("cmd/templates/authentication.tmpl")
 	if err != nil {
 		log.Printf("Error Page Parse Error: %v", err)
@@ -42,7 +44,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error set session Error: %v", err)
 	}
-	http.Redirect(w, r, "/", 301)
+	http.Redirect(w, r, "/", 302)
 }
 
 func sessionHandler(w http.ResponseWriter, r *http.Request) {

@@ -73,7 +73,7 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 		Prev  string
 		PFlag bool
 	}{files, strconv.Itoa(next), strconv.Itoa(prev), flag}
-	adminRender(w, "./cmd/templates/admin/file.tmpl", data)
+	adminRender(w, "file.tmpl", data)
 }
 
 func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,7 +97,7 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin/file/view", 301)
+	http.Redirect(w, r, "/admin/file/view", 302)
 }
 
 func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +110,7 @@ func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
-	http.Redirect(w, r, "/admin/file/view", 301)
+	http.Redirect(w, r, "/admin/file/view", 302)
 }
 
 func saveBackgroundHandler(w http.ResponseWriter, r *http.Request) {
@@ -134,7 +134,7 @@ func saveBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
-	http.Redirect(w, r, "/admin/article/edit/"+name, 301)
+	http.Redirect(w, r, "/admin/article/edit/"+name, 302)
 }
 
 func deleteBackgroundHandler(w http.ResponseWriter, r *http.Request) {
@@ -147,5 +147,5 @@ func deleteBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
-	http.Redirect(w, r, "/admin/article/edit/"+name, 301)
+	http.Redirect(w, r, "/admin/article/edit/"+name, 302)
 }

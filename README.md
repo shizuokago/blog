@@ -1,18 +1,21 @@
 # GoogleAppEngine Blog Engine
 
 Shizuoka.goでは、GoogleAppEngine上でブログを動作させています。
-
-編集画面でGopherJSを利用し、エディタを実現しています。
+GopherJSを利用していましたが、WASMに変更をかけました。
 
 ## Datastore
 
-Datastoreを利用する為、
+Datastoreを利用する為、開発環境では以下を行います
 
 ```bash
     gcloud beta emulators datastore start
 ```
 
 で起動しておきます。
+開発環境はProjectID=blogで動作。実環境ではmetaより取得してきます。
+
+開発環境の判定は動作位置が「/srv」かどうかで判定しています。
+※そのため開発環境でも動作位置が/srvの場合動作しません
 
 ## Web
 
@@ -33,40 +36,18 @@ Datastoreを利用する為、
 デザインを変更するには以下のファイルを変更する必要があります。
 
   一覧を表示するテンプレート
-      cmd/templates/index.tmpl
+      handler/internal/_assets/index.tmpl
 
   記事のテンプレート
-      cmd/templates/entry/entry.tmpl
-      cmd/templates/entry/action.tmpl
+      logic/_entry/entry.tmpl
+      logic/_entry/action.tmpl
 
-## JS処理
-
-  エディタ部分のJS処理
+## wasm生成
 
       cmd/editor/editor.go 
-
-  JSを出力する処理
-
-      cmd/editor/deploy.go 
-
-  JSを出力する処理
-
-      cmd/editor/deploy.go 
-
-## GopherJS
-
-GopherJSの動作が、1.12以外では動作しない為、
-テンプレートの更新にはそれらが必要になります。
-※基本的に下書き用に利用している為、Generateする部分は別になります。
-
-環境変数 GOPHERJS_GOROOT を利用する必要があります。
-
-またGopherJS自体がWindowsでは動作しませんのでWSLなどで出力しましょう。
-
 
 ## Authentication
 
 /admin/ にアクセスするとGoogle認証が入ります。
-
 Blog設定で指定したアドレスのみ認証可能です。
 

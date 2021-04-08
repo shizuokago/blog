@@ -17,6 +17,6 @@ func main() {
 	)
 
 	if err != nil {
-		log.Printf("blog start: %+v\n", err)
+		log.Printf("blog start error: %+v\n", err)
 	}
 }

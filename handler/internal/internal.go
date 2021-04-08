@@ -3,21 +3,10 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"time"
 )
-
-var errorTmpl *template.Template
-
-func init() {
-	var err error
-	errorTmpl, err = template.New("root").ParseFiles("./cmd/templates/error.tmpl")
-	if err != nil {
-		panic(err)
-	}
-}
 
 func Convert(t time.Time) string {
 	if t.IsZero() {
@@ -45,7 +34,11 @@ func ErrorPage(w http.ResponseWriter, t string, err error, code int) {
 
 	w.WriteHeader(data.Code)
 
-	err = errorTmpl.Execute(w, data)
+	tmpl, err := GetTemplate(nil, "error.tmpl")
+	if err != nil {
+		log.Println("error page getTemplate", err.Error())
+	}
+	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Println("ErrorPage() write error:", err.Error())
 	}

@@ -1,0 +1,119 @@
+{{define "body"}}
+
+<form id="profileForm" action="/admin/profile" method="post">
+
+  <div class="mdl-grid" style="max-width:800px;">
+
+    <div class="mdl-cell mdl-cell--6-col">
+      <h2>Blog Information</h2>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" name="BlogName" id="BlogName" value="{{.Blog.Name}}"/>
+        <label class="mdl-textfield__label" for="BlogName">Name...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" name="BlogAuthor" id="BlogAuthor" value="{{.Blog.Author}}"/>
+        <label class="mdl-textfield__label" for="BlogAuthor">Author...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="Description" name="Description" value="{{.Blog.Description}}"/>
+        <label class="mdl-textfield__label" for="Description"> Description...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="BlogTags" name="BlogTags" value="{{ .Blog.Tags }}" />
+        <label class="mdl-textfield__label" for="BlogTags">Default Tags...</label>
+      </div>
+
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="users" name="Users" value="{{.Blog.Users}}"/>
+        <label class="mdl-textfield__label" for="users">mail address(csv)</label>
+      </div>
+
+
+    </div>
+
+    <div class="mdl-cell mdl-cell--6-col">
+{{ if .User.Key }}
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <img id="upload" class="avatar" src="/file/avatar/{{ .User.Key.Name }}" width="48" height="48" onerror="this.src='/images/somebody.jpg'" style="cursor:pointer;"/>
+      </div>
+{{ end }}
+
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" name="Name" id="Name" value="{{.User.Name}}"/>
+        <label class="mdl-textfield__label" for="name">Name...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="job" name="Job" value="{{.User.Job}}"/>
+        <label class="mdl-textfield__label" for="job">Job...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="email" name="Email" value="{{.User.Email}}"/>
+        <label class="mdl-textfield__label" for="email">Email...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="url" name="Url" value="{{.User.URL}}"/>
+        <label class="mdl-textfield__label" for="url">Url...</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="twitterid" name="TwitterId" value="{{.User.TwitterId}}"/>
+        <label class="mdl-textfield__label" for="twitterid">TwitterId...</label>
+      </div>
+
+    </div>
+
+
+    <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-textfield mdl-js-textfield" style="width:100%;">
+            <textarea class="mdl-textfield__input" style="width:100%;" type="text" rows= "5" id="BlogTemplate" name="BlogTemplate">{{.Blog.Template}}</textarea>
+            <label class="mdl-textfield__label" for="BlogTemplate">Default Template...</label>
+        </div>
+    </div>
+
+
+    <div style="flex-grow:1;">
+
+        <label for="AutoSave" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+            <input type="checkbox" id="AutoSave" name="AutoSave" class="mdl-checkbox__input" {{if .User.AutoSave}}checked{{ end }} />
+          <span class="mdl-checkbox__label">Enable AutoSave</span>
+        </label>
+
+        <br>
+        <br>
+
+        <button id="saveProfile" class="mdl-button mdl-js-button mdl-button--raised"> Save </button>
+    </div>
+
+  </div>
+
+</form>
+
+<form method="post" action="/admin/profile/upload" enctype="multipart/form-data">
+  <input type="file" name="file" id="file" value="" style="display:none;"/>
+</form>
+{{end}}
+
+{{define "script"}}
+<script>
+
+$("#saveProfile").click(function() {
+    $("#profileForm").submit();
+    return false;
+});
+
+$("#upload").click(function() {
+    $("#file").click();
+    return false;
+});
+
+$("#file").change(function() {
+    $(this).closest("form").submit();
+    return false;
+});
+
+</script>
+{{end}}
+
+{{define "header_menu"}} {{end}}
+
+{{define "footer_left_menu"}} {{end}}
+{{define "footer_right_menu"}} {{end}}

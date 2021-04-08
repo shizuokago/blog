@@ -1,6 +1,6 @@
 module github.com/shizuokago/blog
 
-go 1.12
+go 1.16
 
 require (
 	cloud.google.com/go v0.57.0
@@ -15,6 +15,7 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pborman/uuid v1.2.0
+	github.com/rakyll/statik v0.1.7
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	golang.org/x/text v0.3.3
 	golang.org/x/tools v0.0.0-20200624225443-88f3c62a19ff

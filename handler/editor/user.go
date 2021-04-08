@@ -10,7 +10,7 @@ import (
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 
-	user, err := GetSession(r)
+	lg, err := GetSession(r)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
@@ -26,13 +26,14 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorPage(w, "InternalServerError", err, 500)
 			return
 		}
+
 		user, err := CreateUser(r)
 		if err != nil {
 			ErrorPage(w, "InternalServerError", err, 500)
 			return
 		}
 
-		err = datastore.PutInformation(ctx, blog, user, user.Email)
+		err = datastore.PutInformation(ctx, blog, user, lg.Email)
 		if err != nil {
 			ErrorPage(w, "InternalServerError", err, 500)
 			return
@@ -40,8 +41,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-
-	u, err = datastore.GetUser(ctx, user.Email)
+	u, err = datastore.GetUser(ctx, lg.Email)
 	if u == nil {
 		u = &datastore.User{}
 	}
@@ -52,7 +52,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		User *datastore.User
 	}{bgd, u}
 
-	adminRender(w, "./cmd/templates/admin/profile.tmpl", data)
+	adminRender(w, "profile.tmpl", data)
 }
 
 func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,5 +76,5 @@ func uploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
-	http.Redirect(w, r, "/admin/profile", 301)
+	http.Redirect(w, r, "/admin/profile", 302)
 }

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"cloud.google.com/go/compute/metadata"
@@ -24,6 +24,7 @@ func Port() Option {
 const (
 	DatastoreEmulatorHostEnv     = "DATASTORE_EMULATOR_HOST"
 	DatastoreProjectIDEnv        = "DATASTORE_PROJECT_ID"
+	DatastoreDatasetEnv          = "DATASTORE_DATASET"
 	DefaultDatastoreEmulatorHost = "localhost:8081"
 )
 
@@ -51,7 +52,7 @@ func Project() Option {
 			}
 		}
 
-		log.Println("ProjectID=" + c.ProjectID)
+		fmt.Println("ProjectID=" + c.ProjectID)
 		return nil
 	}
 
@@ -68,11 +69,15 @@ func Datastore() Option {
 				os.Setenv(DatastoreEmulatorHostEnv, DefaultDatastoreEmulatorHost)
 			}
 
-			log.Println("Develop DatastoreHost=" + host)
+			fmt.Println("Develop DatastoreHost=" + host)
 
 			if os.Getenv(DatastoreProjectIDEnv) == "" {
 				os.Setenv(DatastoreProjectIDEnv, c.ProjectID)
 			}
+		}
+
+		if os.Getenv(DatastoreDatasetEnv) == "" {
+			os.Setenv(DatastoreDatasetEnv, c.ProjectID)
 		}
 
 		return nil

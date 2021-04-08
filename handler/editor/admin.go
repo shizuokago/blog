@@ -17,7 +17,8 @@ func deleteDir(s string) string {
 func adminRender(w http.ResponseWriter, tName string, obj interface{}) {
 
 	funcMap := template.FuncMap{"convert": Convert, "deleteDir": deleteDir}
-	tmpl, err := template.New("root").Funcs(funcMap).ParseFiles("./cmd/templates/admin/layout.tmpl", tName)
+
+	tmpl, err := GetTemplate(funcMap, "admin/layout.tmpl", "admin/"+tName)
 	if err != nil {
 		ErrorPage(w, "Template Parse Error", err, 500)
 		return
@@ -36,7 +37,7 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	bgd := datastore.GetBlog(ctx)
 	if bgd.Name == "" {
-		http.Redirect(w, r, "/admin/profile", 301)
+		http.Redirect(w, r, "/admin/profile", 302)
 		return
 	}
 
@@ -74,5 +75,5 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		PFlag    bool
 	}{articles, strconv.Itoa(next), strconv.Itoa(prev), flag}
 
-	adminRender(w, "./cmd/templates/admin/top.tmpl", data)
+	adminRender(w, "top.tmpl", data)
 }

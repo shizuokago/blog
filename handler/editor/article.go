@@ -31,7 +31,7 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin/article/edit/"+id, 301)
+	http.Redirect(w, r, "/admin/article/edit/"+id, 302)
 }
 
 func editArticleHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +69,7 @@ func editArticleHandler(w http.ResponseWriter, r *http.Request) {
 		AutoSave string
 	}{art, u, string(art.Markdown), bgd.Name, autosave}
 
-	adminRender(w, "./cmd/templates/admin/edit.tmpl", s)
+	adminRender(w, "editor.tmpl", s)
 }
 
 func saveArticleHandler(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +118,9 @@ func publishArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := logic.CreateHTML(ctx, id, art, u)
+	blog := datastore.GetBlog(ctx)
+
+	p, err := logic.CreateHTML(ctx, id, blog, art, u)
 	if err != nil {
 		ErrorPage(w, "Create HTML Error", err, 400)
 		return
@@ -144,7 +146,7 @@ func deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "Internal Server Error", err, 500)
 		return
 	}
-	http.Redirect(w, r, "/admin/", 301)
+	http.Redirect(w, r, "/admin/", 302)
 }
 
 func privateArticleHandler(w http.ResponseWriter, r *http.Request) {
@@ -159,5 +161,5 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
 	}
-	http.Redirect(w, r, "/admin/", 301)
+	http.Redirect(w, r, "/admin/", 302)
 }

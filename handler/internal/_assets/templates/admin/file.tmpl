@@ -1,0 +1,172 @@
+{{define "body"}}
+
+<div class="mdl-grid" style="max-width:900px">
+
+  <div class="mdl-cell mdl-cell--12-col">
+
+<form id="fileForm" action="/admin/file/upload" method="post" enctype="multipart/form-data">
+
+    <div style="display:flex;">
+        <button class="mdl-button mdl-js-button mdl-button--icon" for="fileName" id="selectFile">
+            <i class="material-icons">attachment</i>
+        </button>
+        <input style="font-size:32px;text-indent:15px;" class="mdl-textfield mdl-js-textfield mdl-textfield__input" type="text" id="fileName" name="FileName">
+        <button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="margin-left:auto;">
+            <i class="material-icons">file_upload</i>
+        </button>
+    </div>
+
+    <input type="file" name="file" id="file" style="display:none;"/>
+
+</form>
+
+<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width:100%;">
+
+<thead>
+<tr>
+<th></th>
+<th class="mdl-data-table__cell--non-numeric">FileName</th>
+<th>Size(byte)</th>
+<th>Lastupdate</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+
+{{ range .Files }}
+<tr>
+    <td width="48">
+      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect updateBtn" data-id="{{.Key.Name}}">
+        <i class="material-icons right-section">file_upload</i>
+      </button>
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+        <a href="/file/{{ .Key.Name }}" target="_blank">
+        {{ deleteDir .Key.Name }}
+        </a>
+    </td>
+    <td>{{ .Size }}</td>
+    <td>{{ convert .UpdatedAt }}</td>
+    <td width="48">
+      <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.Name}}">
+        <i class="material-icons right-section">delete</i>
+      </button>
+    </td>
+</tr>
+{{end}}
+
+</tbody>
+</table>
+
+  </div>
+
+{{ template "paging" .}}
+</div>
+
+{{end}}
+
+
+
+{{define "script"}}
+
+<script>
+var selectId = "";
+$("#upload").click(function() {
+
+    var dialog = waitDialog();
+    if ( selectId == "" ) {
+        var name = $('#fileName').val();
+        $.ajax({
+           type: "POST",
+           url: "/admin/file/exists",
+           dataType:"json",
+           data: {
+               "fileName" : name
+           },
+           success: function(msg){
+             if ( msg.exists == false ) {
+               $("#fileForm").submit();
+             } else {
+                 dialog.close();
+                 if ( confirm("It overrides since the same file name exists.") ) {
+                     selectId = $('#fileName').val();
+                     $("#fileForm").submit();
+                 }
+             }
+           },
+           error: function(msg){
+             console.log(msg);
+             dialog.close();
+           } 
+        });
+    } else {
+       $("#fileForm").submit();
+    }
+    return false;
+});
+
+$("#selectFile").click(function() {
+    $("#file").trigger("click");
+    return false;
+});
+
+$("button.updateBtn").click(function(e) {
+    selectId = $(e.currentTarget).data("id");
+    $("#file").trigger("click");
+    return false;
+});
+
+$("#file").change(function() {
+
+    if ( selectId == "" ) {
+        var obj = $('#file').prop('files')[0];
+        $('#fileName').val(obj.name);
+    } else {
+        $('#fileName').val(selectId.substr(5));
+        $('#upload').trigger("click");
+    }
+
+    return false;
+});
+
+$("button.deleteBtn").click(function(e) {
+    var dataId = $(e.currentTarget).data("id");
+    selectId = "";
+    confirmDialog("Delete?","Id is not possible to return again","DELETE",function() {
+        selectId = dataId;
+        $('#fileName').val(dataId.substr(5));
+        $('#fileForm').attr('action','/admin/file/delete');
+        $('#upload').trigger("click");
+        return false;
+    });
+    return false;
+});
+
+</script>
+{{end}}
+
+{{define "header_menu"}} {{end}}
+
+{{define "footer_left_menu"}} {{end}}
+{{define "footer_right_menu"}} {{end}}
+
+{{ define "paging" }}
+          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;">
+{{ if .PFlag}}
+            <a href="/admin/file/view?p={{.Prev}}" class="" title="Newer">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                 <i class="material-icons">arrow_back</i>
+              </button>
+            </a>
+{{end }}
+
+            <div class="section-spacer" style="flex-grow:1;"></div>
+
+            <a href="/admin/file/view?p={{.Next}}" class="" title="Older">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                <i class="material-icons" role="presentation">arrow_forward</i>
+              </button>
+            </a>
+          </nav>
+{{ end }}

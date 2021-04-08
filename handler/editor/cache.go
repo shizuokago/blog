@@ -23,7 +23,7 @@ func viewCacheHandler(w http.ResponseWriter, r *http.Request) {
 		Caches []*datastore.Cache
 	}{caches}
 
-	adminRender(w, "./cmd/templates/admin/cache.tmpl", dto)
+	adminRender(w, "cache.tmpl", dto)
 }
 
 func registerCacheHandler(w http.ResponseWriter, r *http.Request) {
