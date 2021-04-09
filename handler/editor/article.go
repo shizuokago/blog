@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -153,6 +154,8 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["key"]
+
+	fmt.Println(id)
 
 	ctx := r.Context()
 

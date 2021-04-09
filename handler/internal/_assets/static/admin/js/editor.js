@@ -40,7 +40,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   },false);
 
   document.querySelector("button#publish").addEventListener("click",function(e) {
-      confirmDialog("Publish?","Would you like to publish the current article?","YES!",function() {
+      var own = confirmDialog("Publish?","Would you like to publish the current article?","YES!",function() {
+        own.close();
         var d = waitDialog();
         var id = document.querySelector("input#ID");
         var url = "/admin/article/publish/" + id.value;
@@ -119,13 +120,17 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.querySelector("button#private").addEventListener("click",function(e) {
-      confirmDialog("Private?","Do you want to delete the publish data and make it private?","Yes!",function() {
+      var own = confirmDialog("Private?","Do you want to delete the publish data and make it private?","Yes!",function() {
+        own.close();
+
         var d = waitDialog();
         var id = document.querySelector("input#ID");
         var url = "/admin/article/private/" + id.value;
-        var params = createArticleParam();
 
-        request(url,params,function(){
+        console.log(url);
+        console.log(id);
+
+        request(url,{},function(){
           d.close();
         },function() {
           d.close();
@@ -134,7 +139,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.querySelector("button#delete").addEventListener("click",function(e) {
-      confirmDialog("De","if you delete it,published data will also be deleted.","DELETE",function() {
+      var own = confirmDialog("Delete?","if you delete it,published data will also be deleted.","DELETE",function() {
+        own.close();
         waitDialog();
         var id = document.querySelector("input#ID");
 	    var url = "/admin/article/delete/" + id.value;

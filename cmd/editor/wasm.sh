@@ -1,6 +1,6 @@
 echo "build wasm"
 
-GOOS=js GOARCH=wasm go build -o editor.wasm wasm.go
+GOOS=js GOARCH=wasm go build -o editor.wasm editor.go
 
 echo "gzip wasm"
 

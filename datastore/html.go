@@ -127,20 +127,23 @@ func SelectHTML(ctx context.Context, p int) ([]HTML, error) {
 func DeleteHTML(ctx context.Context, id string) error {
 
 	hkey := getHTMLKey(id)
-
 	client, err := createClient(ctx)
+	if err != nil {
+		return xerrors.Errorf("create client error: %w", err)
+	}
 
+	//TODO tran
 	err = client.Delete(ctx, hkey)
 	if err != nil {
 		return xerrors.Errorf("delete html: %w", err)
 	}
+
 	hdkey := getHTMLDataKey(id)
 	err = client.Delete(ctx, hdkey)
 	if err != nil {
 		return xerrors.Errorf("delete html data: %w", err)
 	}
 
-	htmlCursor = make(map[int]string)
 	return nil
 }
 

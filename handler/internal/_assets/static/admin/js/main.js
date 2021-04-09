@@ -20,7 +20,6 @@ function confirmDialog(title,msg,btn,func) {
     dialog.querySelector('button.ok').textContent = btn;
 
     dialog.showModal();
-
     dialog.querySelector('button.ok').addEventListener('click', func);
     dialog.querySelector('button.cancel').addEventListener('click', function() {
         dialog.close();

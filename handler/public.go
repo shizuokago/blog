@@ -90,12 +90,16 @@ func entryHandler(w http.ResponseWriter, r *http.Request) {
 
 	data, err := datastore.GetHTMLData(ctx, id)
 	if err != nil {
-		ErrorPage(w, "Not Found", err, 404)
+		ErrorPage(w, "Server error", err, 500)
+		return
+	}
+
+	if data == nil {
+		ErrorPage(w, "Not Found", fmt.Errorf("article not foound"), 404)
 		return
 	}
 
 	AddCacheHeader(w, r)
-
 	_, err = w.Write(data.Content)
 	if err != nil {
 		log.Println(err.Error())
