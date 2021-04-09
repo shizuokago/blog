@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	. "github.com/shizuokago/blog/handler/internal"
+	"golang.org/x/xerrors"
 )
 
 func registerLogin() error {
@@ -24,19 +25,25 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error set session Error: %v", err)
 	}
 
-	//TODO 駄目
-
-	tmpl, err := template.ParseFiles("cmd/templates/authentication.tmpl")
+	err = render(w, nil, "authentication.tmpl")
 	if err != nil {
-		log.Printf("Error Page Parse Error: %v", err)
-		return
+		log.Printf("render() Error: %v", err)
 	}
 
-	err = tmpl.Execute(w, nil)
+}
+
+func render(w http.ResponseWriter, dto interface{}, name string) error {
+	funcMap := template.FuncMap{}
+
+	tmpl, err := GetTemplate(funcMap, name)
 	if err != nil {
-		log.Printf("Error Page Execute Error: %v", err)
-		return
+		return xerrors.Errorf("GetTemplate() error: %w", err)
 	}
+	err = tmpl.Execute(w, dto)
+	if err != nil {
+		return xerrors.Errorf("template.Execute() error: %w", err)
+	}
+	return nil
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
