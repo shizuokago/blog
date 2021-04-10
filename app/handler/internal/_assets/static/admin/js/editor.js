@@ -1,24 +1,29 @@
+if (!WebAssembly.instantiateStreaming) { // polyfill
+  WebAssembly.instantiateStreaming = async (resp, importObject) => {
+    const source = await (await resp).arrayBuffer();
+    return await WebAssembly.instantiate(source, importObject);
+  };
+}
+
+const go = new Go();
+const url = "/admin/bin/editor.wasm.gz";
+
+let mod, inst;
+WebAssembly.instantiateStreaming(fetch(url), go.importObject).then((result) => {
+  mod = result.module;
+  inst = result.instance;
+  run();
+}).catch((err) => {
+  console.log(err);
+});
+
+async function run() {
+  console.clear();
+  await go.run(inst);
+  inst = await WebAssembly.instantiate(mod, go.importObject);
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
-  const memory = new WebAssembly.Memory({
-    initial: 1024,
-    maximum: 1024
-  });
-  var mem = { memory:memory };
-
-  const go = new Go();
-  const url = "/admin/editor.wasm.gz";
-  const pako = window.pako;
-  let wasm = pako.ungzip(await (await fetch(url)).arrayBuffer());
-  if (wasm[0] === 0x1f && wasm[1] === 0x8b) {
-      wasm = pako.ungzip(wasm);
-  }
-
-  go.importObject["env"] = mem;
-  console.log(go.importObject);
-  const result = await WebAssembly.instantiate(wasm, go.importObject).catch((err) => {
-      console.error(err);
-  });
-  go.run(result.instance);
 
   function resize() {
     var inn = window.innerHeight;
