@@ -4,10 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"embed"
 	"html/template"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"strings"
 	"time"
 
@@ -15,21 +14,14 @@ import (
 
 	"golang.org/x/tools/present"
 	"golang.org/x/xerrors"
-
-	"github.com/rakyll/statik/fs"
-	_ "github.com/shizuokago/blog/logic/statik"
 )
 
+//go:embed _entry
+var embEntry embed.FS
 var tmpl *template.Template
-var statikFS http.FileSystem
 
 func init() {
 	var err error
-	statikFS, err = fs.New()
-	if err != nil {
-		log.Printf("fs.New() error: %+v", err)
-	}
-
 	tmpl, err = createTemplate()
 	if err != nil {
 		log.Println(err)
@@ -40,8 +32,8 @@ func createTemplate() (*template.Template, error) {
 
 	var err error
 
-	action := "/action.tmpl"
-	entry := "/entry.tmpl"
+	action := "_entry/action.tmpl"
+	entry := "_entry/entry.tmpl"
 
 	funcMap := template.FuncMap{
 		"playable": playable,
@@ -51,34 +43,9 @@ func createTemplate() (*template.Template, error) {
 	tmpl = present.Template()
 	tmpl = tmpl.Funcs(funcMap)
 
-	r, err := statikFS.Open(action)
+	tmpl, err = tmpl.ParseFS(embEntry, action, entry)
 	if err != nil {
-		return nil, xerrors.Errorf("statik action Open() error: %w", err)
-	}
-	defer r.Close()
-	byt, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, xerrors.Errorf("statik action ReadAll() error: %w", err)
-	}
-
-	tmpl, err = tmpl.Parse(string(byt))
-	if err != nil {
-		return nil, xerrors.Errorf("statik action Parse() error: %w", err)
-	}
-
-	r, err = statikFS.Open(entry)
-	if err != nil {
-		return nil, xerrors.Errorf("statik entry Open() error: %w", err)
-	}
-
-	byt, err = ioutil.ReadAll(r)
-	if err != nil {
-		return nil, xerrors.Errorf("statik entry ReadAll() error: %w", err)
-	}
-
-	tmpl, err = tmpl.Parse(string(byt))
-	if err != nil {
-		return nil, xerrors.Errorf("statik entry Parse() error: %w", err)
+		return nil, xerrors.Errorf("action template parse: %w", err)
 	}
 
 	return tmpl, nil

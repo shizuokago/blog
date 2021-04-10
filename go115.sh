@@ -1,6 +1,6 @@
 NOW=`pwd`
 DIR="app"
-HANDLER="app/handler"
+HANDLER_DIR="app/handler"
 
 INTERNAL_DIR=${NOW}/${HANDLER_DIR}/internal
 LOGIC_DIR=${NOW}/${DIR}/logic

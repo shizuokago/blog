@@ -1,9 +1,11 @@
 NOW=`pwd`
 DIR="app"
-HANDLER="app/handler"
+HANDLER_DIR="app/handler"
 
 INTERNAL_DIR=${NOW}/${HANDLER_DIR}/internal
 LOGIC_DIR=${NOW}/${DIR}/logic
+
+echo ${INTERNAL_DIR}
 
 if [ -e ${INTERNAL_DIR}/static.go116 ]; then
 
@@ -20,8 +22,8 @@ if [ -e ${INTERNAL_DIR}/static.go116 ]; then
   mv ${LOGIC_DIR}/html.go116 ${LOGIC_DIR}/html.go
 
   echo "delete statik"
-  rm ${INTERNAL_DIR}/statik
-  rm ${LOGIC_DIR}/statik
+  rm -r ${INTERNAL_DIR}/statik
+  rm -r ${LOGIC_DIR}/statik
   cd ${NOW}
 
   echo "Success"

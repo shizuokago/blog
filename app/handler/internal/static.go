@@ -1,11 +1,23 @@
 package internal
 
 import (
+	"embed"
+	"io/fs"
+	"log"
 	"mime"
 	"net/http"
 )
 
+//go:embed _assets/static
+var embStatic embed.FS
+var staticFS fs.FS
+
 func init() {
+	var err error
+	staticFS, err = fs.Sub(embStatic, "_assets/static")
+	if err != nil {
+		log.Printf("fs.Sub() error: %+v", err)
+	}
 }
 
 func RegisterStatic() error {
@@ -14,7 +26,7 @@ func RegisterStatic() error {
 	mime.AddExtensionType(".svg", "image/svg+xml")
 
 	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
-	fs := http.FileServer(GrantFS(statikFS, "/static"))
+	fs := http.FileServer(http.FS(staticFS))
 
 	http.Handle("/favicon.ico", fs)
 	http.Handle("/admin/editor.wasm.gz", fs)
