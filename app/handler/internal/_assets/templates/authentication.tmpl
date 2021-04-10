@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="743437884925-0i93q3frcjp9aa7hm0ulpkeab8j3vt21.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+  </head>
+
+  <body>
+
+    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+      <a href="#" onclick="signOut();">Sign out</a>
+    </div>
+
+    <script>
+
+
+    function EncodeHTMLForm( data ) {
+      var params = [];
+
+      for( var name in data ) {
+        var value = data[ name ];
+        var param = encodeURIComponent( name ) + '=' + encodeURIComponent( value );
+
+        params.push( param );
+      }
+      return params.join( '&' ).replace( /%20/g, '+' );
+    }
+
+    function onSignIn(googleUser) {
+
+        var profile = googleUser.getBasicProfile();
+        var email = profile.getEmail();
+        var id_token = googleUser.getAuthResponse().id_token;
+
+        //ajax で認証に飛ばす
+        var req = new XMLHttpRequest();
+        var args = {};
+        args["email"] = email;
+        args["token"] = id_token;
+ 
+        req.open('POST', '/session', true);
+        req.responseType = 'json';
+ 
+        req.onload = function () {
+          var data = this.response;
+          if ( data.Success == true )  {
+              location.href = "/admin/";
+          } else {
+              location.href = "/logout";
+          }
+        };
+
+        req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+        req.send(EncodeHTMLForm(args));  
+    }
+
+    function signOut() {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut();
+    }
+
+    window.onload = function() {
+        //signOut();
+    }
+
+    </script>
+
+
+  </body>
+</html>

@@ -1,0 +1,171 @@
+{{define "body"}}
+
+    <div class="mdl-grid" style="width:100%">
+
+      {{ template "paging" . }}
+
+      <div class="mdl-cell mdl-cell--12-col">
+
+
+{{ range .Articles }}
+
+<div class="card-wide mdl-card mdl-shadow--2dp">
+    <div class="mdl-card__title" style="background: url('/file/bg/{{ .Key.Name }}') center / cover;cursor:pointer;">
+        <div class="mdl-card__title-text title" href="/admin/article/edit/{{ .Key.Name }}">{{ .Title }}</div>
+    </div>
+
+    <div class="mdl-card__supporting-text" style="max-height:50px;min-height:50px;">
+    {{ .SubTitle }}
+    </div>
+
+    <table class="mdl-card__actions mdl-card--border">
+      <tbody>
+        <tr style="height:20px;">
+          <td class="mdl-data-table__cell--non-numeric" rowspan="2">
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect privateBtn" data-id="{{.Key.Name}}">
+              <i class="material-icons right-section">cloud_off</i>
+            </button>
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect deleteBtn" data-id="{{.Key.Name}}">
+              <i class="material-icons right-section">delete</i>
+            </button>
+          </td>
+
+          <td class="mdl-data-table__cell--non-numeric">Lastupdated</td>
+          <td class="mdl-data-table__cell--non-numeric"> {{ convert .UpdatedAt }} </td>
+          <td class="mdl-data-table__cell--non-numeric" rowspan="2">
+      
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect pageBtn" data-id="{{.Key.Name}}">
+              <i class="material-icons right-section">screen_share</i>
+            </button>
+
+          </td>
+        </tr>
+
+        <tr style="height:20px;">
+          <td class="mdl-data-table__cell--non-numeric">Publish Date</td>
+          <td class="mdl-data-table__cell--non-numeric">
+{{ if .PublishDate }}
+        {{ convert .PublishDate }}
+{{ end }}
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <div class="mdl-card__menu">
+
+        <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect editBtn" data-id="{{.Key.Name}}">
+            <i class="material-icons">mode_edit</i>
+        </button>
+
+    </div>
+
+</div>
+{{end}}
+
+
+        </div>
+
+            {{template "paging" .}}
+
+
+<form method="post" action="/admin/article/create" enctype="multipart/form-data" style="display:none;">
+<input type="file" name="file" id="file" value="" />
+</form>
+
+</div>
+{{end}}
+
+{{define "script"}}
+<script>
+
+Array.prototype.forEach.call(document.querySelectorAll('.mdl-card__title'), function(el) {
+  var link = el.querySelector('div');
+  if(!link) {
+    return;
+  }
+  var target = link.getAttribute('href');
+  if(!target) {
+    return;
+  }
+  el.addEventListener('click', function() {
+    location.href = target;
+  });
+});
+
+document.querySelector("#addBtn").addEventListener("click",function(e) {
+    document.querySelector("#file").click();
+    return false;
+});
+
+Array.prototype.forEach.call(document.querySelectorAll("button.pageBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    var id = e.currentTarget.getAttribute("data-id");
+    window.open("/entry/" + id,"_blank");
+    return false;
+  });
+});
+
+Array.prototype.forEach.call(document.querySelectorAll("button.editBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    location.href = "/admin/article/edit/" + closest(e.target,"button").getAttribute("data-id");
+    return false;
+  });
+});
+
+Array.prototype.forEach.call(document.querySelectorAll("button.deleteBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    confirmDialog("Delete?","Id is not possible to return again","DELETE",function() {
+        location.href = "/admin/article/delete/" + closest(e.target,"button").getAttribute("data-id");
+    });
+    return false;
+  });
+});
+
+Array.prototype.forEach.call(document.querySelectorAll("button.privateBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    confirmDialog("This Article private?","Id is not possible to return again","PRIVATE",function() {
+        location.href = "/admin/article/private/" + closest(e.target,"button").getAttribute("data-id");
+    });
+    return false;
+  });
+});
+
+document.querySelector("#file").addEventListener("change",function(e) {
+    waitDialog();
+    closest(e.target,"form").submit();
+    return false;
+});
+
+</script>
+{{end}}
+
+{{define "header_menu"}}
+<button id="addBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="top:30px;">
+<i class="material-icons">add</i>
+</button>
+{{end}}
+
+{{define "footer_left_menu"}} {{end}}
+{{define "footer_right_menu"}} {{end}}
+
+{{define "paging"}}
+          <nav class="mdl-cell mdl-cell--12-col" style="display:flex;margin:0px 30px 0px 30px;">
+{{ if .PFlag}}
+            <a href="/admin/?p={{.Prev}}" class="" title="Newer">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                 <i class="material-icons">arrow_back</i>
+              </button>
+            </a>
+{{ end }}
+            <div class="section-spacer" style="flex-grow:1;"></div>
+
+            <a href="/admin/?p={{.Next}}" class="" title="Older">
+              <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                <i class="material-icons" role="presentation">arrow_forward</i>
+              </button>
+            </a>
+
+          </nav>
+{{end}}
