@@ -28,6 +28,15 @@ func (g grantFS) Open(name string) (http.File, error) {
 	return g.fs.Open(n)
 }
 
+func WasmServer(f http.FileSystem) func(w http.ResponseWriter, r *http.Request) {
+	handler := http.FileServer(f)
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/wasm")
+		w.Header().Set("Content-Encoding", "gzip")
+		handler.ServeHTTP(w, r)
+	}
+}
+
 func Convert(t time.Time) string {
 	if t.IsZero() {
 		return "None"

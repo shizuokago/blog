@@ -25,11 +25,10 @@ func RegisterStatic() error {
 	// App Engine has no /etc/mime.types
 	mime.AddExtensionType(".svg", "image/svg+xml")
 
-	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 	fs := http.FileServer(http.FS(staticFS))
 
 	http.Handle("/favicon.ico", fs)
-	http.Handle("/admin/editor.wasm.gz", fs)
+	http.HandleFunc("/admin/bin/editor.wasm.gz", WasmServer(http.FS(staticFS)))
 	http.Handle("/admin/js/", fs)
 	http.Handle("/images/", fs)
 
