@@ -1,35 +1,33 @@
 {{define "body"}}
 
 <div class="mdl-grid" style="max-width:900px">
-
   <div class="mdl-cell mdl-cell--12-col">
 
 <form id="fileForm" action="/admin/file/upload" method="post" enctype="multipart/form-data">
+  <div style="display:flex;">
+    <button class="mdl-button mdl-js-button mdl-button--icon" for="fileName" id="selectFile" type="button">
+      <i class="material-icons">attachment</i>
+    </button>
+    <input style="font-size:32px;text-indent:15px;" class="mdl-textfield mdl-js-textfield mdl-textfield__input" type="text" id="fileName" name="FileName">
+    <button id="upload" type="button" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="margin-left:auto;">
+      <i class="material-icons">file_upload</i>
+    </button>
+  </div>
 
-    <div style="display:flex;">
-        <button class="mdl-button mdl-js-button mdl-button--icon" for="fileName" id="selectFile">
-            <i class="material-icons">attachment</i>
-        </button>
-        <input style="font-size:32px;text-indent:15px;" class="mdl-textfield mdl-js-textfield mdl-textfield__input" type="text" id="fileName" name="FileName">
-        <button id="upload" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="margin-left:auto;">
-            <i class="material-icons">file_upload</i>
-        </button>
-    </div>
-
-    <input type="file" name="file" id="file" style="display:none;"/>
+  <input type="file" name="file" id="file" style="display:none;"/>
 
 </form>
 
 <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width:100%;">
 
 <thead>
-<tr>
-<th></th>
-<th class="mdl-data-table__cell--non-numeric">FileName</th>
-<th>Size(byte)</th>
-<th>Lastupdate</th>
-<th></th>
-</tr>
+  <tr>
+    <th></th>
+    <th class="mdl-data-table__cell--non-numeric">FileName</th>
+    <th>Size(byte)</th>
+    <th>Lastupdate</th>
+    <th></th>
+  </tr>
 </thead>
 
 <tbody>
@@ -72,75 +70,71 @@
 
 <script>
 var selectId = "";
-$("#upload").click(function() {
 
-    var dialog = waitDialog();
+document.querySelector("#upload").addEventListener("click",function(e) {
+  var dialog = waitDialog();
+  if ( selectId == "" ) {
+    var name = document.querySelector("#fileName").value;
+    var params = {};
+    params.fileName = name;
+
+    request("/admin/file/exists",params,function(msg){
+      if ( msg.exists == false ) {
+        document.querySelector("#fileForm").submit();
+      } else {
+        dialog.close();
+        if ( confirm("It overrides since the same file name exists.") ) {
+          selectId = document.querySelector("#fileName").value;
+          document.querySelector("#fileForm").submit();
+        }
+      }
+    },function(msg) {
+      console.log(msg);
+      dialog.close();
+    });
+
+  } else {
+    document.querySelector("#fileForm").submit();
+  }
+});
+
+document.querySelector("#selectFile").addEventListener("click",function(e) {
+  document.querySelector("#file").click();
+  return false;
+});
+
+Array.prototype.forEach.call(document.querySelectorAll("button.updateBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    selectId = e.currentTarget.getAttribute("data-id");
+    document.querySelector("#file").click();
+    return false;
+  });
+});
+
+document.querySelector("#file").addEventListener("change",function(e) {
     if ( selectId == "" ) {
-        var name = $('#fileName').val();
-        $.ajax({
-           type: "POST",
-           url: "/admin/file/exists",
-           dataType:"json",
-           data: {
-               "fileName" : name
-           },
-           success: function(msg){
-             if ( msg.exists == false ) {
-               $("#fileForm").submit();
-             } else {
-                 dialog.close();
-                 if ( confirm("It overrides since the same file name exists.") ) {
-                     selectId = $('#fileName').val();
-                     $("#fileForm").submit();
-                 }
-             }
-           },
-           error: function(msg){
-             console.log(msg);
-             dialog.close();
-           } 
-        });
+      var file = document.querySelector("#file");
+      var obj = file.files[0];
+      document.querySelector("#fileName").value = obj.name;
     } else {
-       $("#fileForm").submit();
+      document.querySelector("#fileName").value = selectId.substr(5);
+      document.querySelector("#upload").click();
     }
     return false;
 });
 
-$("#selectFile").click(function() {
-    $("#file").trigger("click");
-    return false;
-});
-
-$("button.updateBtn").click(function(e) {
-    selectId = $(e.currentTarget).data("id");
-    $("#file").trigger("click");
-    return false;
-});
-
-$("#file").change(function() {
-
-    if ( selectId == "" ) {
-        var obj = $('#file').prop('files')[0];
-        $('#fileName').val(obj.name);
-    } else {
-        $('#fileName').val(selectId.substr(5));
-        $('#upload').trigger("click");
-    }
-
-    return false;
-});
-
-$("button.deleteBtn").click(function(e) {
-    var dataId = $(e.currentTarget).data("id");
+Array.prototype.forEach.call(document.querySelectorAll("button.deleteBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    var dataId = e.currentTarget.getAttribute("data-id");
     selectId = "";
     confirmDialog("Delete?","Id is not possible to return again","DELETE",function() {
-        selectId = dataId;
-        $('#fileName').val(dataId.substr(5));
-        $('#fileForm').attr('action','/admin/file/delete');
-        $('#upload').trigger("click");
-        return false;
+      selectId = dataId;
+      document.querySelector("#fileName").value = selectId.substr(5);
+      document.querySelector("#fileForm").setAttribute("action","/admin/file/delete");
+      document.querySelector("#upload").click();
     });
     return false;
+  });
 });
 
 </script>

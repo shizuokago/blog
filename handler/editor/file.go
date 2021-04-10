@@ -2,6 +2,7 @@ package editor
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -19,7 +20,7 @@ func existsFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	flag, err := datastore.ExistsFile(ctx, id, datastore.FILE_TYPE_DATA)
+	flag, err := datastore.ExistsFile(ctx, id, datastore.FileTypeData)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
@@ -78,6 +79,8 @@ func viewFileHandler(w http.ResponseWriter, r *http.Request) {
 
 func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("uploadFile")
+
 	f, d, err := GetFile(r)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
@@ -91,7 +94,7 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	err = datastore.SaveFile(ctx, id, datastore.FILE_TYPE_DATA, &p)
+	err = datastore.SaveFile(ctx, id, datastore.FileTypeData, &p)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return
@@ -103,9 +106,8 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := r.FormValue("FileName")
-
 	ctx := r.Context()
-	err := datastore.DeleteFile(ctx, id)
+	err := datastore.DeleteFile(ctx, "data/"+id)
 	if err != nil {
 		ErrorPage(w, "InternalServerError", err, 500)
 		return

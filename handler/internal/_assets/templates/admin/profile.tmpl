@@ -95,18 +95,18 @@
 {{define "script"}}
 <script>
 
-$("#saveProfile").click(function() {
-    $("#profileForm").submit();
+document.querySelector("#saveProfile").addEventListener("click",function(e) {
+    document.querySelector("#profileForm").submit();
     return false;
 });
 
-$("#upload").click(function() {
-    $("#file").click();
+document.querySelector("#upload").addEventListener("click",function(e) {
+    document.querySelector("#file").click();
     return false;
 });
 
-$("#file").change(function() {
-    $(this).closest("form").submit();
+document.querySelector("form").addEventListener("change",function(e) {
+    closest(e.target,"form").submit();
     return false;
 });
 

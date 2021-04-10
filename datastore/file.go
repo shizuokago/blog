@@ -30,9 +30,9 @@ type File struct {
 }
 
 const (
-	FILE_TYPE_BG     = 1
-	FILE_TYPE_AVATAR = 2
-	FILE_TYPE_DATA   = 3
+	FileTypeBG     = 1
+	FileTypeAvatar = 2
+	FileTypeData   = 3
 )
 
 func getFileKey(name string) *datastore.Key {
@@ -89,7 +89,6 @@ func SelectFile(ctx context.Context, p int) ([]File, error) {
 func DeleteFile(ctx context.Context, id string) error {
 
 	fkey := getFileKey(id)
-
 	client, err := createClient(ctx)
 	if err != nil {
 		return xerrors.Errorf("create client: %w", err)
@@ -113,9 +112,9 @@ func DeleteFile(ctx context.Context, id string) error {
 func ExistsFile(ctx context.Context, id string, t int64) (bool, error) {
 
 	dir := "data"
-	if t == FILE_TYPE_BG {
+	if t == FileTypeBG {
 		dir = "bg"
-	} else if t == FILE_TYPE_AVATAR {
+	} else if t == FileTypeAvatar {
 		dir = "avatar"
 	}
 
@@ -139,9 +138,9 @@ func ExistsFile(ctx context.Context, id string, t int64) (bool, error) {
 func SaveFile(ctx context.Context, id string, t int64, file *FileParam) error {
 
 	dir := "data"
-	if t == FILE_TYPE_BG {
+	if t == FileTypeBG {
 		dir = "bg"
-	} else if t == FILE_TYPE_AVATAR {
+	} else if t == FileTypeAvatar {
 		dir = "avatar"
 	}
 
@@ -150,8 +149,9 @@ func SaveFile(ctx context.Context, id string, t int64, file *FileParam) error {
 	}
 
 	fid := dir + "/" + id
+	file.File.SetKey(getFileKey(fid))
+	file.File.Type = t
 
-	file.File.Key = getFileKey(fid)
 	file.FileData.SetKey(getFileDataKey(fid))
 
 	err := Put(ctx, file.File)
@@ -169,7 +169,7 @@ func SaveFile(ctx context.Context, id string, t int64, file *FileParam) error {
 }
 
 func SaveBackgroundImage(ctx context.Context, id string, file *FileParam) error {
-	err := SaveFile(ctx, id, FILE_TYPE_BG, file)
+	err := SaveFile(ctx, id, FileTypeBG, file)
 	if err != nil {
 		return xerrors.Errorf("save file: %w", err)
 	}

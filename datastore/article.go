@@ -147,7 +147,7 @@ func CreateArticle(ctx context.Context, art *Article, f *File, d *FileData) (str
 		FileData: d,
 	}
 
-	err = SaveFile(ctx, id, FILE_TYPE_BG, &p)
+	err = SaveFile(ctx, id, FileTypeBG, &p)
 	if err != nil {
 		return "", xerrors.Errorf("File put: %w", err)
 	}

@@ -94,39 +94,47 @@ Array.prototype.forEach.call(document.querySelectorAll('.mdl-card__title'), func
   });
 });
 
-$("#addBtn").click(function() {
-    $("#file").click();
+document.querySelector("#addBtn").addEventListener("click",function(e) {
+    document.querySelector("#file").click();
     return false;
 });
 
-$("button.pageBtn").click(function(e) {
-    var id = $(e.currentTarget).data("id");
+Array.prototype.forEach.call(document.querySelectorAll("button.pageBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    var id = e.currentTarget.getAttribute("data-id");
     window.open("/entry/" + id,"_blank");
     return false;
+  });
 });
 
-$("button.editBtn").click(function(e) {
-    location.href = "/admin/article/edit/" + $(e.currentTarget).data("id");
+Array.prototype.forEach.call(document.querySelectorAll("button.editBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    location.href = "/admin/article/edit/" + closest(e.target,"button").getAttribute("data-id");
     return false;
+  });
 });
 
-$("button.deleteBtn").click(function(e) {
+Array.prototype.forEach.call(document.querySelectorAll("button.deleteBtn"), function(el) {
+  el.addEventListener("click",function(e) {
     confirmDialog("Delete?","Id is not possible to return again","DELETE",function() {
-        location.href = "/admin/article/delete/" + $(e.currentTarget).data("id");
+        location.href = "/admin/article/delete/" + closest(e.target,"button").getAttribute("data-id");
     });
     return false;
+  });
 });
 
-$("button.privateBtn").click(function(e) {
+Array.prototype.forEach.call(document.querySelectorAll("button.privateBtn"), function(el) {
+  el.addEventListener("click",function(e) {
     confirmDialog("This Article private?","Id is not possible to return again","PRIVATE",function() {
-        location.href = "/admin/article/private/" + $(e.currentTarget).data("id");
+        location.href = "/admin/article/private/" + closest(e.target,"button").getAttribute("data-id");
     });
     return false;
+  });
 });
 
-$("#file").change(function() {
+document.querySelector("#file").addEventListener("change",function(e) {
     waitDialog();
-    $(this).closest("form").submit();
+    closest(e.target,"form").submit();
     return false;
 });
 

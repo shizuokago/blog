@@ -42,7 +42,7 @@ func GetUser(ctx context.Context, email string) (*User, error) {
 
 func SaveAvatar(ctx context.Context, key string, p *FileParam) error {
 
-	err := SaveFile(ctx, key, FILE_TYPE_AVATAR, p)
+	err := SaveFile(ctx, key, FileTypeAvatar, p)
 	if err != nil {
 		return xerrors.Errorf("save file: %w", err)
 	}

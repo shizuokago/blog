@@ -209,7 +209,7 @@ func CreateHtmlFromMail(ctx context.Context, d *MailData) error {
 	fb := d.file.Bytes()
 	file := &File{
 		Size: int64(len(fb)),
-		Type: FILE_TYPE_BG,
+		Type: FileTypeBG,
 	}
 
 	file.Key = getFileKey(fid)

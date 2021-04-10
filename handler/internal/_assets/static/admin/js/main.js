@@ -1,3 +1,17 @@
+function closest(obj,name) {
+    var tag = obj.tagName
+    var n = tag.toUpperCase();
+    switch ( n ) {
+        case name.toUpperCase():
+            return obj;
+            break;
+        case "BODY":
+            return null
+            break;
+    }
+    return closest(obj.parentElement,name);
+}
+
 function waitDialog(title) {
     if(title === undefined) title = "Wait...";
 

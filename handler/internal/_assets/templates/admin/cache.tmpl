@@ -69,42 +69,43 @@
 <script>
 var selectId = "";
 
-$("#clearBtn").click(function(e) {
-    $('#key').val("");
-    $('#pattern').val("");
-    $('#age').val("");
-    $('#addIcon').text('add');
-    $('#registerForm').attr('action','/admin/cache/register');
+document.querySelector("#clearBtn").addEventListener("click",function(e) {
+    document.querySelector("#key").value = "";
+    document.querySelector("#pattern").value = "";
+    document.querySelector("#age").value = "";
+    document.querySelector("#addIcon").textContent = "add";
+    document.querySelector("#registerForm").setAttribute("action","/admin/cache/register");
     return true;
 });
 
-$("button.updateBtn").click(function(e) {
+Array.prototype.forEach.call(document.querySelectorAll("button.updateBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    var dataId = e.currentTarget.getAttribute("data-id");
+    var pattern = e.currentTarget.getAttribute("data-pattern");
+    var age = e.currentTarget.getAttribute("data-age");
 
-    var dataId = $(e.currentTarget).data("id");
-    var pattern = $(e.currentTarget).data("pattern");
-    var age = $(e.currentTarget).data("age");
-
-    $('#key').val(dataId);
-    $('#pattern').val(pattern);
-    $('#age').val(age);
-
-    $('#registerForm').attr('action','/admin/cache/update');
-    $('#addIcon').text('edit');
-
+    document.querySelector("#key").value = dataId;
+    document.querySelector("#pattern").value = pattern;
+    document.querySelector("#age").value = age;
+    document.querySelector("#addIcon").textContent = "edit";
+    document.querySelector("#registerForm").setAttribute("action","/admin/cache/update");
     return false;
+  });
 });
 
-$("button.deleteBtn").click(function(e) {
-    var dataId = $(e.currentTarget).data("id");
+Array.prototype.forEach.call(document.querySelectorAll("button.deleteBtn"), function(el) {
+  el.addEventListener("click",function(e) {
+    var dataId = e.currentTarget.getAttribute("data-id");
     selectId = "";
     confirmDialog("Delete?","Id is not possible to return again","DELETE CachePattern",function() {
         selectId = dataId;
-        $('#key').val(dataId);
-        $('#registerForm').attr('action','/admin/cache/delete');
-        $('#register').trigger("click");
+        document.querySelector("#key").value = dataId;
+        document.querySelector("#registerForm").setAttribute("action","/admin/cache/delete");
+        document.querySelector("#register").click();
         return false;
     });
     return false;
+  });
 });
 
 </script>
