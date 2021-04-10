@@ -6,26 +6,9 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	_ "github.com/shizuokago/blog/handler/internal/statik"
-
-	"github.com/rakyll/statik/fs"
 )
 
-var statikFS http.FileSystem
-
 func init() {
-	var err error
-	statikFS, err = fs.New()
-	if err != nil {
-		log.Printf("fs.New() error: %+v", err)
-	}
-
-	err = initTemplates()
-	if err != nil {
-		log.Printf("initTemplate() error: %+v", err)
-	}
-
 }
 
 func GrantFS(f http.FileSystem, g string) *grantFS {
