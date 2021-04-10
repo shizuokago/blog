@@ -1,7 +1,8 @@
 package config
 
 import (
-	"log"
+	"cloud.google.com/go/compute/metadata"
+	"golang.org/x/xerrors"
 )
 
 type Config struct {
@@ -10,18 +11,29 @@ type Config struct {
 	ProjectID   string
 }
 
-var gConf Config
+var gConf *Config
+
+func init() {
+	gConf = defaultConfig()
+}
+
+func defaultConfig() *Config {
+	var conf Config
+	conf.DevelopMode = !metadata.OnGCE()
+	conf.Port = "8080"
+	conf.ProjectID = "blog"
+	return &conf
+}
 
 func Get() *Config {
-	return &gConf
+	return gConf
 }
 
 func Set(opts ...Option) error {
-	gConf = Config{}
-	for _, opt := range opts {
-		err := opt(&gConf)
+	for idx, opt := range opts {
+		err := opt(gConf)
 		if err != nil {
-			log.Printf("%+v", err)
+			return xerrors.Errorf("Option[%d] error: %w", idx, err)
 		}
 	}
 	return nil
