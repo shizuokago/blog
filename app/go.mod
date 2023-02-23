@@ -13,19 +13,12 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pborman/uuid v1.2.1
-	github.com/rakyll/statik v0.1.7
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
-	github.com/yuin/goldmark v1.3.3 // indirect
-	go.opencensus.io v0.23.0 // indirect
-	golang.org/dl v0.0.0-20210401214017-5e9de8bfb3b7 // indirect
-	golang.org/x/mod v0.4.2 // indirect
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-	golang.org/x/text v0.3.6
-	golang.org/x/tools v0.1.0
+	golang.org/x/text v0.3.8
+	golang.org/x/tools v0.1.12
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	google.golang.org/api v0.44.0
 	google.golang.org/appengine v1.6.7
 	google.golang.org/genproto v0.0.0-20210406143921-e86de6bf7a46 // indirect
 	google.golang.org/grpc v1.37.0 // indirect
-	honnef.co/go/tools v0.1.3 // indirect
 )
